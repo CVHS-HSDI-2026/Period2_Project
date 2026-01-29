@@ -1,10 +1,10 @@
 # Backend
 
 ## People
-- Vitaly (leader)
+- Ara
 - Thomas
 - Tara
-- Ara
+- Vitaly
 - Nicky
 
 ## Technologies
