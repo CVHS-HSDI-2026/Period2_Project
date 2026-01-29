@@ -1,0 +1,1 @@
+https://data.metabrainz.org/pub/musicbrainz/data/json-dumps/
