@@ -40,6 +40,7 @@ class MongoDB:
    
     # High-level validation should be done before calling this method
     # Make sure to calculate hash of password before passing user_data
+    # Music data should be empty
     def create_user(self, user_data: dict) -> str:
         """
         Create a user in the database.
@@ -79,7 +80,29 @@ class MongoDB:
         result = users.delete_one({"username": username})
         return result.deleted_count > 0 # Return True if a document was deleted
 
+    def get_user(self, username: str, filter: list[str]) -> dict:
+        """
+        Get a user from the database.
+        
+        :param username: The username of the user to get.
+        :type username: str
+        :param filter: List of fields to exclude in the result. Password hash is automatically removed.
+        :type filter: list[str]
+        :return: The user data dict if found, None otherwise.
+        :rtype: dict
+        """
+        users = self.database.get_collection("users")
+        user = users.find_one({"username": username})
+        del user["password_hash"]
+        for field in filter:
+            if field in user:
+                del user[field]
+        return user
+    
 
+
+
+# Testing
 if __name__ == "__main__":
     mongo = MongoDB(os.getenv("MONGO_DB_URI"))
     if mongo.ping():
@@ -107,6 +130,13 @@ if __name__ == "__main__":
     except ValueError as e:
         print(f"Error creating user: {e}")
     
+    print("Getting user")
+    user = mongo.get_user("testuser", filter=["music_data"])
+    print(user)
+    user = mongo.get_user("testuser", filter=[])
+    print(user)
+    user = mongo.get_user("testuser", filter=["email","username"])
+    print(user)
     user_input = input("Press Enter to delete the test user... Type n to skip")
     if user_input.lower() != 'n':
         if mongo.delete_user("testuser"):
