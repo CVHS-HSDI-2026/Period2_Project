@@ -1,4 +1,4 @@
-from pymongo import MongoClient
+import psycopg2
 from dotenv import load_dotenv
 import datetime
 import bcrypt
@@ -8,20 +8,16 @@ import os
 load_dotenv()
 
 # Im choosing to document everything in this file for clarity :D
-class MongoDB:
-    def __init__(self, connection_string: str):
+class Database:
+    def __init__(self):
         """
-        Initialize the MongoDB client and connect to the database.
+        Initialize the PostgreSQL client and connect to the database.
         
-        :param connection_string: MongoDB connection string. Get it from .env
-        :type connection_string: str
-        :raises ConnectionError: If unable to connect to MongoDB.
+        :raises ConnectionError: If unable to connect to PostgreSQL.
         """
-        self.connection_string = connection_string
-        self.client = MongoClient(self.connection_string)
-        if not self.ping():
-            raise ConnectionError("Failed to connect to MongoDB")
-        self.database = self.client.get_database(os.getenv("APP_NAME"))
+
+        self.connection = psycopg2.connect(os.getenv("POSTGRE_CONNECTION_STRING"))
+        self.cursor = self.connection.cursor()
 
     def ping(self) -> bool:
         """
@@ -31,11 +27,11 @@ class MongoDB:
         :rtype: bool
         """
         try:
-            self.client.admin.command('ping')
+            self.connection.cursor().execute("SELECT 1")
             return True
         except Exception as e:
-            print(f"MongoDB ping failed: {e}")
-            raise ConnectionError("Failed to connect to MongoDB")
+            print(f"PostgreSQL ping failed: {e}")
+            raise ConnectionError("Failed to connect to PostgreSQL")
     
    
     # High-level validation should be done before calling this method
@@ -61,11 +57,22 @@ class MongoDB:
         :return: The id of the created user.
         :rtype: str
         """
-        users = self.database.get_collection("users")
-        if users.find_one({"username": user_data["username"]}) or users.find_one({"email": user_data["email"]}):
-            raise ValueError("Username/email already exists")
-        result = users.insert_one(user_data)
-        return result.inserted_id # Return the id of the created user
+        self.cursor.execute("SELECT id FROM users WHERE username = %s OR email = %s", (user_data["username"], user_data["email"]))
+        existing_user = self.cursor.fetchone()
+        if existing_user:
+            raise ValueError("Username or email already exists.")
+        
+        self.cursor.execute(
+            "INSERT INTO users (username, email, password_hash, music_data, date_created) VALUES (%s, %s, %s, %s, %s) RETURNING id",
+            (
+                user_data["username"],
+                user_data["email"],
+                user_data["password_hash"],
+                str(user_data["music_data"]),
+                user_data["date_created"]
+            )
+        )
+        return self.cursor.fetchone()[0] # Tuple
     
     def delete_user(self, username: str) -> bool:
         """
