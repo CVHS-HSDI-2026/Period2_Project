@@ -16,7 +16,7 @@ class Database:
         :raises ConnectionError: If unable to connect to PostgreSQL.
         """
 
-        self.connection = psycopg2.connect(os.getenv("POSTGRE_CONNECTION_STRING"))
+        self.connection = psycopg2.connect(os.getenv("POSTGRES_CONNECTION_STRING"))
         self.cursor = self.connection.cursor()
 
     def ping(self) -> bool:
@@ -83,9 +83,8 @@ class Database:
         :return: True if the user was deleted, False otherwise.
         :rtype: bool
         """
-        users = self.database.get_collection("users")
-        result = users.delete_one({"username": username})
-        return result.deleted_count > 0 # Return True if a document was deleted
+        self.cursor.execute("DELETE FROM users WHERE username = %s", (username,))
+        return self.cursor.rowcount > 0
 
     def get_user(self, username: str, filter: list[str]) -> dict:
         """
@@ -98,24 +97,28 @@ class Database:
         :return: The user data dict if found, None otherwise.
         :rtype: dict
         """
-        users = self.database.get_collection("users")
-        user = users.find_one({"username": username})
-        del user["password_hash"]
+        self.cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
+        user = self.cursor.fetchone()
+        if not user:
+            return None
+        user_dict = dict(zip([desc[0] for desc in self.cursor.description], user))
+        if "password_hash" in user_dict:
+            del user_dict["password_hash"]
         for field in filter:
-            if field in user:
-                del user[field]
-        return user
+            if field in user_dict:
+                del user_dict[field]
+        return user_dict
     
 
 
 
 # Testing
 if __name__ == "__main__":
-    mongo = MongoDB(os.getenv("MONGO_DB_URI"))
-    if mongo.ping():
-        print("MongoDB connection successful.")
+    db = Database()
+    if db.ping():
+        print("DB connection successful.")
     else:
-        print("MongoDB connection failed.")
+        print("DB connection failed.")
         sys.exit(1)
 
     password = 'password123'
@@ -132,21 +135,21 @@ if __name__ == "__main__":
     }
 
     try:
-        user_id = mongo.create_user(user_data)
+        user_id = db.create_user(user_data)
         print(f"User created with id: {user_id}")
     except ValueError as e:
         print(f"Error creating user: {e}")
     
     print("Getting user")
-    user = mongo.get_user("testuser", filter=["music_data"])
+    user = db.get_user("testuser", filter=["music_data"])
     print(user)
-    user = mongo.get_user("testuser", filter=[])
+    user = db.get_user("testuser", filter=[])
     print(user)
-    user = mongo.get_user("testuser", filter=["email","username"])
+    user = db.get_user("testuser", filter=["email","username"])
     print(user)
     user_input = input("Press Enter to delete the test user... Type n to skip")
     if user_input.lower() != 'n':
-        if mongo.delete_user("testuser"):
+        if db.delete_user("testuser"):
             print("Test user deleted.")
         else:
             print("Failed to delete test user.")
