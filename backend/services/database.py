@@ -17,6 +17,7 @@ class Database:
         """
 
         self.connection = psycopg2.connect(os.getenv("POSTGRES_CONNECTION_STRING"))
+        self.connection.autocommit = True
         self.cursor = self.connection.cursor()
 
     def ping(self) -> bool:
@@ -72,6 +73,7 @@ class Database:
                 user_data["date_created"]
             )
         )
+
         return self.cursor.fetchone()[0] # Tuple
     
     def delete_user(self, username: str) -> bool:

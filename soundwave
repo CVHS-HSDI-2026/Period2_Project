@@ -1,0 +1,14 @@
+CREATE DATABASE soundwave;
+\l
+\password postgres
+SELECT * FROM users WHERE username =
+\
+\s
+\h
+SELECT * FROM users;
+SELECT * FROM table users;
+SELECT * FROM tables users;
+SELECT * FROM users;
+SELECT * FROM users;
+\l
+\s soundwave

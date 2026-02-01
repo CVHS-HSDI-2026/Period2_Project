@@ -10,6 +10,8 @@ load_dotenv()
 connection = psycopg2.connect(os.getenv("POSTGRES_CONNECTION_STRING"))
 cursor = connection.cursor()
 
+
+print("Setting up users table...")
 # Create users table
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
@@ -22,3 +24,13 @@ cursor.execute("""
     );
 """)
 connection.commit()
+
+cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_name = 'users';")
+if cursor.fetchone():
+    print("Users table check success")
+else:
+    print("Error: Table creation failed!")
+
+print("Creating postgresql musicbrainz database...")
+
+connection.close()
