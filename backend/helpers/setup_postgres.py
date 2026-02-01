@@ -19,7 +19,15 @@ cursor.execute("""
         username VARCHAR(255) UNIQUE NOT NULL,
         email VARCHAR(255) UNIQUE NOT NULL,
         password_hash TEXT NOT NULL,
-        music_data TEXT DEFAULT '{}',
+        rating TEXT,
+        followers TEXT DEFAULT '[]',
+        following TEXT DEFAULT '[]',
+        ratings TEXT DEFAULT '[]',
+        bio TEXT,
+        top_songs TEXT DEFAULT '[]',
+        top_albums TEXT DEFAULT '[]',
+        top_artists TEXT DEFAULT '[]',
+        activity_log TEXT DEFAULT '[]',
         date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 """)
@@ -29,8 +37,8 @@ cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_nam
 if cursor.fetchone():
     print("Users table check success")
 else:
-    print("Error: Table creation failed!")
+    print("ERROR: Table creation failed!        --------------------------------------")
 
-print("Creating postgresql musicbrainz database...")
+# print("Creating postgresql musicbrainz database...")
 
 connection.close()
