@@ -47,16 +47,8 @@ class Database:
                 "username": "string",
                 "email": "string",
                 "password_hash": "string",
-                "rating": "int",
-                "followers": [],
-                "following": [],
-                "ratings": [],
                 "bio": "string",
-                "top_songs": [song_1, song_2, ...],
-                "top_albums": [album_1, album_2, ...],
-                "top_artists": [artist_1, artist_2, ...],
-                "activity_log": [activity_1, activity_2, ...],
-                "date_created": "datetime"
+                "profile_pic_url": "string"
             }
         :type user_data: dict
         :raises ValueError: If username or email already exists.
@@ -69,25 +61,17 @@ class Database:
             raise ValueError("Username or email already exists.")
         
         self.cursor.execute(
-            "INSERT INTO users (username, email, password_hash, rating, followers, following, ratings, bio, top_songs, top_albums, top_artists, activity_log, date_created) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+            "INSERT INTO users (username, email, password_hash, bio, profile_pic_url) VALUES (%s, %s, %s, %s, %s) RETURNING id",
             (
                 user_data["username"],
                 user_data["email"],
                 user_data["password_hash"],
-                user_data.get("rating"),
-                str(user_data.get("followers", [])),
-                str(user_data.get("following", [])),
-                str(user_data.get("ratings", [])),
                 user_data.get("bio"),
-                str(user_data.get("top_songs", [])),
-                str(user_data.get("top_albums", [])),
-                str(user_data.get("top_artists", [])),
-                str(user_data.get("activity_log", [])),
-                user_data["date_created"]
+                user_data.get("profile_pic_url")
             )
         )
 
-        return self.cursor.fetchone()[0] # Tuple
+        return self.cursor.fetchone()[0]
     
     def delete_user(self, username: str) -> bool:
         """
@@ -117,6 +101,7 @@ class Database:
         if not user:
             return None
         user_dict = dict(zip([desc[0] for desc in self.cursor.description], user)) # for those who dont understand, this turns the data into a dictionary
+
         if "password_hash" in user_dict:
             del user_dict["password_hash"]
         for field in filter:
@@ -124,7 +109,7 @@ class Database:
                 del user_dict[field]
         return user_dict
     
-    def close_connection(self):
+    def close(self):
         """
         Close the database connection.
         """
@@ -177,4 +162,4 @@ if __name__ == "__main__":
             print("Test user deleted.")
         else:
             print("Failed to delete test user.")
-    db.close_connection()
+    db.close()
