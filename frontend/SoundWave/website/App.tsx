@@ -1,3 +1,4 @@
+import SongCard from "../components/SongCard";
 import { StyleSheet, Text, View, Pressable, ScrollView, } from 'react-native';
 import React, { FC } from 'react';
 import Header from '../components/Header';
@@ -10,6 +11,7 @@ export default function App() {
     <View style={styles.container}>
       {/* replace with header component later*/}
       <Header title="SoundWave"/>
+      <ScrollView>
 
       <Text style={styles.title}>Popular</Text>
       <View style={styles.rowContainer}>
@@ -20,9 +22,14 @@ export default function App() {
         style={styles.scrollView}
       >
         {Array.from({ length: 10 }).map((_, i) => (
-          <Pressable key={i} style={styles.button} onPress={() => router.push("./Song")}>
-            <Text style={styles.buttonText}>Test</Text>
-          </Pressable>
+          <SongCard
+          key={i}
+          title="Title"
+          artist="Artist"
+          rating={7}
+          onPress={() => router.push("./Song")}
+/>
+
         ))}
       </ScrollView>
       </View>
@@ -42,6 +49,7 @@ export default function App() {
         ))}
       </ScrollView>
       </View>
+      </ScrollView>
     </View>
   );
 }
@@ -71,7 +79,7 @@ const styles = StyleSheet.create({
   rowContainer: {
     flexDirection: 'row',
     gap: 30,
-    height: '30%',
+    height: '40%',
   },
   buttonText: {
     fontSize: 20,
