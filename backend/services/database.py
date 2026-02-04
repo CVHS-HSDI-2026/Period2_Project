@@ -1,4 +1,4 @@
-import psycopg2
+import psycopg
 from dotenv import load_dotenv
 import datetime
 import bcrypt
@@ -16,13 +16,13 @@ class Database:
         :raises ConnectionError: If unable to connect to PostgreSQL.
         """
 
-        self.connection = psycopg2.connect(os.getenv("POSTGRES_CONNECTION_STRING"))
+        self.connection = psycopg.connect(os.getenv("POSTGRES_CONNECTION_STRING"))
         self.connection.autocommit = True
         self.cursor = self.connection.cursor()
 
     def ping(self) -> bool:
         """
-        Ping the MongoDB server to check if the connection is alive.
+        Ping the PostgreSQL server to check if the connection is alive.
         
         :return: True if the server responds to the ping command, False otherwise.
         :rtype: bool
@@ -38,7 +38,7 @@ class Database:
     # High-level validation should be done before calling this method
     # Make sure to calculate hash of password before passing user_data
     # Music data should be empty
-    def create_user(self, user_data: dict) -> str:
+    def create_user(self, user_data: dict) -> int:
         """
         Create a user in the database.
         
@@ -53,7 +53,7 @@ class Database:
         :type user_data: dict
         :raises ValueError: If username or email already exists.
         :return: The id of the created user.
-        :rtype: str
+        :rtype: int
         """
         self.cursor.execute("SELECT id FROM users WHERE username = %s OR email = %s", (user_data["username"], user_data["email"]))
         existing_user = self.cursor.fetchone()
@@ -93,7 +93,7 @@ class Database:
         :type username: str
         :param filter: List of fields to exclude in the result. Password hash is automatically removed.
         :type filter: list[str]
-        :return: The user data dict if found, None otherwise.
+        :return: The user data dict if found, None if not.
         :rtype: dict
         """
         self.cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
@@ -109,6 +109,157 @@ class Database:
                 del user_dict[field]
         return user_dict
     
+
+    def follow_user(self, follower_id: int, followed_id: int) -> bool:
+        """
+        Make one user follow another user.
+        
+        :param follower_id: The id of the follower (the person who is going to follow).
+        :type follower_id: int
+        :param followed_id: The id of the person who is going to be followed.
+        :type followed_id: int
+        :return: True if the operation was successful, False otherwise.
+        :rtype: bool
+        """
+        try:
+            self.cursor.execute(
+                "INSERT INTO User_Follow (follower_id, followed_id) VALUES (%s, %s)",
+                (follower_id, followed_id)
+            )
+            return True
+        except Exception as e:
+            print(f"Failed to follow user: {e}")
+            return False
+    
+    def unfollow_user(self, follower_id: int, followed_id: int) -> bool:
+        """
+        Make one user unfollow another user.
+        
+        :param follower_id: The id of the follower (the person who is going to unfollow).
+        :type follower_id: int
+        :param followed_id: The id of the person who is going to be unfollowed.
+        :type followed_id: int
+        :return: True if the operation was successful, False otherwise.
+        :rtype: bool
+        """
+        try:
+            self.cursor.execute(
+                "DELETE FROM User_Follow WHERE follower_id = %s AND followed_id = %s",
+                (follower_id, followed_id)
+            )
+            return True
+        except Exception as e:
+            print(f"Failed to unfollow user: {e}")
+            return False
+        
+    def favorite_song(self, user_id: int, song_id: int, rank: int) -> bool:
+        """
+        Add a song to the user's favorites.
+        
+        :param user_id: The id of the user.
+        :type user_id: int
+        :param song_id: The id of the song to favorite.
+        :type song_id: int
+        :param rank: The rank of the favorite song.
+        :type rank: int
+        :return: True if the operation was successful, False otherwise.
+        :rtype: bool
+        """
+        try:
+            self.cursor.execute(
+                "INSERT INTO User_Favorite_Song (user_id, song_id, rank) VALUES (%s, %s, %s)",
+                (user_id, song_id, rank)
+            )
+            return True
+        except Exception as e:
+            print(f"Failed to favorite song: {e}")
+            return False
+    
+    def unfavorite_song(self, user_id: int, song_id: int) -> bool:
+        """
+        Remove a song from the user's favorites.
+        
+        :param user_id: The id of the user.
+        :type user_id: int
+        :param song_id: The id of the song to unfavorite.
+        :type song_id: int
+        :return: True if the operation was successful, False otherwise.
+        :rtype: bool
+        """
+        try:
+            self.cursor.execute(
+                "DELETE FROM User_Favorite_Song WHERE user_id = %s AND song_id = %s",
+                (user_id, song_id)
+            )
+            return True
+        except Exception as e:
+            print(f"Failed to unfavorite song: {e}")
+            return False
+        
+    def create_review(self, user_id: int, song_id: int, album_id: int, rating: int, review_text: str) -> bool:
+        """
+        Create a review for a song or album.
+        
+        :param user_id: The id of the user creating the review.
+        :type user_id: int
+        :param song_id: The id of the song being reviewed.
+        :type song_id: int
+        :param album_id: The id of the album being reviewed (optional).
+        :type album_id: int
+        :param rating: The rating given by the user.
+        :type rating: int
+        :param review_text: The text of the review.
+        :type review_text: str
+        :return: True if it succeeded, False if not.
+        :rtype: bool
+        """
+        try:
+            self.cursor.execute(
+                "INSERT INTO Review (user_id, song_id, album_id, rating, review_text) VALUES (%s, %s, %s, %s, %s)",
+                (user_id, song_id, album_id, rating, review_text)
+            )
+            return True
+        except Exception as e:
+            print(f"Failed to create review: {e}")
+            return False
+    
+    def delete_review(self, review_id: int) -> bool:
+        """
+        Delete a review from the database.
+        
+        :param review_id: The id of the review to delete.
+        :type review_id: int
+        :return: True if the review was deleted, False if not.
+        :rtype: bool
+        """
+        try:
+            self.cursor.execute("DELETE FROM Review WHERE id = %s", (review_id,))
+            return self.cursor.rowcount > 0
+        except Exception as e:
+            print(f"Failed to delete review: {e}")
+            return False
+        
+    def reply(self, review_id: int, user_id: int, content: str) -> bool:
+        """
+        Reply to a review.
+        
+        :param review_id: The id of the review to reply to.
+        :type review_id: int
+        :param content: The text of the reply.
+        :type content: str
+        :return: True if the reply was added, False otherwise.
+        :rtype: bool
+        """
+        try:
+            self.cursor.execute(
+                "INSERT INTO Reply (review_id, user_id, content) VALUES (%s, %s, %s)",
+                (review_id, user_id, content)
+            )
+            return True
+        except Exception as e:
+            print(f"Failed to reply to review: {e}")
+            return False
+        
     def close(self):
         """
         Close the database connection.
