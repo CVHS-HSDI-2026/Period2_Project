@@ -1,17 +1,17 @@
-import Header from "codespace/Period2_Project/frontend/SoundWave/components/Header";
-import SongInfo from "codespace/Period2_Project/frontend/SoundWave/components/SongInfo";
-import SongTabs from "codespace/Period2_Project/frontend/SoundWave/components/SongTabs";
+import Header from "../components/Header";
+import SongInfo from "../components/SongInfo";
+import SongTabs from "../components/SongTabs";
 
-export defult function Song() {
-    retun(
+
+export default function Song() {
+    return (
         <div>
-            <Header />
+            <Header title="SoundWave" />
 
-            <div style={{ padding; "20px"}}>
+            <div style={{ padding: "20px" }}>
                 <SongInfo />
                 <SongTabs />
             </div>
         </div>
-
     );
 }
