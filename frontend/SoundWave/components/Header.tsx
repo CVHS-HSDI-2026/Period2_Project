@@ -15,13 +15,13 @@ const Header: FC<HeaderProps> = ({ title }) => {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    backgroundColor: '#304792ff',
+    backgroundColor: '#D2D5EF',
     padding: 10,
     width: '100%',
     
   },
   headerText: {
-    color: '#fff',
+    color: '#000000',
     fontSize: 60,
     fontWeight: 'bold',
   },

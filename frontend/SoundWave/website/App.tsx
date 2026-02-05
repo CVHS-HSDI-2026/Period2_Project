@@ -1,94 +1,86 @@
-import SongCard from "../components/SongCard";
-import { StyleSheet, Text, View, Pressable, ScrollView, } from 'react-native';
-import React, { FC } from 'react';
-import Header from '../components/Header';
+import React from "react";
+import { StyleSheet, Text, View, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
-// homepage
 
+import Header from "../components/Header";
+import SongCard from "../components/SongCard";
+
+// homepage
 export default function App() {
   const router = useRouter();
+
   return (
     <View style={styles.container}>
-      {/* replace with header component later*/}
-      <Header title="SoundWave"/>
-      <ScrollView>
+      <Header title="SoundWave" />
 
-      <Text style={styles.title}>Popular</Text>
-      <View style={styles.rowContainer}>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator
-        contentContainerStyle={styles.horizontalContent}
-        style={styles.scrollView}
-      >
-        {Array.from({ length: 10 }).map((_, i) => (
-          <SongCard
-          key={i}
-          title="Title"
-          artist="Artist"
-          rating={7}
-          onPress={() => router.push("./Song")}
-/>
+      {/* Vertical page scroll */}
+      <ScrollView showsVerticalScrollIndicator>
+        {/* ================= Popular ================= */}
+        <Text style={styles.sectionTitle}>Popular</Text>
 
-        ))}
-      </ScrollView>
-      </View>
-
-      <Text style={styles.title}>New Releases</Text>
-      <View style={styles.rowContainer}>
         <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator
-        contentContainerStyle={styles.horizontalContent}
-        style={styles.scrollView}
-      >
-        {Array.from({ length: 10 }).map((_, i) => (
-          <Pressable key={i} style={styles.button} onPress={() => router.push("./Song")}>
-            <Text style={styles.buttonText}>Test</Text>
-          </Pressable>
-        ))}
-      </ScrollView>
-      </View>
+          horizontal
+          showsHorizontalScrollIndicator
+          contentContainerStyle={styles.horizontalContent}
+        >
+          {Array.from({ length: 10 }).map((_, i) => (
+            <SongCard
+              key={`popular-${i}`}
+              variant="popular"
+              title="Title"
+              artist="Artist"
+              rating={7}
+              commentsCount={1284}
+              onPress={() => router.push("./Song")}
+            />
+          ))}
+        </ScrollView>
+
+        {/* ================= New Releases ================= */}
+        <Text style={styles.sectionTitle}>New Releases</Text>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator
+          contentContainerStyle={styles.horizontalContent}
+        >
+          {Array.from({ length: 10 }).map((_, i) => (
+            <SongCard
+              key={`new-${i}`}
+              variant="popular"
+              title="Title"
+              artist="Artist"
+              rating={9}
+              commentsCount={342}
+              onPress={() => router.push("./Song")}
+            />
+          ))}
+        </ScrollView>
       </ScrollView>
     </View>
   );
 }
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#14172B",
   },
-  button: {
-    backgroundColor: '#BDBDBD',
-    width: 220,
-    height: 240,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 10,
+
+  sectionTitle: {
+    fontSize: 32,
+    fontWeight: "700",
+    marginTop: 24,
+    marginBottom: 8,
+    marginLeft: 20,
+    color: "#FFFFFF",
   },
+
   horizontalContent: {
     flexDirection: "row",
-    gap: 30,
+    gap: 24,
     paddingVertical: 20,
-    marginLeft: 20,
+    paddingHorizontal: 20,
   },
-  scrollView: {
-    width: '100%',
-  },
-  rowContainer: {
-    flexDirection: 'row',
-    gap: 30,
-    height: '40%',
-  },
-  buttonText: {
-    fontSize: 20,
-  },
-  title: {
-    fontSize: 50,
-    fontWeight: 'bold',
-    marginTop: 20,
-    alignSelf: 'flex-start',
-    marginLeft: 20,
-  },  
 });
