@@ -1,19 +1,16 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Pressable, } from 'react-native';
 import React, { FC } from 'react';
 import Header from '../components/Header';
-// homepage
+import { useRouter } from "expo-router";
 
-export default function App() {
+export default function Song() {
+  const router = useRouter();
   return (
     <View style={styles.container}>
-      <Header title="SoundWave"/>
+        {/* replace with header component later*/}
+        <Header title="Song Page"/>
 
-      <Text style={styles.title}>Popular</Text>
-      <View style={styles.rowContainer}>
-      </View>
-
-      <Text style={styles.title}>New Releases</Text>
-
+        <Text style={styles.title}>Song Page</Text>
     </View>
   );
 }
@@ -24,8 +21,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
   },
+  button: {
+    backgroundColor: '#BDBDBD',
+  },
   rowContainer: {
     flexDirection: 'row',
+    gap: 30,
+  },
+  buttonText: {
+    fontSize: 20,
+    padding: 100,
   },
   title: {
     fontSize: 50,

@@ -15,13 +15,13 @@ CREATE TABLE IF NOT EXISTS Users (
 CREATE TABLE IF NOT EXISTS User_Follow (
     follower_id INT NOT NULL REFERENCES Users(id),
     followed_id INT NOT NULL REFERENCES Users(id),
-    followed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    followed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS User_Favorite_Song (
     user_id INT NOT NULL REFERENCES Users(id),
     song_id INT NOT NULL REFERENCES Song(id),
-    rank SMALLINT,
+    rank SMALLINT NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS Song (
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS Song (
     album_id INT FK REFERENCES Album(id),
     duration INT,
     average_rating DECIMAL(3,2),
-    track_number INT,
+    track_number INT
 );
 
 CREATE TABLE IF NOT EXISTS Album (
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS Artist (
     country VARCHAR(50),
     born DATE,
     died DATE,
-    disambugation VARCHAR(100),
+    disambiguation VARCHAR(100)
 );
 
 CREATE TABLE IF NOT EXISTS Review (
@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS Review (
     album_id INT FK REFERENCES Album(id),
     rating SMALLINT NOT NULL,
     review_text TEXT,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS Reply (
@@ -74,5 +74,5 @@ CREATE TABLE IF NOT EXISTS Reply (
     review_id INT NOT NULL FK REFERENCES Review(id),
     user_id INT NOT NULL FK REFERENCES Users(id),
     content TEXT NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
