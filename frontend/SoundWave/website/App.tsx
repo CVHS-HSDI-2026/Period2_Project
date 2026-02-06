@@ -13,7 +13,6 @@ export default function App() {
     <View style={styles.container}>
       <Header title="SoundWave" />
 
-      {/* Vertical page scroll */}
       <ScrollView showsVerticalScrollIndicator>
         {/* ================= Popular ================= */}
         <Text style={styles.sectionTitle}>Popular</Text>
@@ -47,11 +46,11 @@ export default function App() {
           {Array.from({ length: 10 }).map((_, i) => (
             <SongCard
               key={`new-${i}`}
-              variant="popular"
+              variant="new"
               title="Title"
               artist="Artist"
               rating={9}
-              commentsCount={342}
+              releaseDate="02/06/2026"
               onPress={() => router.push("./Song")}
             />
           ))}
@@ -60,7 +59,6 @@ export default function App() {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {

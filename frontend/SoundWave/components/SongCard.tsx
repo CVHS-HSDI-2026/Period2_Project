@@ -24,11 +24,8 @@ interface SongCardProps {
 
   variant?: "popular" | "new";
 
-  // Popular
   rating?: number;
   commentsCount?: number;
-
-  // New Releases
   releaseDate?: string;
 }
 
@@ -52,59 +49,42 @@ const SongCard: FC<SongCardProps> = ({
     >
       {/* Album Art */}
       {image ? (
-        <Image
-          source={image}
-          style={[styles.image, isPopular && styles.popularImage]}
-        />
+        <Image source={image} style={styles.image} />
       ) : (
-        <View
-          style={[
-            styles.image,
-            styles.imageFallback,
-            isPopular && styles.popularImage,
-          ]}
-        />
+        <View style={[styles.image, styles.imageFallback]} />
       )}
 
       {/* Info Row */}
       <View style={styles.infoRow}>
-        {/* Left: Title + Artist */}
+        {/* Left */}
         <View style={styles.textBlock}>
-          <Text
-            style={[styles.title, isPopular && styles.popularText]}
-            numberOfLines={1}
-          >
+          <Text style={styles.title} numberOfLines={1}>
             {title}
           </Text>
-          <Text
-            style={[styles.artist, isPopular && styles.popularSubText]}
-            numberOfLines={1}
-          >
+          <Text style={styles.artist} numberOfLines={1}>
             {artist}
           </Text>
         </View>
 
-        {/* Right: Meta */}
-        {isPopular ? (
-          <View style={styles.metaRight}>
-            {rating !== undefined && (
-              <Text style={styles.popularText}>{rating}/10</Text>
-            )}
+        {/* Right */}
+        <View style={styles.metaRight}>
+          {rating !== undefined && (
+            <Text style={styles.metaText}>{rating}/10</Text>
+          )}
 
-            {commentsCount !== undefined && (
-              <View style={styles.commentBadge}>
-                <Text style={styles.commentIcon}>💬</Text>
-                <Text style={styles.commentCount}>
-                  {formatCount(commentsCount)}
-                </Text>
-              </View>
-            )}
-          </View>
-        ) : (
-          releaseDate && (
+          {isPopular && commentsCount !== undefined && (
+            <View style={styles.commentBadge}>
+              <Text style={styles.commentIcon}>💬</Text>
+              <Text style={styles.commentCount}>
+                {formatCount(commentsCount)}
+              </Text>
+            </View>
+          )}
+
+          {!isPopular && releaseDate && (
             <Text style={styles.releaseDate}>{releaseDate}</Text>
-          )
-        )}
+          )}
+        </View>
       </View>
     </Pressable>
   );
@@ -128,8 +108,6 @@ const styles = StyleSheet.create({
     height: 200,
   },
 
-  popularImage: {},
-
   imageFallback: {
     backgroundColor: "#E0E0E0",
   },
@@ -137,7 +115,6 @@ const styles = StyleSheet.create({
   infoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
     marginTop: 12,
   },
 
@@ -149,25 +126,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: "600",
+    color: "#FFFFFF",
   },
 
   artist: {
     fontSize: 13,
-    color: "#555",
     marginTop: 2,
-  },
-
-  popularText: {
     color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-
-  popularSubText: {
-    color: "#FFFFFF",
-    opacity: 0.8,
-    fontSize: 13,
-    marginTop: 2,
   },
 
   metaRight: {
@@ -175,11 +140,17 @@ const styles = StyleSheet.create({
     gap: 6,
   },
 
+  metaText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#FFFFFF",
+  },
+
   commentBadge: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
-    maxWidth: 56, // prevents overflow
+    maxWidth: 56,
   },
 
   commentIcon: {
@@ -195,7 +166,7 @@ const styles = StyleSheet.create({
 
   releaseDate: {
     fontSize: 13,
-    color: "#555",
     fontWeight: "500",
+    color: "#FFFFFF",
   },
 });
