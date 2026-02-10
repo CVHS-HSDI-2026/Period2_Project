@@ -28,8 +28,8 @@ CREATE TABLE IF NOT EXISTS Song (
     id SERIAL PRIMARY KEY,
     mbid UUID NOT NULL UNIQUE,
     title VARCHAR(200) NOT NULL,
-    artist_id INT FK REFERENCES Artist(id),
-    album_id INT FK REFERENCES Album(id),
+    artist_id INT REFERENCES Artist(id),
+    album_id INT REFERENCES Album(id),
     duration INT,
     average_rating DECIMAL(3,2),
     track_number INT
@@ -39,11 +39,11 @@ CREATE TABLE IF NOT EXISTS Album (
     id SERIAL PRIMARY KEY,
     mbid UUID NOT NULL UNIQUE,
     title VARCHAR(200) NOT NULL,
-    artist_id INT FK REFERENCES Artist(id),
+    artist_id INT REFERENCES Artist(id),
     release_mbid UUID,
     release_date DATE,
     average_rating DECIMAL(3,2),
-    cover_art_id INT FK REFERENCES Cover_Art(id),
+    cover_art_id INT REFERENCES Cover_Art(id),
 );
 
 CREATE TABLE IF NOT EXISTS Artist (
@@ -61,9 +61,9 @@ CREATE TABLE IF NOT EXISTS Artist (
 
 CREATE TABLE IF NOT EXISTS Review (
     id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL FK REFERENCES Users(id),
-    song_id INT NOT NULL FK REFERENCES Song(id),
-    album_id INT FK REFERENCES Album(id),
+    user_id INT NOT NULL REFERENCES Users(id),
+    song_id INT NOT NULL REFERENCES Song(id),
+    album_id INT REFERENCES Album(id),
     rating SMALLINT NOT NULL,
     review_text TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -71,8 +71,8 @@ CREATE TABLE IF NOT EXISTS Review (
 
 CREATE TABLE IF NOT EXISTS Reply (
     id SERIAL PRIMARY KEY,
-    review_id INT NOT NULL FK REFERENCES Review(id),
-    user_id INT NOT NULL FK REFERENCES Users(id),
+    review_id INT NOT NULL REFERENCES Review(id),
+    user_id INT NOT NULL REFERENCES Users(id),
     content TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
