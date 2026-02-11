@@ -12,40 +12,6 @@ CREATE TABLE IF NOT EXISTS Users (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS User_Follow (
-    follower_id INT NOT NULL REFERENCES Users(id),
-    followed_id INT NOT NULL REFERENCES Users(id),
-    followed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS User_Favorite_Song (
-    user_id INT NOT NULL REFERENCES Users(id),
-    song_id INT NOT NULL REFERENCES Song(id),
-    rank SMALLINT NOT NULL UNIQUE
-);
-
-CREATE TABLE IF NOT EXISTS Song (
-    id SERIAL PRIMARY KEY,
-    mbid UUID NOT NULL UNIQUE,
-    title VARCHAR(200) NOT NULL,
-    artist_id INT REFERENCES Artist(id),
-    album_id INT REFERENCES Album(id),
-    duration INT,
-    average_rating DECIMAL(3,2),
-    track_number INT
-);
-
-CREATE TABLE IF NOT EXISTS Album (
-    id SERIAL PRIMARY KEY,
-    mbid UUID NOT NULL UNIQUE,
-    title VARCHAR(200) NOT NULL,
-    artist_id INT REFERENCES Artist(id),
-    release_mbid UUID,
-    release_date DATE,
-    average_rating DECIMAL(3,2),
-    cover_art_id INT REFERENCES Cover_Art(id),
-);
-
 CREATE TABLE IF NOT EXISTS Artist (
     id SERIAL PRIMARY KEY,
     mbid UUID NOT NULL UNIQUE,
@@ -59,14 +25,67 @@ CREATE TABLE IF NOT EXISTS Artist (
     disambiguation VARCHAR(100)
 );
 
+CREATE TABLE IF NOT EXISTS Cover_Art (
+    id SERIAL PRIMARY KEY,
+    url TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Album (
+    id SERIAL PRIMARY KEY,
+    mbid UUID NOT NULL UNIQUE,
+    title VARCHAR(200) NOT NULL,
+    artist_id INT REFERENCES Artist(id),
+    release_mbid UUID,
+    release_date DATE,
+    average_rating DECIMAL(3,2),
+    cover_art_id INT REFERENCES Cover_Art(id)
+);
+
+CREATE TABLE IF NOT EXISTS Song (
+    id SERIAL PRIMARY KEY,
+    mbid UUID NOT NULL UNIQUE,
+    title VARCHAR(200) NOT NULL,
+    artist_id INT REFERENCES Artist(id),
+    album_id INT REFERENCES Album(id),
+    duration INT,
+    average_rating DECIMAL(3,2),
+    track_number INT
+);
+
+CREATE TABLE IF NOT EXISTS User_Follow (
+    follower_id INT NOT NULL REFERENCES Users(id),
+    followed_id INT NOT NULL REFERENCES Users(id),
+    followed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (follower_id, followed_id)
+);
+
+CREATE TABLE IF NOT EXISTS User_Favorite_Song (
+    user_id INT NOT NULL REFERENCES Users(id),
+    song_id INT NOT NULL REFERENCES Song(id),
+    rank SMALLINT NOT NULL,
+    UNIQUE(user_id, rank)
+);
+
 CREATE TABLE IF NOT EXISTS Review (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL REFERENCES Users(id),
-    song_id INT NOT NULL REFERENCES Song(id),
+    song_id INT REFERENCES Song(id),
     album_id INT REFERENCES Album(id),
     rating SMALLINT NOT NULL,
     review_text TEXT,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CHECK (song_id IS NOT NULL OR album_id IS NOT NULL)
+);
+
+CREATE TABLE IF NOT EXISTS Song (
+    id SERIAL PRIMARY KEY,
+    mbid UUID NOT NULL UNIQUE,
+    title VARCHAR(200) NOT NULL,
+    artist_id INT REFERENCES Artist(id),
+    album_id INT REFERENCES Album(id),
+    duration INT,
+    average_rating DECIMAL(3,2),
+    track_number INT
 );
 
 CREATE TABLE IF NOT EXISTS Reply (

@@ -40,9 +40,11 @@ services:
   app-db:
     image: postgres:16-alpine
     restart: unless-stopped
+    env_file:
+      - ./default/postgres.env
     environment:
       POSTGRES_USER: ${APP_DB_USER:-soundwave_user}
-      POSTGRES_PASSWORD: ${APP_DB_PASSWORD:-secure_password}
+      POSTGRES_PASSWORD: ${APP_DB_PASSWORD:-soundwave_admin}
       POSTGRES_DB: soundwave
     volumes:
       - app_pgdata:/var/lib/postgresql/data
