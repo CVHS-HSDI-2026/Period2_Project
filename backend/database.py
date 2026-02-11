@@ -7,6 +7,9 @@ import os
 
 load_dotenv()
 
+# Todo: We should make a separate database class for the MusicBrainz DB to prevent confusion about which DB we're
+#  calling in the code.
+
 # Im choosing to document everything in this file for clarity :D
 class Database:
     def __init__(self):
