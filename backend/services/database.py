@@ -16,7 +16,7 @@ class Database:
         :raises ConnectionError: If unable to connect to PostgreSQL.
         """
 
-        self.connection = psycopg.connect(os.getenv("POSTGRES_CONNECTION_STRING"))
+        self.connection = psycopg.connect(os.getenv("USER_POSTGRES_CONNECTION_STRING"))
         self.connection.autocommit = True
         self.cursor = self.connection.cursor()
 
