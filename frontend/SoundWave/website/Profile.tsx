@@ -2,13 +2,13 @@ import { StyleSheet, Text, View, Pressable,ScrollView } from 'react-native';
 import React, { FC } from 'react';
 import Header from '../components/Header';
 import { useRouter } from "expo-router";
-//import {editSymbol} from '../assets/edit.png';
 import { useFonts, Jost_400Regular, Jost_500Medium, Jost_700Bold } from '@expo-google-fonts/jost';
 import SongCard from "../components/SongCard";
 
 
 export default function Profile() {
     const router = useRouter(); // for navigation, not currently used
+
     // profile stats
     const colone = [
         {columnName: 'Username:', value: 'get from database'}, 
@@ -20,12 +20,11 @@ export default function Profile() {
         {columnName: '# following'},
         {columnName: '# comments'},
     ];
-
     const [fontsLoaded] = useFonts({ Jost_400Regular, Jost_500Medium, Jost_700Bold });
 
 return (  
     <View style={styles.container}>
-    <Header title="SoundWAVE"/> {/*replace with header*/}
+    <Header title="SoundWAVE"/> {/*to be replaced with header*/}
     <Text style={styles.edit}>Edit</Text>
     {/* profile stats*/}
     <View style={{width: '70%', marginTop: 40, alignSelf: 'flex-end'}}>
@@ -45,9 +44,10 @@ return (
     {/* end of profile stats */} 
 
     <Text style={styles.bioText}>Bio:</Text>
-    {/* <Text style={styles.biotext}>this user does not have a bio yet so this is placeholder text. Mr. and Mrs. Dursley, of number four, Privet Drive, were proud to say that they were perfectly normal, thank you very much. Mr. Dursley made drills. He was a big, beefy man with hardly any neck, although he did have a very large moustache.</Text> */}
+    <Text style={styles.biotext}>this user does not have a bio yet so this is placeholder text. Mr. and Mrs. Dursley, of number four, Privet Drive, were proud to say that they were perfectly normal, thank you very much. Mr. Dursley made drills. He was a big, beefy man with hardly any neck, although he did have a very large moustache.</Text>
+    
+    {/* first song card - popular */}
     <Text style={styles.buttonText}>Popular:</Text>
-
     <ScrollView showsVerticalScrollIndicator>
         <ScrollView
           horizontal
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
   },
-  // text style for buttons and labels
+  // text style for bio label
   bioText: {
     fontSize: 20,
     paddingVertical: 20,
@@ -97,6 +97,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Jost_400Regular',
     alignSelf: 'flex-start',
   },
+  // text style for buttons and labels
     buttonText: {
     fontSize: 20,
     paddingVertical: 20,
@@ -132,6 +133,7 @@ const styles = StyleSheet.create({
     marginRight: 50,
     marginTop: 20,
   },
+  // text style for medium/small text
   biotext:{
     fontSize: 16,
     paddingVertical: 5,
@@ -142,7 +144,7 @@ const styles = StyleSheet.create({
     paddingLeft: 385,
   
   },
-  // title style not currently used
+  // title/header style not currently used
   title: {
     fontSize: 50,
     fontWeight: 'bold',
