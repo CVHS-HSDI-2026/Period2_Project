@@ -8,32 +8,55 @@ import {
   ImageSourcePropType,
 } from "react-native";
 
+/* ---------- Helpers ---------- */
+const formatCount = (count: number) => {
+  if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}m`;
+  if (count >= 1_000) return `${(count / 1_000).toFixed(1)}k`;
+  return `${count}`;
+};
+
+/* ---------- Types ---------- */
 interface SongCardProps {
   title: string;
   artist: string;
-  rating?: number;
   image?: ImageSourcePropType;
   onPress?: () => void;
+
+  variant?: "popular" | "new";
+
+  rating?: number;
+  commentsCount?: number;
+  releaseDate?: string;
 }
 
+/* ---------- Component ---------- */
 const SongCard: FC<SongCardProps> = ({
   title,
   artist,
-  rating,
   image,
   onPress,
+  variant = "new",
+  rating,
+  commentsCount,
+  releaseDate,
 }) => {
+  const isPopular = variant === "popular";
+
   return (
-    <Pressable style={styles.card} onPress={onPress}>
-      {/* Album Art (safe) */}
+    <Pressable
+      onPress={onPress}
+      style={[styles.card, isPopular && styles.popularCard]}
+    >
+      {/* Album Art */}
       {image ? (
         <Image source={image} style={styles.image} />
       ) : (
         <View style={[styles.image, styles.imageFallback]} />
       )}
 
-      {/* Metadata */}
+      {/* Info Row */}
       <View style={styles.infoRow}>
+        {/* Left */}
         <View style={styles.textBlock}>
           <Text style={styles.title} numberOfLines={1}>
             {title}
@@ -43,9 +66,25 @@ const SongCard: FC<SongCardProps> = ({
           </Text>
         </View>
 
-        {rating !== undefined && (
-          <Text style={styles.rating}>{rating}/10</Text>
-        )}
+        {/* Right */}
+        <View style={styles.metaRight}>
+          {rating !== undefined && (
+            <Text style={styles.metaText}>{rating}/10</Text>
+          )}
+
+          {isPopular && commentsCount !== undefined && (
+            <View style={styles.commentBadge}>
+              <Text style={styles.commentIcon}>💬</Text>
+              <Text style={styles.commentCount}>
+                {formatCount(commentsCount)}
+              </Text>
+            </View>
+          )}
+
+          {!isPopular && releaseDate && (
+            <Text style={styles.releaseDate}>{releaseDate}</Text>
+          )}
+        </View>
       </View>
     </Pressable>
   );
@@ -53,39 +92,81 @@ const SongCard: FC<SongCardProps> = ({
 
 export default SongCard;
 
+/* ---------- Styles ---------- */
 const styles = StyleSheet.create({
   card: {
-    width: 220,        // ↓ was 220
-    borderRadius: 8,
+    width: 220,
   },
+
+  popularCard: {
+    backgroundColor: "#14172B",
+    padding: 12,
+  },
+
   image: {
     width: "100%",
-    height: 220,       // ↓ was 180
-    borderRadius: 8,
+    height: 200,
   },
+
   imageFallback: {
     backgroundColor: "#E0E0E0",
   },
+
   infoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginTop: 6,
+    marginTop: 12,
   },
+
   textBlock: {
-    flexShrink: 1,
+    flex: 1,
+    paddingRight: 8,
   },
+
   title: {
-    fontSize: 16,      // ↓ was 18
+    fontSize: 16,
     fontWeight: "600",
+    color: "#FFFFFF",
   },
+
   artist: {
-    fontSize: 13,      // ↓ was 14
-    color: "#555",
+    fontSize: 13,
     marginTop: 2,
+    color: "#FFFFFF",
   },
-  rating: {
-    fontSize: 14,      // ↓ was 16
+
+  metaRight: {
+    alignItems: "flex-end",
+    gap: 6,
+  },
+
+  metaText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#FFFFFF",
+  },
+
+  commentBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    maxWidth: 56,
+  },
+
+  commentIcon: {
+    fontSize: 13,
+    color: "#FFFFFF",
+  },
+
+  commentCount: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#FFFFFF",
+  },
+
+  releaseDate: {
+    fontSize: 13,
     fontWeight: "500",
+    color: "#FFFFFF",
   },
 });
