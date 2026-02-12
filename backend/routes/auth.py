@@ -1,12 +1,15 @@
 from flask import Blueprint, request, jsonify, session
+from database import Database
 import bcrypt
 
 auth_bp = Blueprint('auth', __name__)
+db = Database()
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
     """
     Registers a new user.
+
     """
     # Todo: Logic:
     # 1. Parse JSON data from request (username, email, password, bio, etc.).
@@ -15,12 +18,55 @@ def register():
     # 4. Call db.create_user(user_data).
     # 5. Handle ValueError if username/email exists.
     # Returns: JSON object with user_id and success message, or error 400.
-    pass
+    """
+    {
+        "username": "string",
+        "email": "string",
+        "password": "string",
+        "bio": "string",
+        "profile_pic_url": "string"
+    }
+    """
+    data = request.get_json()
+    user_data = {}
+    if not data["username"]:
+        return "Missing username", 400
+    else:
+        user_data["username"] = data["username"]
+
+    if not data["email"]:
+        return "Missing email", 400
+    else:
+        user_data['email'] = data['email']
+
+    if not data["password_hash"]:
+        return "Missing password", 400
+    #else:
+        #Hash the password :D
+        
+    if not data["bio"]:
+        user_data["bio"] = ""
+    else:
+        user_data["bio"] = data["bio"]
+
+    if not data["profile_pic_url"]:
+        user_data["profile_pic_url"] = ""
+    else:
+        user_data["profile_pic_url"] = data["profile_pic_url"]
+
+    try:
+        db.create_user(user_data)
+    except ValueError:
+        return "Current username/email already exist. Be more creative :D", 400
+    except Exception as e:
+        return f"Gateway internal error:\n{e}", 500 
+    return "User created successfuly", 200  
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
     """
     Logs in an existing user.
+
     """
     # Todo: we should probably change this to a session token in the future, but a JWT token will work for now
 
