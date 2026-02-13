@@ -1,9 +1,9 @@
 import { StyleSheet, Text, View, Pressable,ScrollView } from 'react-native';
 import React, { FC } from 'react';
-import Header from '../components/Header';
+import HeaderWithSearch from "../../components/HeaderWithSearch";
 import { useRouter } from "expo-router";
-import { useFonts, Jost_400Regular, Jost_500Medium, Jost_700Bold } from '@expo-google-fonts/jost';
-import SongCard from "../components/SongCard";
+import { useFonts, Jost_400Regular, Jost_500Medium, Jost_700Bold } from '@expo-google-fonts/jost'; 
+import SongCard from "../../components/SongCard";
 
 
 export default function Profile() {
@@ -24,7 +24,7 @@ export default function Profile() {
 
 return (  
     <View style={styles.container}>
-    <Header title="SoundWAVE"/> {/*to be replaced with header*/}
+    <HeaderWithSearch title="SoundWAVE"/> {/*to be replaced with header*/}
     <Text style={styles.edit}>Edit</Text>
     {/* profile stats*/}
     <View style={{width: '70%', marginTop: 40, alignSelf: 'flex-end'}}>
