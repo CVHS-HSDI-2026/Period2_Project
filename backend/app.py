@@ -23,10 +23,12 @@ app.register_blueprint(reviews_bp, url_prefix='/api/reviews')
 
 @app.route('/health')
 def health_check():
-    # Todo: Logic to implement:
-    # 1. Call db.ping() to ensure database connection is alive.
-    # 2. Return status 200 if good, 500 if DB is down.
-    return jsonify({"status": "healthy", "db_connected": True}), 200
+    db_true = db.ping()
+    if db_true:
+        return jsonify({"status": "healthy", "db_connected": True}), 200
+    else:
+        return jsonify({"status": "dead", "db_connected": False}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
