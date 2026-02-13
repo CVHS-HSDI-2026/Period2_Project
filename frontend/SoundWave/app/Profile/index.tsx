@@ -4,159 +4,216 @@ import HeaderWithSearch from "../../components/HeaderWithSearch";
 import { useRouter } from "expo-router";
 import { useFonts, Jost_400Regular, Jost_500Medium, Jost_700Bold } from '@expo-google-fonts/jost'; 
 import SongCard from "../../components/SongCard";
-
+import ArtistCard from "../../components/ArtistCard";
 
 export default function Profile() {
-    const router = useRouter(); // for navigation, not currently used
+  const router = useRouter();
 
-    // profile stats
-    const colone = [
-        {columnName: 'Username:', value: 'get from database'}, 
-        {columnName: "# followers"},
-        {columnName: '# ratings'},
-    ];
-    const coltwo = [
-        {columnName: 'Display Name:', value: 'get from database'}, 
-        {columnName: '# following'},
-        {columnName: '# comments'},
-    ];
-    const [fontsLoaded] = useFonts({ Jost_400Regular, Jost_500Medium, Jost_700Bold });
+  const [fontsLoaded] = useFonts({ Jost_400Regular, Jost_500Medium, Jost_700Bold });
 
-return (  
+  const colone = [
+    { columnName: 'Username:', value: 'get from database' },
+    { columnName: "# followers" },
+    { columnName: '# ratings' },
+  ];
+  const coltwo = [
+    { columnName: 'Display Name:', value: 'get from database' },
+    { columnName: '# following' },
+    { columnName: '# comments' },
+  ];
+
+  return (
     <View style={styles.container}>
-    <HeaderWithSearch title="SoundWAVE"/> {/*to be replaced with header*/}
-    <Text style={styles.edit}>Edit</Text>
-    {/* profile stats*/}
-    <View style={{width: '70%', marginTop: 40, alignSelf: 'flex-end'}}>
-        <View style={styles.columnsContainer}> {/* container that has two columns side-by-side */}
-            <View style={[styles.column, {marginRight: 6}]}> 
-                {colone.map((item, idx) => (
-                    <Text style={styles.columnText} key={`col1-${idx}`}>{item.columnName}{item.value ? ` ${item.value}` : ''}</Text>
-                ))}
-            </View>
-            <View style={styles.column}>
-                {coltwo.map((item, idx) => (
-                    <Text style={styles.columnText} key={`col2-${idx}`}>{item.columnName}{item.value ? ` ${item.value}` : ''}</Text>
-                ))}
-            </View>
-        </View>   
-    </View>
-    {/* end of profile stats */} 
+      <HeaderWithSearch title="SoundWAVE" />
+      <ScrollView style={{ width: '100%' }} contentContainerStyle={styles.scrollContent}>
 
-    <Text style={styles.bioText}>Bio:</Text>
-    <Text style={styles.biotext}>this user does not have a bio yet so this is placeholder text. Mr. and Mrs. Dursley, of number four, Privet Drive, were proud to say that they were perfectly normal, thank you very much. Mr. Dursley made drills. He was a big, beefy man with hardly any neck, although he did have a very large moustache.</Text>
-    
-    {/* first song card - popular */}
-    <Text style={styles.buttonText}>Popular:</Text>
-    <ScrollView showsVerticalScrollIndicator>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator
-          contentContainerStyle={styles.horizontalContent}
-        >
-          {Array.from({ length: 10 }).map((_, i) => (
+        {/* profile stats */}
+        <View style={styles.profileSection}>
+          <View style={styles.profileLeft}>
+            <View style={styles.avatarPlaceholder} />
+          </View>
+
+          <View style={styles.profileRight}>
+            <Text style={styles.edit}>Edit ✎</Text>
+            <View style={styles.columnsContainer}>
+              <View style={styles.column}>
+                {colone.map((item, idx) => (
+                  <Text style={styles.columnText} key={`col1-${idx}`}>
+                    {item.columnName}{item.value ? ` ${item.value}` : ''}
+                  </Text>
+                ))}
+              </View>
+              <View style={styles.column}>
+                {coltwo.map((item, idx) => (
+                  <Text style={styles.columnText} key={`col2-${idx}`}>
+                    {item.columnName}{item.value ? ` ${item.value}` : ''}
+                  </Text>
+                ))}
+              </View>
+            </View>
+            <Text style={styles.titleBioText}>Bio:</Text>
+            <Text style={styles.biotext}>this user does not have a bio yet so this is placeholder text. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vel sapien eget nunc efficitur efficitur. Sed at ligula a enim efficitur commodo. Donec in felis ut nisl convallis tincidunt. Nulla facilisi. Donec ac odio a metus efficitur fermentum. In hac habitasse platea dictumst.</Text>
+          </View>
+        </View>
+
+        {/* top songs */}
+        <Text style={styles.sectionTitle}>Top Songs:</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
+          {Array.from({ length: 5 }).map((_, i) => (
             <SongCard
-              key={`popular-${i}`}
+              key={`song-${i}`}
               variant="popular"
               title="Title"
               artist="Artist"
-              rating={7}
-              commentsCount={1284}
+              rating={8}
+              commentsCount={12}
               onPress={() => router.push("./Song")}
             />
           ))}
         </ScrollView>
+        {/* top albums */}
+        <Text style={styles.sectionTitle}>Top Albums:</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <SongCard
+              key={`song-${i}`}
+              variant="popular"
+              title="Title"
+              artist="Artist"
+              rating={8}
+              commentsCount={12}
+              onPress={() => router.push("./Song")}
+            />
+          ))}
         </ScrollView>
+        {/* top artists */}
+        <Text style={styles.sectionTitle}>Top Artists:</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <ArtistCard
+              key={`song-${i}`}
+              variant="popular"
+              title="Username"
+              artist="Artist"
+              rating={8}
+              commentsCount={1278}
+              onPress={() => router.push("./Song")}
+            />
+          ))}
+        </ScrollView>
+        {/* recent activity */}
+        <Text style={styles.sectionTitle}>Recent Activity:</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <SongCard
+              key={`song-${i}`}
+              variant="popular"
+              title="Title"
+              artist="Artist"
+              rating={8}
+              commentsCount={12}
+              onPress={() => router.push("./Song")}
+            />
+          ))}
+        </ScrollView>
+        {/* recommended users */}
+        <Text style={styles.sectionTitle}>Recommended Users:</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <ArtistCard
+              key={`song-${i}`}
+              variant="popular"
+              title="Username"
+              artist="Artist"
+              rating={8}
+              commentsCount={12}
+              onPress={() => router.push("./Song")}
+            />
+          ))}
+        </ScrollView>
+
+      </ScrollView>
     </View>
   );
 }
 
-
 const styles = StyleSheet.create({
-  
   container: {
     flex: 1,
     backgroundColor: '#181B33',
     alignItems: 'center',
   },
-  // not currently used
-  button: {
-    backgroundColor: '#BDBDBD',
+  scrollContent: {
+    alignItems: 'center',
+    paddingVertical: 40,
+    paddingHorizontal: 60,
   },
-  // not currently used
-  rowContainer: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  // text style for bio label
-  bioText: {
-    fontSize: 20,
-    paddingVertical: 20,
-    paddingLeft: 385,
-    color: '#FFFFFF',
-    fontFamily: 'Jost_400Regular',
-    alignSelf: 'flex-start',
-  },
-  // text style for buttons and labels
-    buttonText: {
-    fontSize: 20,
-    paddingVertical: 20,
-    paddingLeft: 20,
-    color: '#FFFFFF',
-    fontFamily: 'Jost_400Regular',
-    alignSelf: 'flex-start',
-  },
-  // column container arranged side by side
-  columnsContainer: {
+  profileSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    width: '90%',
+    maxWidth: 1200,
+    marginBottom: 40,
   },
-  // how to shrink width between the columns
-  column: {
-    width: '48%',
+  profileLeft: {
+    width: '20%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  // text style for items inside columns
-  columnText: {
-    fontSize: 18,
-    paddingVertical: 10,
-    color: '#FFFFFF',
-    fontFamily: 'Jost_400Regular',
+  avatarPlaceholder: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: '#ffffff20',
   },
-  // text style for edit button
-  edit:{
-    fontSize: 12,
-    paddingVertical: 10,
+  profileRight: {
+    width: '65%',
+  },
+  edit: {
+    fontSize: 14,
     color: '#FFFFFF',
     fontFamily: 'Jost_400Regular',
     alignSelf: 'flex-end',
-    marginRight: 50,
-    marginTop: 20,
+    marginBottom: 10,
   },
-  // text style for medium/small text
-  biotext:{
-    fontSize: 16,
-    paddingVertical: 5,
+  columnsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  column: {
+    width: '48%',
+  },
+  columnText: {
+    fontSize: 18,
     color: '#FFFFFF',
     fontFamily: 'Jost_400Regular',
-    paddingRight:50,
-    alignSelf: 'flex-start',
-    paddingLeft: 385,
-  
+    paddingVertical: 6,
   },
-  // title/header style not currently used
-  title: {
-    fontSize: 50,
-    fontWeight: 'bold',
-    marginTop: 20,
+  titleBioText: {
+    fontSize: 20,
+    color: '#FFFFFF',
+    fontFamily: 'Jost_500Medium',
+    marginBottom: 8,
+  },
+  biotext: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    fontFamily: 'Jost_400Regular',
+    lineHeight: 22,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    color: '#FFFFFF',
+    fontFamily: 'Jost_500Medium',
     alignSelf: 'flex-start',
-    marginLeft: 20,
-    fontFamily: 'Jost_700Bold',
+    marginLeft: -20,
+    marginBottom: 20,
+    marginTop: 30,
   },
   horizontalContent: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 24,
-    paddingVertical: 20,
     paddingHorizontal: 20,
-  },  
+  },
 });
