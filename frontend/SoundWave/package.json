@@ -1,7 +1,7 @@
 {
   "name": "soundwave",
   "version": "1.0.0",
-  "main": "index.ts",
+  "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -9,7 +9,9 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@expo-google-fonts/jost": "^0.4.2",
     "expo": "~54.0.32",
+    "expo-font": "^14.0.11",
     "expo-router": "^6.0.23",
     "expo-status-bar": "~3.0.9",
     "react": "19.1.0",
