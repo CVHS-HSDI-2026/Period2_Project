@@ -55,7 +55,7 @@ export default function App() {
               artist="Artist"
               rating={9}
               //releaseDate="02/06/2026"
-              onPress={() => router.push("Song")}
+              onPress={() => router.push("Song")}  
             />
           ))}
         </ScrollView>

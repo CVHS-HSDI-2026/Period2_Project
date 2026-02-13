@@ -21,7 +21,7 @@ const SongDetails: React.FC = () => {
     genre: "J-pop",
     duration: "2:31",
     date: "9/15/25",
-    cover: "https://picsum.photos" 
+    cover: "https://picsum.photos/300" 
   };
 
   return (
@@ -83,6 +83,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 16,
     color: '#000',
+    fontFamily: 'Jost_400Regular',
   },
 });
 

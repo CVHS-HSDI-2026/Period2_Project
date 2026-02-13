@@ -44,6 +44,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
   const handleLogoutPress = () => {
     console.log('Logout pressed');
     setIsDropdownVisible(false);
+  
   };
 
   return (
