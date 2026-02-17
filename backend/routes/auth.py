@@ -41,9 +41,9 @@ def register():
 
     if not data["password_hash"]:
         return "Missing password", 400
-    #else:
-        #Hash the password :D
-        
+    else:
+        user_data['password_hash'] = hash_password(data["passowrd_hash"].encode('utf-8'), bcrypt.gensalt())
+
     if not data["bio"]:
         user_data["bio"] = ""
     else:
@@ -76,6 +76,11 @@ def login():
     # 3. Verify provided password against stored hash using bcrypt.checkpw.
     # 4. If valid, generate a JWT token (in the future we can change this to a session token).
     # Returns: Auth token and user info (excluding password), or error 401.
+    
+    data = request.get_json()
+    user = db.get_user("username", filter-[])
+
+
     pass
 
 @auth_bp.route('/logout', methods=['POST'])
@@ -86,6 +91,9 @@ def logout():
     # Todo: Logic:
     # 1. Clear the flask session and/or blacklist the JWT token.
     # Returns: Success message 200.
+
+
+    return "Logout succsessful", 200
     pass
 
 @auth_bp.route('/me', methods=['GET'])
@@ -98,3 +106,6 @@ def get_current_user():
     # 2. Call db.get_user() by ID (we might need to add get_user_by_id to the DB).
     # Returns: User profile data for the frontend context.
     pass
+
+def hash_password(password, salt):
+        return bcrypt.hashpw(password, salt)
