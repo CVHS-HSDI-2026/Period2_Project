@@ -1,6 +1,6 @@
 import React, { FC, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native';
-
+import { router, useRouter } from "expo-router";
 interface HeaderProps {
   title: string;
 }
@@ -28,11 +28,13 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
   };
 
   const handleProfileMenuPress = () => {
+    router.push("Profile")
     console.log('Profile menu item pressed');
     setIsDropdownVisible(false);
   };
 
   const handleSettingsPress = () => {
+    router.push("Settings")
     console.log('Settings pressed');
     setIsDropdownVisible(false);
   };

@@ -54,8 +54,9 @@ const SongDetails: React.FC = () => {
 
 const styles = StyleSheet.create({
   outerContainer: {
-    padding: 20,
-    width: '100%',
+    width: "90%",
+    alignSelf: "center",
+    marginTop: 20,
   },
   contentRow: {
     flexDirection: 'row',
@@ -78,11 +79,11 @@ const styles = StyleSheet.create({
   },
   label: {
     fontWeight: '400',
-    color: '#000',
+    color: '#FFF',
   },
   text: {
-    fontSize: 16,
-    color: '#000',
+    fontSize: 20,
+    color: '#FFF',
     fontFamily: 'Jost_400Regular',
   },
 });
