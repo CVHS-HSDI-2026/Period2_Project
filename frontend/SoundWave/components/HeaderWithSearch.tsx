@@ -1,3 +1,4 @@
+import { router } from 'expo-router/build/exports';
 import React, { FC, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 
@@ -9,6 +10,10 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
   const [searchText, setSearchText] = useState<string>('');
   const [isDropdownVisible, setIsDropdownVisible] = useState<boolean>(false);
 
+  const handleLogoPress = () => {
+    console.log('Logo pressed!');
+    router.push("/Homepage");
+  }
   const handleSearchPress = () => {
     console.log('Search pressed! Query:', searchText);
   };
@@ -29,6 +34,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
 
   const handleProfileMenuPress = () => {
     console.log('Profile menu item pressed');
+    router.push("/Profile");
     setIsDropdownVisible(false);
   };
 
@@ -51,10 +57,13 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
     <View style={styles.headerContainer}>
       
       <View style={styles.logoContainer}>
-        <Text style={styles.logoText}>{title}</Text>
+        <TouchableOpacity 
+          style={styles.searchButton}
+          onPress={handleLogoPress}
+
+        ><Text style={styles.logoText}>{title}</Text></TouchableOpacity>
         <Text style={styles.infoIcon}>ⓘ</Text>
       </View>
-
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -66,6 +75,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
         <TouchableOpacity 
           style={styles.searchButton}
           onPress={handleSearchPress}
+
         >
           <Text style={styles.searchIcon}>🔍</Text>
         </TouchableOpacity>
