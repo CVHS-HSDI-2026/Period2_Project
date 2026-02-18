@@ -1,3 +1,4 @@
+import { router } from 'expo-router/build/exports';
 import React, { FC, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { Image } from 'react-native';
@@ -10,6 +11,10 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
   const [searchText, setSearchText] = useState<string>('');
   const [isDropdownVisible, setIsDropdownVisible] = useState<boolean>(false);
 
+  const handleLogoPress = () => {
+    console.log('Logo pressed!');
+    router.push("/Homepage");
+  }
   const handleSearchPress = () => {
     console.log('Search pressed! Query:', searchText);
   };
@@ -30,6 +35,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
 
   const handleProfileMenuPress = () => {
     console.log('Profile menu item pressed');
+    router.push("/Profile");
     setIsDropdownVisible(false);
   };
 
@@ -66,7 +72,6 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
         {/* <img scr = "Period2_Project\frontend\SoundWave\assets\logo.png" alt = "logo" width = "20" height = "20"> */}
         {/* <Text style={styles.infoIcon}>ⓘ</Text> */}
       </View>
-
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -78,6 +83,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
         <TouchableOpacity 
           style={styles.searchButton}
           onPress={handleSearchPress}
+
         >
           <Text style={styles.searchIcon}>🔍︎</Text>
         </TouchableOpacity>
