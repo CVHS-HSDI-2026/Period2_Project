@@ -17,23 +17,21 @@ export default function App() {
     <View style={styles.container}>
       <HeaderWithSearch title="SoundWave" />
 
-      <ScrollView showsVerticalScrollIndicator>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {/* ================= Popular ================= */}
         <Text style={styles.sectionTitle}>Popular</Text>
 
         <ScrollView
           horizontal
-          showsHorizontalScrollIndicator
+          showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.horizontalContent}
         >
           {Array.from({ length: 10 }).map((_, i) => (
             <SongCard
               key={`popular-${i}`}
-              //variant="popular"
               title="Title"
               artist="Artist"
               rating={7}
-              //commentsCount={1284}
               onPress={() => router.push("Song")}
             />
           ))}
@@ -44,17 +42,15 @@ export default function App() {
 
         <ScrollView
           horizontal
-          showsHorizontalScrollIndicator
+          showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.horizontalContent}
         >
           {Array.from({ length: 10 }).map((_, i) => (
             <SongCard
               key={`new-${i}`}
-              //variant="new"
               title="Title"
               artist="Artist"
               rating={9}
-              //releaseDate="02/06/2026"
               onPress={() => router.push("Song")}  
             />
           ))}
