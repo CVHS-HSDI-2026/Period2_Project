@@ -59,24 +59,20 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
     <View style={styles.headerContainer}>
       
       <View style={styles.logoContainer}>
-        {/* <Text style={styles.logoText}>{title}</Text> */}
         <TouchableOpacity 
-          style={styles.logoContainer}
-          onPress={handleLogoPress}
-        >
-        <Image
-          source= {require('../assets/web-name.png')}
-          style={styles.logoImage}
-          resizeMode="contain"
-        />
+          style={styles.searchButton}
+          onPress={handleLogoPress}>
+          <Image
+            source= {require('../assets/web-name.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
         <Image
           source= {require('../assets/logo.png')}
           style={styles.infoImage}
           resizeMode="contain"
         />
-        </TouchableOpacity>
-        {/* <img scr = "Period2_Project\frontend\SoundWave\assets\logo.png" alt = "logo" width = "20" height = "20"> */}
-        {/* <Text style={styles.infoIcon}>ⓘ</Text> */}
       </View>
       <View style={styles.searchContainer}>
         <TextInput
