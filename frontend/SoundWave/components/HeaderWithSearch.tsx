@@ -36,6 +36,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
   const handleProfileMenuPress = () => {
     console.log('Profile menu item pressed');
     router.push("/Profile");
+    router.push("/Profile");
     setIsDropdownVisible(false);
   };
 
@@ -58,20 +59,24 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
     <View style={styles.headerContainer}>
       
       <View style={styles.logoContainer}>
+        {/* <Text style={styles.logoText}>{title}</Text> */}
         <TouchableOpacity 
-          style={styles.searchButton}
-          onPress={handleLogoPress}>
-          <Image
-            source= {require('../assets/web-name.png')}
-            style={styles.logoImage}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
+          style={styles.logoContainer}
+          onPress={handleLogoPress}
+        >
+        <Image
+          source= {require('../assets/web-name.png')}
+          style={styles.logoImage}
+          resizeMode="contain"
+        />
         <Image
           source= {require('../assets/logo.png')}
           style={styles.infoImage}
           resizeMode="contain"
         />
+        </TouchableOpacity>
+        {/* <img scr = "Period2_Project\frontend\SoundWave\assets\logo.png" alt = "logo" width = "20" height = "20"> */}
+        {/* <Text style={styles.infoIcon}>ⓘ</Text> */}
       </View>
       <View style={styles.searchContainer}>
         <TextInput
@@ -81,7 +86,17 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
           onChangeText={handleSearchChange}
           placeholderTextColor="#999"
         />
-
+        <TouchableOpacity 
+          style={styles.searchButton}
+          onPress={handleSearchPress}
+        >
+        <Image
+          source= {require('../assets/Search.png')}
+          style={styles.searchImg}
+          resizeMode="contain"
+        />
+          {/* <Text style={styles.searchIcon}>🔍︎</Text> */}
+        </TouchableOpacity>
       </View>
 
       {/* Profile button with dropdown */}
@@ -222,6 +237,11 @@ const styles = StyleSheet.create({
 
   searchIcon: {
     fontSize: 20,
+  },
+
+  searchImg: {
+    width: 20,
+    height: 20,
   },
 
   profileButton: {
