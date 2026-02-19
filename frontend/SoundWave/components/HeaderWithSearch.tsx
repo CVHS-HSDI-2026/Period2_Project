@@ -85,7 +85,12 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
           onPress={handleSearchPress}
 
         >
-          <Text style={styles.searchIcon}>🔍︎</Text>
+        <Image
+          source= {require('../assets/Search.png')}
+          style={styles.searchImg}
+          resizeMode="contain"
+        />
+          {/* <Text style={styles.searchIcon}>🔍︎</Text> */}
         </TouchableOpacity>
       </View>
 
@@ -227,6 +232,11 @@ const styles = StyleSheet.create({
 
   searchIcon: {
     fontSize: 20,
+  },
+
+  searchImg: {
+    width: 20,
+    height: 20,
   },
 
   profileButton: {
