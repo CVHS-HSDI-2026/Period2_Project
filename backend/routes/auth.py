@@ -1,12 +1,16 @@
 from flask import Blueprint, request, jsonify, session
+from flask_jwt_extended import create_access_token, set_access_cookies, unset_jwt_cookies, jwt_required, get_jwt_identity
+from database import Database
 import bcrypt
 
 auth_bp = Blueprint('auth', __name__)
+db = Database()
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
     """
     Registers a new user.
+
     """
     # Todo: Logic:
     # 1. Parse JSON data from request (username, email, password, bio, etc.).
@@ -15,40 +19,95 @@ def register():
     # 4. Call db.create_user(user_data).
     # 5. Handle ValueError if username/email exists.
     # Returns: JSON object with user_id and success message, or error 400.
-    pass
+    """
+    {
+        "username": "string",
+        "email": "string",
+        "password": "string",
+        "bio": "string",
+        "profile_pic_url": "string"
+    }
+    """
+    data = request.get_json()
+    user_data = {}
+    if not data["username"]:
+        return "Missing username", 400
+    else:
+        user_data["username"] = data["username"]
+
+    if not data["email"]:
+        return "Missing email", 400
+    else:
+        user_data['email'] = data['email']
+
+    if not data["password_hash"]:
+        return "Missing password", 400
+    else:
+        user_data['password_hash'] = hash_password(data["passowrd_hash"].encode('utf-8'), bcrypt.gensalt())
+
+    if not data["bio"]:
+        user_data["bio"] = ""
+    else:
+        user_data["bio"] = data["bio"]
+
+    if not data["profile_pic_url"]:
+        user_data["profile_pic_url"] = ""
+    else:
+        user_data["profile_pic_url"] = data["profile_pic_url"]
+
+    try:
+        db.create_user(user_data)
+    except ValueError:
+        return "Current username/email already exist. Be more creative :D", 400
+    except Exception as e:
+        return f"Gateway internal error:\n{e}", 500 
+    return "User created successfuly", 200  
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
     """
     Logs in an existing user.
     """
-    # Todo: we should probably change this to a session token in the future, but a JWT token will work for now
+    data = request.get_json()
+    username = data["username"]
+    password = data["password"]
+    user = db.get_user(username, filter=[])
 
-    # Todo: Logic:
-    # 1. Parse username and password from request.
-    # 2. Call db.get_user(username, filter=[]) to get the user + password_hash.
-    # 3. Verify provided password against stored hash using bcrypt.checkpw.
-    # 4. If valid, generate a JWT token (in the future we can change this to a session token).
-    # Returns: Auth token and user info (excluding password), or error 401.
-    pass
+    if not user:
+        return "User not found", 404
+
+    if not bcrypt.checkpw(password.encode('utf-8'), user.password_hash):
+        return "Incorrect password", 401
+
+    response = jsonify({"message": "Login Successful"})
+    access_token = create_access_token(identity=username)
+    set_access_cookies(response, access_token)
+    return jsonify(response, user=user), 200
+
 
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
     """
     Logs out the current user.
     """
-    # Todo: Logic:
-    # 1. Clear the flask session and/or blacklist the JWT token.
-    # Returns: Success message 200.
-    pass
+    response = jsonify({"message": "Logout Successful"})
+    unset_jwt_cookies(response)
+    return jsonify(response), 200
 
+@jwt_required
 @auth_bp.route('/me', methods=['GET'])
 def get_current_user():
     """
     Gets the currently logged-in user's session data.
     """
-    # Todo: Logic:
-    # 1. Check if user_id exists in session/token.
-    # 2. Call db.get_user() by ID (we might need to add get_user_by_id to the DB).
-    # Returns: User profile data for the frontend context.
-    pass
+    current_user_identity = get_jwt_identity()
+    if not current_user_identity:
+        return jsonify({"message": "No identity provided"}), 401
+
+    current_user = db.get_user(current_user_identity)
+    if not current_user:
+        return jsonify({"message": "User not found"}), 404
+    return jsonify(current_user), 200
+
+def hash_password(password, salt):
+        return bcrypt.hashpw(password, salt)
