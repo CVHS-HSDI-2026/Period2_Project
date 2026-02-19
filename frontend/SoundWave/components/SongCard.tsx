@@ -72,7 +72,7 @@ const SongCard: FC<SongCardProps> = ({
             <Text style={styles.metaText}>{rating}/10</Text>
           )}
 
-          {isPopular && commentsCount !== undefined && (
+          {commentsCount !== undefined && (
             <View style={styles.commentBadge}>
               <Text style={styles.commentIcon}>💬</Text>
               <Text style={styles.commentCount}>

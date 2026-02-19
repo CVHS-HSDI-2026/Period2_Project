@@ -13,7 +13,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
 
   const handleLogoPress = () => {
     console.log('Logo pressed!');
-    router.push("/Homepage");
+    router.push("/app");
   }
   const handleSearchPress = () => {
     console.log('Search pressed! Query:', searchText);
@@ -35,6 +35,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
 
   const handleProfileMenuPress = () => {
     console.log('Profile menu item pressed');
+    router.push("/Profile");
     router.push("/Profile");
     setIsDropdownVisible(false);
   };
@@ -83,7 +84,6 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
         <TouchableOpacity 
           style={styles.searchButton}
           onPress={handleSearchPress}
-
         >
         <Image
           source= {require('../assets/Search.png')}
