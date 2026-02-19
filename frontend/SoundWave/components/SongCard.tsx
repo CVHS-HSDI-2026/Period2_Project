@@ -1,3 +1,4 @@
+import { router } from "expo-router/build/exports";
 import React, { FC } from "react";
 import {
   View,
@@ -6,6 +7,7 @@ import {
   StyleSheet,
   Pressable,
   ImageSourcePropType,
+  TouchableOpacity,
 } from "react-native";
 
 /* ---------- Helpers ---------- */
@@ -61,9 +63,11 @@ const SongCard: FC<SongCardProps> = ({
           <Text style={styles.title} numberOfLines={1}>
             {title}
           </Text>
-          <Text style={styles.artist} numberOfLines={1}>
-            {artist}
-          </Text>
+          <TouchableOpacity onPress={() =>router.push("/Album")}>
+            <Text style={styles.artist} numberOfLines={1}>
+              {artist}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* Right */}
