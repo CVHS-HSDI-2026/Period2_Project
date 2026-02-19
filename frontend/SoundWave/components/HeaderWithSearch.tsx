@@ -1,4 +1,4 @@
-import { router } from 'expo-router/build/exports';
+import { router } from 'expo-router';
 import React, { FC, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { Image } from 'react-native';
@@ -13,7 +13,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
 
   const handleLogoPress = () => {
     console.log('Logo pressed!');
-    router.push("/app");
+    router.push("/");
   }
   const handleSearchPress = () => {
     console.log('Search pressed! Query:', searchText);
@@ -58,19 +58,20 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
     <View style={styles.headerContainer}>
       
       <View style={styles.logoContainer}>
-        {/* <Text style={styles.logoText}>{title}</Text> */}
-        <Image
-          source= {require('../assets/web-name.png')}
-          style={styles.logoImage}
-          resizeMode="contain"
-        />
+        <TouchableOpacity 
+          style={styles.searchButton}
+          onPress={handleLogoPress}>
+          <Image
+            source= {require('../assets/web-name.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
         <Image
           source= {require('../assets/logo.png')}
           style={styles.infoImage}
           resizeMode="contain"
         />
-        {/* <img scr = "Period2_Project\frontend\SoundWave\assets\logo.png" alt = "logo" width = "20" height = "20"> */}
-        {/* <Text style={styles.infoIcon}>ⓘ</Text> */}
       </View>
       <View style={styles.searchContainer}>
         <TextInput
@@ -80,13 +81,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
           onChangeText={handleSearchChange}
           placeholderTextColor="#999"
         />
-        <TouchableOpacity 
-          style={styles.searchButton}
-          onPress={handleSearchPress}
 
-        >
-          <Text style={styles.searchIcon}>🔍︎</Text>
-        </TouchableOpacity>
       </View>
 
       {/* Profile button with dropdown */}
