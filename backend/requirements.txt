@@ -3,3 +3,6 @@ dotenv==0.9.9
 psycopg==3.3.2
 python-dotenv==1.2.1
 typing_extensions==4.15.0
+flask
+flask_jwt_extended
+flask_cors

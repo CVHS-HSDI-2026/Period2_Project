@@ -36,6 +36,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
   const handleProfileMenuPress = () => {
     console.log('Profile menu item pressed');
     router.push("/Profile");
+    router.push("/Profile");
     setIsDropdownVisible(false);
   };
 
@@ -81,7 +82,17 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
           onChangeText={handleSearchChange}
           placeholderTextColor="#999"
         />
-
+        <TouchableOpacity 
+          style={styles.searchButton}
+          onPress={handleSearchPress}
+        >
+        <Image
+          source= {require('../assets/Search.png')}
+          style={styles.searchImg}
+          resizeMode="contain"
+        />
+          {/* <Text style={styles.searchIcon}>🔍︎</Text> */}
+        </TouchableOpacity>
       </View>
 
       {/* Profile button with dropdown */}
@@ -222,6 +233,11 @@ const styles = StyleSheet.create({
 
   searchIcon: {
     fontSize: 20,
+  },
+
+  searchImg: {
+    width: 20,
+    height: 20,
   },
 
   profileButton: {
