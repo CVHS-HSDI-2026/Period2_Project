@@ -1,6 +1,6 @@
 import { useState } from "react";
 import CommentBox from "./CommentBox";
-import RecommendedBox from "./RecommendedBox";
+import RecommendedBox from "./RecomendedBox";
 
 export default function SongTabs() {
   const [tab, setTab] = useState("comments");
