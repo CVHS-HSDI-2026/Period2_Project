@@ -34,26 +34,65 @@ def delete_user(username):
 def follow_user():
     """
     Makes the logged-in user follow another user.
+
+    DTO:
+    {
+      "followed_id": int
+    }
     """
     # Todo: Logic:
-    # 1. Get follower_id from session/token.
+    # 1. Get follower_id from session.
     # 2. Get followed_id from request body.
     # 3. Call db.follow_user(follower_id, followed_id).
     # Returns: Success message 200 or error if already following.
-    pass
+
+    data = request.get_json()
+    current_user_identity = get_jwt_identity()
+
+    follower_id = db.get_user(username=current_user_identity)["user_id"]
+    followed_id = data["followed_id"]
+
+    if not current_user_identity:
+        return jsonify({"message": "User not logged in"}), 401
+
+    if not followed_id:
+        return jsonify({"message": "No account id to follow"}), 401
+
+    db.follow_user(follower_id, followed_id)
+    return jsonify({"message": "Successfully followed user"}), 200
+
 
 @jwt_required()
 @users_bp.route('/unfollow', methods=['POST'])
 def unfollow_user():
     """
     Unfollows a user.
+    DTO:
+    {
+      "followed_id": int
+    }
     """
     # Todo: Logic:
     # 1. Get follower_id from session/token.
     # 2. Get followed_id from request body.
     # 3. Call db.unfollow_user(follower_id, followed_id).
     # Returns: Success message 200.
-    pass
+
+    data = request.get_json()
+    current_user_identity = get_jwt_identity()
+
+    follower_id = db.get_user(username=current_user_identity)["user_id"]
+    followed_id = data["followed_id"]
+
+    if not current_user_identity:
+        return jsonify({"message": "User not logged in"}), 401
+
+    if not followed_id:
+        return jsonify({"message": "No account id to follow"}), 401
+
+    db.unfollow_user(follower_id, followed_id)
+    return jsonify({"message": "Successfully unfollowed user"}), 200
+
 
 @users_bp.route('/<username>/favorites', methods=['GET'])
 def get_user_favorites(username):
@@ -87,9 +126,21 @@ def add_favorite_song():
     data = request.get_json()
     current_user_identity = get_jwt_identity()
 
+    if not current_user_identity:
+        return jsonify({"message": "User not logged in"}), 401
+
+    if not data["song_id"]:
+        return jsonify({"message": "Song not found"}), 401
+
+    if not data["rank"]:
+        return jsonify({"message": "Rank not found"}), 401
+
     user_id = db.get_user(username=current_user_identity)["user_id"]
     song_id = data["song_id"]
     rank = data["rank"]
+
+    if not user_id:
+        return jsonify({"message": "User not logged in"}), 401
 
     success = db.favorite_song(user_id, song_id, rank)
 
