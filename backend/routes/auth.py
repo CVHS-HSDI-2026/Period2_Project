@@ -11,15 +11,7 @@ def register():
     """
     Registers a new user.
 
-    """
-    # Todo: Logic:
-    # 1. Parse JSON data from request (username, email, password, bio, etc.).
-    # 2. Validate input (check if fields are empty).
-    # 3. Hash the password using bcrypt.
-    # 4. Call db.create_user(user_data).
-    # 5. Handle ValueError if username/email exists.
-    # Returns: JSON object with user_id and success message, or error 400.
-    """
+    User form data:
     {
         "username": "string",
         "email": "string",
