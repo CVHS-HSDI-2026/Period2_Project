@@ -45,7 +45,9 @@ const SongDetails: React.FC = () => {
             </TouchableOpacity>
           </Text>
 
-            <Text style={styles.text}><Text style={styles.label}>Album: </Text>{song.album}</Text>
+            <TouchableOpacity onPress={() => router.push("Album")}>
+            <Text style={styles.text}>{song.album}</Text>
+            </TouchableOpacity>
             <Text style={styles.text}><Text style={styles.label}>Date: </Text>{song.date}</Text>
           </View>
 

@@ -1,10 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity,} from "react-native";
 import { ScrollView } from "react-native";
 import { useFonts, Jost_400Regular } from "@expo-google-fonts/jost";
 

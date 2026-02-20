@@ -63,7 +63,7 @@ const SongCard: FC<SongCardProps> = ({
           <Text style={styles.title} numberOfLines={1}>
             {title}
           </Text>
-          <TouchableOpacity onPress={() =>router.push("/Album")}>
+          <TouchableOpacity onPress={() =>router.push("/Artist")}>
             <Text style={styles.artist} numberOfLines={1}>
               {artist}
             </Text>
