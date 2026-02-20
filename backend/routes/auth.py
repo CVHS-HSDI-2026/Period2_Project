@@ -43,7 +43,7 @@ def register():
     if not data["password_hash"]:
         return "Missing password", 400
     else:
-        user_data['password_hash'] = hash_password(data["passowrd_hash"].encode('utf-8'), bcrypt.gensalt())
+        user_data['password_hash'] = hash_password(data["password_hash"].encode('utf-8'), bcrypt.gensalt(rounds=12))
 
     if not data["bio"]:
         user_data["bio"] = ""
@@ -71,14 +71,17 @@ def login():
     data = request.get_json()
     username = data["username"]
     password = data["password"]
+
     user = db.get_user(username, filter=[])
-
     if not user:
-        return "User not found", 404
+        return "Invalid Credentials", 401
+    password_hash = bytes.fromhex(user["password_hash"].replace("\\x",""))
 
-    if not bcrypt.checkpw(password.encode('utf-8'), user.password_hash):
-        return "Incorrect password", 401
-
+    if bcrypt.checkpw(password, password_hash):
+        return "Ok", 200
+    else:
+        return "Invalid Credentials", 401
+      
     response = jsonify({"message": "Login Successful"})
     access_token = create_access_token(identity=username)
     set_access_cookies(response, access_token)
