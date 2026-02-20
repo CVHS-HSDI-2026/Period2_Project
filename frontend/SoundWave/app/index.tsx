@@ -32,6 +32,7 @@ export default function App() {
               title="Title"
               artist="Artist"
               rating={7}
+              commentsCount={1284}
               onPress={() => router.push("Song")}
             />
           ))}
@@ -51,6 +52,8 @@ export default function App() {
               title="Title"
               artist="Artist"
               rating={9}
+              commentsCount={0}
+              //releaseDate="02/06/2026"
               onPress={() => router.push("Song")}  
             />
           ))}
