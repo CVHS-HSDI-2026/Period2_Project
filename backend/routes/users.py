@@ -1,7 +1,10 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
+
+from database import Database
 
 users_bp = Blueprint('users', __name__)
+db = Database()
 
 @users_bp.route('/<username>', methods=['GET'])
 def get_user_profile(username):
@@ -9,7 +12,7 @@ def get_user_profile(username):
     Fetches a specific user's public profile.
     """
     # Todo: Logic:
-    # 1. Call db.get_user(username, filter=["email"]).
+    db.get_user(username, filter=["email"])
     # 2. Calculate derived stats (follower count, following count) via a db query.
     # Returns: User object, stats, and recent activity log.
     pass
@@ -68,10 +71,29 @@ def get_user_favorites(username):
 def add_favorite_song():
     """
     Adds a song to the user's favorites.
+
+    DTO:
+    {
+      "song_id": int,
+      "rank": int,
+    }
     """
     # Todo: Logic:
-    # 1. Get user_id from session.
+    # 1. Get user_id by getting the user by username from the current session.
     # 2. Get song_id (internal ID) and rank from request.
     # 3. Call db.favorite_song(user_id, song_id, rank).
     # Returns: Success message.
-    pass
+
+    data = request.get_json()
+    current_user_identity = get_jwt_identity()
+
+    user_id = db.get_user(username=current_user_identity)["user_id"]
+    song_id = data["song_id"]
+    rank = data["rank"]
+
+    success = db.favorite_song(user_id, song_id, rank)
+
+    if not success:
+        return jsonify({"message": "Failed to favorite song"}), 500
+    else:
+        return jsonify({"message": "Successfully favorite song"}, song_id=song_id), 200

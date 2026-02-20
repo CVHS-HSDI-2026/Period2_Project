@@ -1,3 +1,5 @@
+from typing import Any
+
 import psycopg
 from dotenv import load_dotenv
 import datetime
@@ -88,7 +90,7 @@ class Database:
         self.cursor.execute("DELETE FROM users WHERE username = %s", (username,))
         return self.cursor.rowcount > 0
 
-    def get_user(self, username: str, filter: list[str]) -> dict:
+    def get_user(self, username: str, filter: list[str] = None) -> dict[Any, Any] | None:
         """
         Get a user from the database.
         
@@ -100,14 +102,15 @@ class Database:
         :rtype: dict
         """
         self.cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
-        user = self.cursor.fetchone()
-        if not user:
+        fetch_user = self.cursor.fetchone()
+        if not fetch_user:
             return None
-        user_dict = dict(zip([desc[0] for desc in self.cursor.description], user)) # for those who dont understand, this turns the data into a dictionary
+        user_dict = dict(zip([desc[0] for desc in self.cursor.description], fetch_user)) # for those who dont understand, this turns the data into a dictionary
 
-        for field in filter:
-            if field in user_dict:
-                del user_dict[field]
+        if filter:
+            for field in filter:
+                if field in user_dict:
+                    del user_dict[field]
         return user_dict
     
 
