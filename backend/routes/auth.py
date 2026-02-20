@@ -58,10 +58,10 @@ def register():
     try:
         db.create_user(user_data)
     except ValueError:
-        return "Current username/email already exist. Be more creative :D", 400
+        return "Current username/email already exist.", 400
     except Exception as e:
         return f"Gateway internal error:\n{e}", 500 
-    return "User created successfuly", 200  
+    return "User created successfully", 200
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
@@ -77,9 +77,7 @@ def login():
         return "Invalid Credentials", 401
     password_hash = bytes.fromhex(user["password_hash"].replace("\\x",""))
 
-    if bcrypt.checkpw(password, password_hash):
-        return "Ok", 200
-    else:
+    if not bcrypt.checkpw(password, password_hash):
         return "Invalid Credentials", 401
       
     response = jsonify({"message": "Login Successful"})
