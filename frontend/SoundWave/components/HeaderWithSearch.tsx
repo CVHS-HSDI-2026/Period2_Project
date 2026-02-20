@@ -41,6 +41,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
 
   const handleSettingsPress = () => {
     console.log('Settings pressed');
+    router.push('/Settings');
     setIsDropdownVisible(false);
   };
 
