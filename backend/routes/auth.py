@@ -11,15 +11,7 @@ def register():
     """
     Registers a new user.
 
-    """
-    # Todo: Logic:
-    # 1. Parse JSON data from request (username, email, password, bio, etc.).
-    # 2. Validate input (check if fields are empty).
-    # 3. Hash the password using bcrypt.
-    # 4. Call db.create_user(user_data).
-    # 5. Handle ValueError if username/email exists.
-    # Returns: JSON object with user_id and success message, or error 400.
-    """
+    User form data:
     {
         "username": "string",
         "email": "string",
@@ -43,7 +35,7 @@ def register():
     if not data["password_hash"]:
         return "Missing password", 400
     else:
-        user_data['password_hash'] = hash_password(data["passowrd_hash"].encode('utf-8'), bcrypt.gensalt())
+        user_data['password_hash'] = hash_password(data["password_hash"].encode('utf-8'), bcrypt.gensalt(rounds=12))
 
     if not data["bio"]:
         user_data["bio"] = ""
@@ -58,10 +50,10 @@ def register():
     try:
         db.create_user(user_data)
     except ValueError:
-        return "Current username/email already exist. Be more creative :D", 400
+        return "Current username/email already exist.", 400
     except Exception as e:
         return f"Gateway internal error:\n{e}", 500 
-    return "User created successfuly", 200  
+    return "User created successfully", 200
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
@@ -71,14 +63,15 @@ def login():
     data = request.get_json()
     username = data["username"]
     password = data["password"]
+
     user = db.get_user(username, filter=[])
-
     if not user:
-        return "User not found", 404
+        return "Invalid Credentials", 401
+    password_hash = bytes.fromhex(user["password_hash"].replace("\\x",""))
 
-    if not bcrypt.checkpw(password.encode('utf-8'), user.password_hash):
-        return "Incorrect password", 401
-
+    if not bcrypt.checkpw(password, password_hash):
+        return "Invalid Credentials", 401
+      
     response = jsonify({"message": "Login Successful"})
     access_token = create_access_token(identity=username)
     set_access_cookies(response, access_token)
