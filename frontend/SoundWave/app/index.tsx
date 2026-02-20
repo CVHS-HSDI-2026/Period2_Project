@@ -2,35 +2,38 @@ import React from "react";
 import { StyleSheet, Text, View, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 
-import Header from "../components/Header";
+import HeaderWithSearch from "../components/HeaderWithSearch";
 import SongCard from "../components/SongCard";
 
 // homepage
 export default function App() {
   const router = useRouter();
+  
+  React.useEffect(() => {
+    console.log("HOME PAGE LOADED");
+  }, []);
 
   return (
     <View style={styles.container}>
-      <Header title="SoundWave" />
+      <HeaderWithSearch title="SoundWave" />
 
-      <ScrollView showsVerticalScrollIndicator>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {/* ================= Popular ================= */}
         <Text style={styles.sectionTitle}>Popular</Text>
 
         <ScrollView
           horizontal
-          showsHorizontalScrollIndicator
+          showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.horizontalContent}
         >
           {Array.from({ length: 10 }).map((_, i) => (
             <SongCard
               key={`popular-${i}`}
-              variant="popular"
               title="Title"
               artist="Artist"
               rating={7}
               commentsCount={1284}
-              onPress={() => router.push("./Song")}
+              onPress={() => router.push("Song")}
             />
           ))}
         </ScrollView>
@@ -40,18 +43,18 @@ export default function App() {
 
         <ScrollView
           horizontal
-          showsHorizontalScrollIndicator
+          showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.horizontalContent}
         >
           {Array.from({ length: 10 }).map((_, i) => (
             <SongCard
               key={`new-${i}`}
-              variant="new"
               title="Title"
               artist="Artist"
               rating={9}
-              releaseDate="02/06/2026"
-              onPress={() => router.push("./Song")}
+              commentsCount={0}
+              //releaseDate="02/06/2026"
+              onPress={() => router.push("Song")}  
             />
           ))}
         </ScrollView>

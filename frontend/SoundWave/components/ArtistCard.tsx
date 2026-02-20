@@ -1,14 +1,5 @@
-import { router } from "expo-router/build/exports";
 import React, { FC } from "react";
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  Pressable,
-  ImageSourcePropType,
-  TouchableOpacity,
-} from "react-native";
+import {View, Text, Image, StyleSheet, Pressable, ImageSourcePropType,} from "react-native";
 
 /* ---------- Helpers ---------- */
 const formatCount = (count: number) => {
@@ -18,7 +9,7 @@ const formatCount = (count: number) => {
 };
 
 /* ---------- Types ---------- */
-interface SongCardProps {
+interface ArtistCardProps {
   title: string;
   artist: string;
   image?: ImageSourcePropType;
@@ -32,7 +23,7 @@ interface SongCardProps {
 }
 
 /* ---------- Component ---------- */
-const SongCard: FC<SongCardProps> = ({
+const ArtistCard: FC<ArtistCardProps> = ({
   title,
   artist,
   image,
@@ -55,48 +46,20 @@ const SongCard: FC<SongCardProps> = ({
       ) : (
         <View style={[styles.image, styles.imageFallback]} />
       )}
-
-      {/* Info Row */}
       <View style={styles.infoRow}>
-        {/* Left */}
         <View style={styles.textBlock}>
           <Text style={styles.title} numberOfLines={1}>
-            {title}
+          {title}
           </Text>
-          <TouchableOpacity onPress={() =>router.push("/Album")}>
-            <Text style={styles.artist} numberOfLines={1}>
-              {artist}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Right */}
-        <View style={styles.metaRight}>
-          {rating !== undefined && (
-            <Text style={styles.metaText}>{rating}/10</Text>
-          )}
-
-          {commentsCount !== undefined && (
-            <View style={styles.commentBadge}>
-              <Text style={styles.commentIcon}>💬</Text>
-              <Text style={styles.commentCount}>
-                {formatCount(commentsCount)}
-              </Text>
-            </View>
-          )}
-
-          {!isPopular && releaseDate && (
-            <Text style={styles.releaseDate}>{releaseDate}</Text>
-          )}
-        </View>
       </View>
+      </View>
+
     </Pressable>
   );
 };
 
-export default SongCard;
+export default ArtistCard;
 
-/* ---------- Styles ---------- */
 const styles = StyleSheet.create({
   card: {
     width: 220,
@@ -114,6 +77,9 @@ const styles = StyleSheet.create({
 
   imageFallback: {
     backgroundColor: "#E0E0E0",
+    width: 200,
+    height: 200,
+    borderRadius: 100,
   },
 
   infoRow: {
@@ -128,6 +94,11 @@ const styles = StyleSheet.create({
   },
 
   title: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#FFFFFF",
+  },
+    username: {
     fontSize: 16,
     fontWeight: "600",
     color: "#FFFFFF",

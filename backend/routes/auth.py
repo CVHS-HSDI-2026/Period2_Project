@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify, session
+from flask_jwt_extended import create_access_token, set_access_cookies, unset_jwt_cookies, jwt_required, get_jwt_identity
 from database import Database
 import bcrypt
 
@@ -66,19 +67,8 @@ def register():
 def login():
     """
     Logs in an existing user.
-
     """
-    # Todo: we should probably change this to a session token in the future, but a JWT token will work for now
-
-    # Todo: Logic:
-    # 1. Parse username and password from request.
-    # 2. Call db.get_user(username, filter=[]) to get the user + password_hash.
-    # 3. Verify provided password against stored hash using bcrypt.checkpw.
-    # 4. If valid, generate a JWT token (in the future we can change this to a session token).
-    # Returns: Auth token and user info (excluding password), or error 401.
-    
     data = request.get_json()
-
     username = data["username"]
     password = data["password"]
 
@@ -91,34 +81,36 @@ def login():
         return "Ok", 200
     else:
         return "Invalid Credentials", 401
+      
+    response = jsonify({"message": "Login Successful"})
+    access_token = create_access_token(identity=username)
+    set_access_cookies(response, access_token)
+    return jsonify(response, user=user), 200
 
-
-
-    pass
 
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
     """
     Logs out the current user.
     """
-    # Todo: Logic:
-    # 1. Clear the flask session and/or blacklist the JWT token.
-    # Returns: Success message 200.
+    response = jsonify({"message": "Logout Successful"})
+    unset_jwt_cookies(response)
+    return jsonify(response), 200
 
-
-    return "Logout succsessful", 200
-    pass
-
+@jwt_required
 @auth_bp.route('/me', methods=['GET'])
 def get_current_user():
     """
     Gets the currently logged-in user's session data.
     """
-    # Todo: Logic:
-    # 1. Check if user_id exists in session/token.
-    # 2. Call db.get_user() by ID (we might need to add get_user_by_id to the DB).
-    # Returns: User profile data for the frontend context.
-    pass
+    current_user_identity = get_jwt_identity()
+    if not current_user_identity:
+        return jsonify({"message": "No identity provided"}), 401
+
+    current_user = db.get_user(current_user_identity)
+    if not current_user:
+        return jsonify({"message": "User not found"}), 404
+    return jsonify(current_user), 200
 
 def hash_password(password, salt):
         return bcrypt.hashpw(password, salt)
