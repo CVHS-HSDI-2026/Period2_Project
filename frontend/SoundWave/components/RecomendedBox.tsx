@@ -18,3 +18,11 @@ export default function RecommendedBox() {
     </div>
   );
 }
+
+const styles = StyleSheet.create({
+  text: {
+    color: "#E6E8F2",
+    fontSize: 18,
+    marginBottom: 10,
+  },
+});
