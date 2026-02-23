@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 
 interface Song {
   title: string;
@@ -13,6 +14,7 @@ interface Song {
 }
 
 const SongDetails: React.FC = () => {
+    const router = useRouter();
   const song: Song = {
     title: "IRIS OUT",
     artist: "Kenshi Yonezu",
@@ -22,6 +24,7 @@ const SongDetails: React.FC = () => {
     duration: "2:31",
     date: "9/15/25",
     cover: "https://picsum.photos/300" 
+    
   };
 
   return (
@@ -35,8 +38,16 @@ const SongDetails: React.FC = () => {
         <View style={styles.gridContainer}>
           <View style={styles.column}>
             <Text style={styles.text}><Text style={styles.label}>Title: </Text>{song.title}</Text>
-            <Text style={styles.text}><Text style={styles.label}>Artist: </Text>{song.artist}</Text>
+            <Text style={styles.text}>
+            <Text style={styles.label}>Artist: </Text>
+            <TouchableOpacity onPress={() => router.push("Artist")}>
+            <Text style={styles.text}>{song.artist}</Text>
+            </TouchableOpacity>
+          </Text>
+
+            <TouchableOpacity onPress={() => router.push("Album")}>
             <Text style={styles.text}><Text style={styles.label}>Album: </Text>{song.album}</Text>
+            </TouchableOpacity>
             <Text style={styles.text}><Text style={styles.label}>Date: </Text>{song.date}</Text>
           </View>
 
@@ -54,8 +65,9 @@ const SongDetails: React.FC = () => {
 
 const styles = StyleSheet.create({
   outerContainer: {
-    padding: 20,
-    width: '100%',
+    width: "90%",
+    alignSelf: "center",
+    marginTop: 20,
   },
   contentRow: {
     flexDirection: 'row',
@@ -78,11 +90,11 @@ const styles = StyleSheet.create({
   },
   label: {
     fontWeight: '400',
-    color: '#000',
+    color: '#FFF',
   },
   text: {
-    fontSize: 16,
-    color: '#000',
+    fontSize: 20,
+    color: '#FFF',
     fontFamily: 'Jost_400Regular',
   },
 });

@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 
 users_bp = Blueprint('users', __name__)
 
@@ -13,6 +14,7 @@ def get_user_profile(username):
     # Returns: User object, stats, and recent activity log.
     pass
 
+@jwt_required()
 @users_bp.route('/<username>', methods=['DELETE'])
 def delete_user(username):
     """
@@ -24,6 +26,7 @@ def delete_user(username):
     # Returns: Success message 200.
     pass
 
+@jwt_required()
 @users_bp.route('/follow', methods=['POST'])
 def follow_user():
     """
@@ -36,6 +39,7 @@ def follow_user():
     # Returns: Success message 200 or error if already following.
     pass
 
+@jwt_required()
 @users_bp.route('/unfollow', methods=['POST'])
 def unfollow_user():
     """
@@ -59,6 +63,7 @@ def get_user_favorites(username):
     # Returns: List of song objects with rankings.
     pass
 
+@jwt_required()
 @users_bp.route('/favorite/song', methods=['POST'])
 def add_favorite_song():
     """

@@ -105,8 +105,6 @@ class Database:
             return None
         user_dict = dict(zip([desc[0] for desc in self.cursor.description], user)) # for those who dont understand, this turns the data into a dictionary
 
-        if "password_hash" in user_dict:
-            del user_dict["password_hash"]
         for field in filter:
             if field in user_dict:
                 del user_dict[field]
@@ -281,8 +279,8 @@ if __name__ == "__main__":
         print("DB connection failed.")
         sys.exit(1)
 
-    password = 'password123'
-    password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    password = b'password123'
+    password_hash = bcrypt.hashpw(password, bcrypt.gensalt(rounds=12))
     user_data = {
         "username": "testuser",
         "email": "testuserlol@test.com",
