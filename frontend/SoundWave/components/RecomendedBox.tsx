@@ -1,11 +1,21 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import SongCard from "../../components/SongCard";
 
 export default function RecommendedBox() {
   return (
-    <View>
-      <Text style={styles.text}>No recommendations yet</Text>
-    </View>
+    <div style={{ padding: "10px" }}>
+      <p>Recommended songs list here</p>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <SongCard
+        key={`popular-${i}`}
+        variant="popular"
+        title="Title"
+        artist="Artist"
+        rating={7}
+        commentsCount={1284}
+        onPress={() => router.push("Song")}
+        />
+      ))}
+    </div>
   );
 }
 

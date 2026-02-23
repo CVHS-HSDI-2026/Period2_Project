@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity,} from "react-native";
 import { ScrollView } from "react-native";
+import { ScrollView } from "react-native";
 import { useFonts, Jost_400Regular } from "@expo-google-fonts/jost";
-
+import { Image } from 'react-native';
 type Tab = "comments" | "recommended";
 
 export default function CommentBox() {
@@ -42,7 +43,9 @@ function Comment({ text }: { text: string }) {
         {text}
       </Text>
 
-      <Text style={styles.icon}>👍</Text>
+      {/*Need to add Thumbs up icon and reply icon with icon functionality*/}
+
+
       <Text style={styles.icon}>↩</Text>
     </View>
   );
