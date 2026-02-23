@@ -2,7 +2,6 @@ import { router } from 'expo-router';
 import React, { FC, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { Image } from 'react-native';
-import { Image } from 'react-native';
 
 interface HeaderProps {
   title: string;
