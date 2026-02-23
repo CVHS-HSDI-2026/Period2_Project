@@ -20,6 +20,6 @@ const AlbumView: React.FC = () => {
 
     const [tracks, setTracks] = useState<string[]>([]);
 
-    const [comments, setComments] = useState<string('');
+    const [comments, setComments] = useState<string>('');
     const [recommended, setRecommended] = useState<string>('');
 }

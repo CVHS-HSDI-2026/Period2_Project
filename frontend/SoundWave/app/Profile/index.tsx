@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Pressable,ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Pressable, ScrollView } from 'react-native';
 import React, { FC } from 'react';
 import HeaderWithSearch from "../../components/HeaderWithSearch";
 import { useRouter } from "expo-router";
