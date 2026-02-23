@@ -13,7 +13,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
 
   const handleLogoPress = () => {
     console.log('Logo pressed!');
-    router.push("/app");
+    router.push("/Homepage");
   }
   const handleSearchPress = () => {
     console.log('Search pressed! Query:', searchText);
@@ -41,6 +41,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
 
   const handleSettingsPress = () => {
     console.log('Settings pressed');
+    router.push("/Settings");
     setIsDropdownVisible(false);
   };
 
@@ -50,6 +51,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
 
   const handleLogoutPress = () => {
     console.log('Logout pressed');
+    router.push("/Login");
     setIsDropdownVisible(false);
   
   };
@@ -59,6 +61,11 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
       
       <View style={styles.logoContainer}>
         {/* <Text style={styles.logoText}>{title}</Text> */}
+         <TouchableOpacity 
+          style={styles.logoContainer}
+          onPress={handleLogoPress}
+
+        >
         <Image
           source= {require('../assets/web-name.png')}
           style={styles.logoImage}
@@ -69,6 +76,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
           style={styles.infoImage}
           resizeMode="contain"
         />
+         </TouchableOpacity>
         {/* <img scr = "Period2_Project\frontend\SoundWave\assets\logo.png" alt = "logo" width = "20" height = "20"> */}
         {/* <Text style={styles.infoIcon}>ⓘ</Text> */}
       </View>

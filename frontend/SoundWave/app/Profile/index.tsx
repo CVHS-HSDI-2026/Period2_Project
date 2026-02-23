@@ -116,28 +116,28 @@ export default function Profile() {
         <Text style={styles.sectionTitle}>Top Albums:</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
           {Array.from({ length: 5 }).map((_, i) => (
-            <SongCard key={`album-${i}`} variant="popular" title="Title" artist="Artist" rating={8} commentsCount={12} onPress={() => router.push("./Song")} />
+            <SongCard key={`album-${i}`} variant="popular" title="Title" artist="Artist" rating={8} commentsCount={12} onPress={() => router.push("./Album")} />
           ))}
         </ScrollView>
 
         <Text style={styles.sectionTitle}>Top Artists:</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
           {Array.from({ length: 5 }).map((_, i) => (
-            <ArtistCard key={`artist-${i}`} variant="popular" title="Username" artist="Artist" rating={8} commentsCount={1278} onPress={() => router.push("./Song")} />
+            <ArtistCard key={`artist-${i}`} variant="popular" title="Username" artist="Artist" rating={8} commentsCount={1278} onPress={() => router.push("./Artist")} />
           ))}
         </ScrollView>
 
         <Text style={styles.sectionTitle}>Recent Activity:</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
           {Array.from({ length: 5 }).map((_, i) => (
-            <SongCard key={`recent-${i}`} variant="popular" title="Title" artist="Artist" rating={8} commentsCount={12} onPress={() => router.push("./Song")} />
+            <SongCard key={`recent-${i}`} variant="popular" title="Title" artist="Artist" rating={8} commentsCount={12} onPress={() => router.push("./Recent")} />
           ))}
         </ScrollView>
-
-        <Text style={styles.sectionTitle}>Recommended Users:</Text>
+      
+       <Text style={styles.sectionTitle}>Recommended Users:</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
           {Array.from({ length: 5 }).map((_, i) => (
-            <ArtistCard key={`rec-${i}`} variant="popular" title="Username" artist="Artist" rating={8} commentsCount={12} onPress={() => router.push("./Song")} />
+            <ArtistCard key={`rec-${i}`} variant="popular" title="Username" artist="Artist" rating={8} commentsCount={12} onPress={() => router.push("/Profile")} />
           ))}
         </ScrollView>
       </ScrollView>

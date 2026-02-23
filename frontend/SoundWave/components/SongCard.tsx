@@ -6,8 +6,9 @@ import {
   StyleSheet,
   Pressable,
   ImageSourcePropType,
+  TouchableOpacity,
 } from "react-native";
-
+import { router, useRouter } from 'expo-router';
 /* ---------- Helpers ---------- */
 const formatCount = (count: number) => {
   if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}m`;
@@ -46,6 +47,7 @@ const SongCard: FC<SongCardProps> = ({
     <Pressable
       onPress={onPress}
       style={[styles.card, isPopular && styles.popularCard]}
+
     >
       {/* Album Art */}
       {image ? (
@@ -62,7 +64,10 @@ const SongCard: FC<SongCardProps> = ({
             {title}
           </Text>
           <Text style={styles.artist} numberOfLines={1}>
-            {artist}
+            <TouchableOpacity onPress={() => router.push("Artist")}>
+                        <Text style={styles.artist}>{artist}</Text>
+            </TouchableOpacity>
+            {}
           </Text>
         </View>
 
@@ -81,11 +86,11 @@ const SongCard: FC<SongCardProps> = ({
             </View>
           )}
 
-          {!isPopular && releaseDate && (
-            <Text style={styles.releaseDate}>{releaseDate}</Text>
-          )}
         </View>
       </View>
+      {!isPopular && releaseDate && (
+        <Text style={styles.releaseDate}>{releaseDate}</Text>
+      )}
     </Pressable>
   );
 };
@@ -96,6 +101,7 @@ export default SongCard;
 const styles = StyleSheet.create({
   card: {
     width: 220,
+    position: "relative",
   },
 
   popularCard: {
@@ -165,6 +171,9 @@ const styles = StyleSheet.create({
   },
 
   releaseDate: {
+    position: "absolute",
+    bottom: 8,
+    right: 8,
     fontSize: 13,
     fontWeight: "500",
     color: "#FFFFFF",

@@ -30,7 +30,6 @@ export default function Artist() {
           </View>
 
           <View style={styles.profileRight}>
-            <Text style={styles.edit}>Edit ✎</Text>
             <View style={styles.columnsContainer}>
               <View style={styles.column}>
                 {colone.map((item, idx) => (
@@ -92,37 +91,6 @@ export default function Artist() {
             />
           ))}
         </ScrollView>
-        {/* recent activity */}
-        <Text style={styles.sectionTitle}>Recent Activity:</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
-          {Array.from({ length: 5 }).map((_, i) => (
-            <SongCard
-              key={`song-${i}`}
-              variant="popular"
-              title="Title"
-              artist="Artist"
-              rating={8}
-              commentsCount={12}
-              onPress={() => router.push("./Song")}
-            />
-          ))}
-        </ScrollView>
-        {/* recommended users */}
-        <Text style={styles.sectionTitle}>Recommended Users:</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
-          {Array.from({ length: 5 }).map((_, i) => (
-            <ArtistCard
-              key={`song-${i}`}
-              variant="popular"
-              title="Username"
-              artist="Artist"
-              rating={8}
-              commentsCount={12}
-              onPress={() => router.push("./Song")}
-            />
-          ))}
-        </ScrollView>
-
       </ScrollView>
     </View>
   );
