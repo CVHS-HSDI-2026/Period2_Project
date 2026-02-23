@@ -101,7 +101,7 @@ class Database:
         :return: The user data dict if found, None if not.
         :rtype: dict
         """
-        self.cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
+        self.cursor.execute("SELECT * FROM users WHERE username = %s", username)
         fetch_user = self.cursor.fetchone()
         if not fetch_user:
             return None
@@ -112,7 +112,20 @@ class Database:
                 if field in user_dict:
                     del user_dict[field]
         return user_dict
-    
+
+    def get_followed_count(self, followed_user_id: int) -> int:
+        self.cursor.execute("SELECT * FROM User_Follow WHERE followed_id = %s", followed_user_id)
+        count_followed = self.cursor.rowcount()
+        if not count_followed:
+            return -1
+        return count_followed
+
+    def get_following_count(self, following_user_id: int) -> int:
+        self.cursor.execute("SELECT * FROM User_Follow WHERE following_id = %s", following_user_id)
+        count_following = self.cursor.rowcount()
+        if not count_following:
+            return -1
+        return count_following
 
     def follow_user(self, follower_id: int, followed_id: int) -> bool:
         """
@@ -288,16 +301,10 @@ if __name__ == "__main__":
         "username": "testuser",
         "email": "testuserlol@test.com",
         "password_hash": password_hash,
-        "rating": 0,
-        "followers": [],
-        "following": [],
-        "ratings": [],
         "bio": "",
-        "top_songs": [],
-        "top_albums": [],
-        "top_artists": [],
-        "activity_log": [],
-        "date_created": datetime.datetime.now()
+        "profile_pic_url": "",
+        "created_at": datetime.datetime.now(),
+        "updated_at": datetime.datetime.now()
     }
 
     try:

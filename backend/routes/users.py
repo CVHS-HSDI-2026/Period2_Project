@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from database import Database
+from routes import auth
 
 users_bp = Blueprint('users', __name__)
 db = Database()
@@ -12,7 +13,11 @@ def get_user_profile(username):
     Fetches a specific user's public profile.
     """
     # Todo: Logic:
-    db.get_user(username, filter=["email"])
+    user = db.get_user(username, filter=["email", "password_hash", "created_at", "updated_at"])
+    user_id = user["id"]
+    followed_by = db.get_followed_count(user_id)
+    following_count = db.get_following_count(user_id)
+
     # 2. Calculate derived stats (follower count, following count) via a db query.
     # Returns: User object, stats, and recent activity log.
     pass
@@ -27,7 +32,21 @@ def delete_user(username):
     # 1. Verify the requester is the owner of the account or an admin.
     # 2. Call db.delete_user(username).
     # Returns: Success message 200.
-    pass
+
+    current_user_identity = get_jwt_identity()
+    user = db.get_user(username=current_user_identity)
+
+    if not current_user_identity:
+        return jsonify({"message": "User not logged in"}), 401
+
+    if not user:
+        return jsonify({"message": "User does not exist"}), 401
+
+    if user == username:
+        db.delete_user(username)
+        auth.logout()
+
+    return jsonify({"message": "Successfully deleted user"}), 200
 
 @jwt_required()
 @users_bp.route('/follow', methods=['POST'])
