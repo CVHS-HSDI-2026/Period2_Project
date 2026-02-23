@@ -1,16 +1,16 @@
 import { StyleSheet, View } from 'react-native';
 import React from 'react';
 import Header from '../../components/HeaderWithSearch';
-import SongDetails from '../../components/SongDetails';
-import CommentBoxWithTracks from '../../components/AlbumCommentBox';
+import CommentBoxWithTracks from '../../components/AlbumBox';
+import AlbumDetails from '@components/AlbumDetails';
 
 export default function Album() {
 
   return (
     <View style={styles.container}>
       <Header title="SoundWave" />
-      <SongDetails />
-      <CommentBoxWithTracks />
+      <AlbumDetails/>
+      <CommentBoxWithTracks/>
     </View>
   );
 }

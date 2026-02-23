@@ -1,7 +1,18 @@
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+
 export default function RecommendedBox() {
   return (
-    <div style={{ padding: "10px" }}>
-      <p>Recommended songs list here</p>
-    </div>
+    <View>
+      <Text style={styles.text}>No recommendations yet</Text>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  text: {
+    color: "#E6E8F2",
+    fontSize: 18,
+    marginBottom: 10,
+  },
+});

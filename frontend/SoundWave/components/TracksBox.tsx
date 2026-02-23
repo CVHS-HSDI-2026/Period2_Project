@@ -2,56 +2,58 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity,} from "react-native";
 import { ScrollView } from "react-native";
 import { useFonts, Jost_400Regular } from "@expo-google-fonts/jost";
+import { useRouter } from 'expo-router';
 
-type Tab = "comments" | "recommended";
-
-export default function CommentBox() {
-  const [activeTab, setActiveTab] = useState<Tab>("comments");
+export default function TracksBox() {
   const [fontsLoaded] = useFonts({ Jost_400Regular });
+  const router = useRouter();
   if (!fontsLoaded) return null;
 
   return (
-    <View style={styles.container}>
-      {/* Content */}
         <ScrollView showsVerticalScrollIndicator={false}>
-        {activeTab === "comments" ? (
-          <>
-            <Comment text="Wow this is so peak Kenshi really outdid himself this time yad wa wadsda..." />
-            <Comment text="Ts so mid how did he even come up with this. This song is a disgrace to j-pop." />
-            <Comment text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do temporas..." />
-
-            <View style={styles.replyIndent}>
-              <Comment text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, se dor amit..." />
-            </View>
-          </>
-        ) : (
-          <Text style={styles.emptyText}>No recommendations yet.</Text>
-        )}
+          <TouchableOpacity onPress={() => router.push("Song")}>
+            <Text style={styles.commentText} numberOfLines={2}>
+              1. grenade
+            </Text>
+            <Text style={styles.commentText} numberOfLines={2}>
+              2. just the way you are
+            </Text>
+            <Text style={styles.commentText} numberOfLines={2}>
+              3. our first time
+            </Text>
+            <Text style={styles.commentText} numberOfLines={2}>
+              4. runaway baby
+            </Text>
+            <Text style={styles.commentText} numberOfLines={2}>
+              5. the lazy song
+            </Text>
+            <Text style={styles.commentText} numberOfLines={2}>
+              6.  marry you
+            </Text>
+            <Text style={styles.commentText} numberOfLines={2}>
+              7. talking to the moon
+            </Text>
+            <Text style={styles.commentText} numberOfLines={2}>
+              8. liquor store blues
+            </Text>
+            <Text style={styles.commentText} numberOfLines={2}>
+              9. count on me
+            </Text>
+            <Text style={styles.commentText} numberOfLines={2}>
+              10. the other side (ft. Cee Lo Green & B.o.B)
+            </Text>
+          <Text style={styles.emptyText}>Tracks unavailable.</Text>
+          </TouchableOpacity>
         </ScrollView>
-    </View>
   );
 }
 
-/* Individual comment row */
-function Comment({ text }: { text: string }) {
-  return (
-    <View style={styles.commentRow}>
-      <View style={styles.avatar} />
-
-      <Text style={styles.commentText} numberOfLines={2}>
-        {text}
-      </Text>
-
-      <Text style={styles.icon}>👍</Text>
-      <Text style={styles.icon}>↩</Text>
-    </View>
-  );
-}
 
 const styles = StyleSheet.create({
   container: {
     width: "90%",
-    marginTop: 10,
+    marginTop: 20,
+    alignSelf: "center",
   },
 
   tabRow: {
@@ -100,7 +102,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 14,
   },
-
   avatar: {
     width: 26,
     height: 26,
