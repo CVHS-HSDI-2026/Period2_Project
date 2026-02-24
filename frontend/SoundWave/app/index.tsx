@@ -29,6 +29,7 @@ export default function App() {
           {Array.from({ length: 10 }).map((_, i) => (
             <SongCard
               key={`popular-${i}`}
+              //variant="popular"
               title="Title"
               artist="Artist"
               rating={7}
@@ -49,11 +50,11 @@ export default function App() {
           {Array.from({ length: 10 }).map((_, i) => (
             <SongCard
               key={`new-${i}`}
+              //variant="new"
               title="Title"
               artist="Artist"
               rating={9}
-              commentsCount={0}
-              //releaseDate="02/06/2026"
+              releaseDate="02/06/2026"
               onPress={() => router.push("Song")}  
             />
           ))}

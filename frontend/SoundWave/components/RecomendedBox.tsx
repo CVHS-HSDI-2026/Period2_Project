@@ -1,6 +1,8 @@
-import SongCard from "../../components/SongCard";
+import SongCard from "../components/SongCard";
+import { useRouter } from 'expo-router';
 
 export default function RecommendedBox() {
+  const router = useRouter();
   return (
     <div style={{ padding: "10px" }}>
       <p>Recommended songs list here</p>
@@ -12,17 +14,10 @@ export default function RecommendedBox() {
         artist="Artist"
         rating={7}
         commentsCount={1284}
-        onPress={() => router.push("Song")}
+        onPress={() => router.push("/Song")}
         />
       ))}
     </div>
   );
 }
 
-const styles = StyleSheet.create({
-  text: {
-    color: "#E6E8F2",
-    fontSize: 18,
-    marginBottom: 10,
-  },
-});
