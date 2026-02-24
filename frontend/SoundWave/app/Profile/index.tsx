@@ -5,7 +5,7 @@ import { useRouter } from "expo-router";
 import { useFonts, Jost_400Regular, Jost_500Medium, Jost_700Bold } from '@expo-google-fonts/jost'; 
 import SongCard from "../../components/SongCard";
 import ArtistCard from "../../components/ArtistCard";
-
+ 
 export default function Profile() {
   const router = useRouter();
 

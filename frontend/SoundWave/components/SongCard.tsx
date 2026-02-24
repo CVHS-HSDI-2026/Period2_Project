@@ -1,15 +1,7 @@
 import { router } from "expo-router/build/exports";
 import React, { FC } from "react";
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  Pressable,
-  ImageSourcePropType,
-  TouchableOpacity,
-} from "react-native";
-import { router, useRouter } from 'expo-router';
+import {View, Text, Image, StyleSheet, Pressable, ImageSourcePropType, TouchableOpacity,} from "react-native";
+
 /* ---------- Helpers ---------- */
 const formatCount = (count: number) => {
   if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}m`;

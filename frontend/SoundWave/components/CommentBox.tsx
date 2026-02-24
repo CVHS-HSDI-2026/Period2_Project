@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity,} from "react-native";
 import { ScrollView } from "react-native";
-import { ScrollView } from "react-native";
 import { useFonts, Jost_400Regular } from "@expo-google-fonts/jost";
-import { Image } from 'react-native';
 type Tab = "comments" | "recommended";
 
 export default function CommentBox() {
