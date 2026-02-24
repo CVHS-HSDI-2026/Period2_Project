@@ -82,7 +82,10 @@ const SongCard: FC<SongCardProps> = ({
         </View>
       </View>
       {!isPopular && releaseDate && (
-        <Text style={styles.releaseDate}>{releaseDate}</Text>
+        <View style={styles.metaRight}>
+          <Text style={styles.releaseDate}>{releaseDate}</Text>
+        </View>
+        
       )}
     </Pressable>
   );
@@ -165,8 +168,7 @@ const styles = StyleSheet.create({
 
   releaseDate: {
     position: "absolute",
-    bottom: 8,
-    right: 8,
+    bottom: 2,
     fontSize: 13,
     fontWeight: "500",
     color: "#FFFFFF",

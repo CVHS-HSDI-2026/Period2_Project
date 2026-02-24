@@ -2,8 +2,8 @@ import React from "react";
 import { StyleSheet, Text, View, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 
-import HeaderWithSearch from "../../components/HeaderWithSearch";
-import SongCard from "../../components/SongCard";
+import HeaderWithSearch from "../components/HeaderWithSearch";
+import SongCard from "../components/SongCard";
 
 // homepage
 export default function App() {
@@ -17,13 +17,13 @@ export default function App() {
     <View style={styles.container}>
       <HeaderWithSearch title="SoundWave" />
 
-      <ScrollView showsVerticalScrollIndicator>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {/* ================= Popular ================= */}
         <Text style={styles.sectionTitle}>Popular</Text>
 
         <ScrollView
           horizontal
-          showsHorizontalScrollIndicator
+          showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.horizontalContent}
         >
           {Array.from({ length: 10 }).map((_, i) => (
@@ -33,7 +33,7 @@ export default function App() {
               title="Title"
               artist="Artist"
               rating={7}
-              //commentsCount={1284}
+              commentsCount={1284}
               onPress={() => router.push("Song")}
             />
           ))}
@@ -44,7 +44,7 @@ export default function App() {
 
         <ScrollView
           horizontal
-          showsHorizontalScrollIndicator
+          showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.horizontalContent}
         >
           {Array.from({ length: 10 }).map((_, i) => (
@@ -54,7 +54,7 @@ export default function App() {
               title="Title"
               artist="Artist"
               rating={9}
-              //releaseDate="02/06/2026"
+              releaseDate="02/06/2026"
               onPress={() => router.push("Song")}  
             />
           ))}
