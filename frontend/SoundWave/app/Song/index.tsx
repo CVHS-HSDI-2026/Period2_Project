@@ -7,17 +7,13 @@ import SongBox from '../../components/SongBox';
 export default function Song() {
 
   return (
-        <View style={styles.safeArea}>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            style={styles.scroll}
-            contentContainerStyle={styles.scrollContent}
-          >
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <View style={styles.container}>
         <Header title="SoundWave" />
         <SongDetails />
         <SongBox />
-        </ScrollView>
       </View>
+    </ScrollView>
 
   );
 }
