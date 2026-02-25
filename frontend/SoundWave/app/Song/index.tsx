@@ -18,8 +18,16 @@ export default function Song() {
   );
 }
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
+    backgroundColor: '#1E2345',
+  },
+  scroll: {
+    flex: 1,
+    backgroundColor: '#1E2345',
+  },
+  scrollContent: {
+    flexGrow: 1,
     backgroundColor: '#1E2345',
   },
 });
