@@ -1,6 +1,6 @@
 from typing import Any
 
-import psycopg
+import psycopg2
 from dotenv import load_dotenv
 import datetime
 import bcrypt
@@ -21,9 +21,9 @@ class Database:
         :raises ConnectionError: If unable to connect to PostgreSQL.
         """
 
-        self.connection = psycopg.connect(os.getenv("USER_POSTGRES_CONNECTION_STRING"))
+        self.connection = psycopg2.connect(os.getenv("USER_POSTGRES_CONNECTION_STRING"))
         self.connection.autocommit = True
-        self.cursor = self.connection.cursor()
+        self.cursor = self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
     def ping(self) -> bool:
         """
@@ -112,6 +112,49 @@ class Database:
                 if field in user_dict:
                     del user_dict[field]
         return user_dict
+
+    def get_user_activity(self, user_id: int) -> list[dict[str, Any]]:
+        """
+        Returns the user's most recent review and reply activity.
+
+        :param user_id:
+        :type user_id: int
+        :return: The list of dictionaries describing the recent activity.
+        :rtype: list
+        """
+        self.cursor.execute("SELECT * FROM Review WHERE user_id = %s ORDER BY created_at DESC", (user_id,))
+        reviews = self.cursor.fetchmany(10)
+        list_reviews = []
+
+        for review in reviews:
+            list_reviews.append(review)
+
+        self.cursor.execute("SELECT * FROM Reply WHERE user_id = %s ORDER BY created_at DESC", (user_id,))
+        replies = self.cursor.fetchmany(10)
+        list_replies = []
+
+        for reply in replies:
+            list_replies.append(reply)
+
+
+
+    def get_user_favorites(self, user_id: int) -> list[dict[str, Any]]:
+        """
+        Returns the favorite songs + the rank of the favorites for a given user.
+
+        :param user_id:
+        :type user_id: int
+        :return: The list of dictionaries describing the favorite songs.
+        :rtype: list
+        """
+        self.cursor.execute("SELECT * FROM User_Favorite_Song WHERE user_id = %s ORDER BY rank", (user_id,))
+        favorites = self.cursor.fetchall()
+        list_favorites = []
+
+        for favorite in favorites:
+            list_favorites.append(favorite)
+
+        return list_favorites
 
     def get_followed_count(self, followed_user_id: int) -> int:
         self.cursor.execute("SELECT * FROM User_Follow WHERE followed_id = %s", followed_user_id)

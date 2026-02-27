@@ -12,15 +12,26 @@ def get_user_profile(username):
     """
     Fetches a specific user's public profile.
     """
-    # Todo: Logic:
+
     user = db.get_user(username, filter=["email", "password_hash", "created_at", "updated_at"])
     user_id = user["id"]
+    if not user_id:
+        return jsonify("User does not exist"), 404
+
     followed_by = db.get_followed_count(user_id)
     following_count = db.get_following_count(user_id)
+    activity = db.get_user_activity(user_id)
 
-    # 2. Calculate derived stats (follower count, following count) via a db query.
-    # Returns: User object, stats, and recent activity log.
-    pass
+    if not followed_by:
+        return jsonify("Failed to fetch followed users"), 500
+
+    if not following_count:
+        return jsonify("Failed to fetch following users"), 500
+
+    if not activity:
+        return jsonify("Failed to fetch activity"), 500
+
+    return jsonify(user=user, followed=followed_by, following=following_count, activity=activity), 200
 
 @jwt_required()
 @users_bp.route('/<username>', methods=['DELETE'])
@@ -28,10 +39,6 @@ def delete_user(username):
     """
     Deletes a user account.
     """
-    # Todo: Logic:
-    # 1. Verify the requester is the owner of the account or an admin.
-    # 2. Call db.delete_user(username).
-    # Returns: Success message 200.
 
     current_user_identity = get_jwt_identity()
     user = db.get_user(username=current_user_identity)
@@ -40,7 +47,7 @@ def delete_user(username):
         return jsonify({"message": "User not logged in"}), 401
 
     if not user:
-        return jsonify({"message": "User does not exist"}), 401
+        return jsonify({"message": "User does not exist"}), 404
 
     if user == username:
         db.delete_user(username)
@@ -59,11 +66,6 @@ def follow_user():
       "followed_id": int
     }
     """
-    # Todo: Logic:
-    # 1. Get follower_id from session.
-    # 2. Get followed_id from request body.
-    # 3. Call db.follow_user(follower_id, followed_id).
-    # Returns: Success message 200 or error if already following.
 
     data = request.get_json()
     current_user_identity = get_jwt_identity()
@@ -91,11 +93,6 @@ def unfollow_user():
       "followed_id": int
     }
     """
-    # Todo: Logic:
-    # 1. Get follower_id from session/token.
-    # 2. Get followed_id from request body.
-    # 3. Call db.unfollow_user(follower_id, followed_id).
-    # Returns: Success message 200.
 
     data = request.get_json()
     current_user_identity = get_jwt_identity()
@@ -118,11 +115,15 @@ def get_user_favorites(username):
     """
     Gets a user's favorite songs.
     """
-    # Todo: Logic:
-    # 1. Get user_id from username.
-    # 2. Query User_Favorite_Song table joined with Song/Artist tables.
-    # Returns: List of song objects with rankings.
-    pass
+    user_id = db.get_user(username)["user_id"]
+    if not user_id:
+        return jsonify({"message": "Provided user does not exist"}), 401
+
+    favorites = db.get_user_favorites(user_id)
+    if not favorites:
+        return jsonify({"message": "Failed to fetch favorites for user"}), 500
+
+    return jsonify(username=username, favorites=favorites), 200
 
 @jwt_required()
 @users_bp.route('/favorite/song', methods=['POST'])
@@ -136,11 +137,6 @@ def add_favorite_song():
       "rank": int,
     }
     """
-    # Todo: Logic:
-    # 1. Get user_id by getting the user by username from the current session.
-    # 2. Get song_id (internal ID) and rank from request.
-    # 3. Call db.favorite_song(user_id, song_id, rank).
-    # Returns: Success message.
 
     data = request.get_json()
     current_user_identity = get_jwt_identity()

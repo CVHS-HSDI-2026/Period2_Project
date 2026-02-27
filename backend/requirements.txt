@@ -1,6 +1,6 @@
 bcrypt==5.0.0
 dotenv==0.9.9
-psycopg==3.3.2
+psycopg2==2.9.11
 python-dotenv==1.2.1
 typing_extensions==4.15.0
 flask
