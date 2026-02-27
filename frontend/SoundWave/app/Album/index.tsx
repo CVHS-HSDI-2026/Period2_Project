@@ -6,17 +6,13 @@ import AlbumDetails from '@components/AlbumDetails';
 
 export default function Album() {
   return (
-    <View style={styles.safeArea}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
-      >
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <View style={styles.container}>
         <Header title="SoundWave" />
-        <AlbumDetails />
-        <CommentBoxWithTracks />
-      </ScrollView>
-    </View>
+        <AlbumDetails/>
+        <CommentBoxWithTracks/>
+      </View>
+    </ScrollView>
   );
 }
 
