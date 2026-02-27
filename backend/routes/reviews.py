@@ -60,25 +60,62 @@ def delete_review(review_id):
     else:
         return jsonify({"message": "Failed to delete review"}), 500
 
+@jwt_required
 @reviews_bp.route('/<int:review_id>/reply', methods=['POST'])
 def reply_to_review(review_id):
     """
     Adds a reply to an existing review.
     """
-    # Todo: Logic:
-    # 1. Get user_id from session.
-    # 2. Parse content from request.
-    # 3. Call db.reply(review_id, user_id, content).
-    # Returns: Success message.
-    pass
+
+    username = get_jwt_identity()
+    user_id = db.get_user(username)["user_id"]
+    if not user_id:
+        return jsonify({"message": "User does not exist"}), 404
+
+    if not review_id:
+        return jsonify({"message": "Review does not exist"}), 404
+
+    data = request.get_json()
+    content = data['content']
+
+    if not content:
+        return jsonify({"message": "Invalid request"}), 400
+
+    add_reply = db.reply(review_id, user_id, content)
+    if add_reply:
+        return jsonify({"message": "Reply created"}), 201
+    else:
+        return jsonify({"message": "Failed to create reply"}), 500
 
 @reviews_bp.route('/song/<int:song_id>', methods=['GET'])
-def get_song_reviews(song_id):
+def get_reviews(song_id):
     """
     Gets all reviews for a specific song (internal ID).
     """
-    # Todo: Logic:
+
+    if not song_id:
+        return jsonify("Missing song_id"), 400
+
+    reviews = db.fetch_review(song_id)
+
     # 1. Query Review table where song_id matches.
+    # 2. Join with Users table to get username/pfp of the reviewer.
+    # 3. Fetch replies for each review (could be done via a separate query or nested).
+    # Returns: List of reviews with nested replies.
+    pass
+
+@reviews_bp.route('/album/<int:album_id>', methods=['GET'])
+def get_album_reviews(album_id):
+    """
+    Gets all reviews for a specific album (internal ID).
+    """
+
+    if not album_id:
+        return jsonify("Missing album_id"), 400
+
+    reviews = db.fetch_review(album_id=album_id)
+
+    # 1. Query Review table where album_id matches.
     # 2. Join with Users table to get username/pfp of the reviewer.
     # 3. Fetch replies for each review (could be done via a separate query or nested).
     # Returns: List of reviews with nested replies.

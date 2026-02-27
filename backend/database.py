@@ -315,7 +315,29 @@ class Database:
             if review:
                 return review
         raise Exception(f"Invalid request. Missing any of these fields: review_id, song_id, album_id")
-    
+
+    def fetch_reviews(self, song_id: int = None, album_id: int = None) -> list[dict[str | Any]]:
+        """
+        Fetches all reviews for a song or album.
+
+        :param song_id: The id of the song to fetch reviews for
+        :type song_id: int
+        :param album_id: The id of the album being fetched.
+        :type album_id: int
+        :return: list
+        """
+        if song_id:
+            self.cursor.execute("SELECT * FROM Review WHERE song_id = %s", (song_id,))
+            reviews = self.cursor.fetchall()
+            if reviews:
+                return reviews
+        elif album_id:
+            self.cursor.execute("SELECT * FROM Review WHERE album_id = %s", (album_id,))
+            reviews = self.cursor.fetchall()
+            if reviews:
+                return reviews
+        raise Exception("Failed to fetch reviews for song or album")
+
     def delete_review(self, review_id: int) -> bool:
         """
         Delete a review from the database.
