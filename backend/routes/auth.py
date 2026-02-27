@@ -53,7 +53,7 @@ def register():
         return jsonify({"message": "Current username/email already exists"}), 400
     except Exception as e:
         return jsonify({"message": "Gateway internal error"}), 500
-    return jsonify({"message": "User created successfully"}), 200
+    return jsonify({"message": "User created successfully"}), 201
 
 @auth_bp.route('/login', methods=['POST'])
 def login():

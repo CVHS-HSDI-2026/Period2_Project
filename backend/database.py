@@ -282,6 +282,39 @@ class Database:
         except Exception as e:
             print(f"Failed to create review: {e}")
             return False
+
+    def fetch_review(self, user_id: int, review_id: int = None, song_id: int = None, album_id: int = None) -> dict:
+        """
+        Fetches a review for a song or album.
+
+        Must pass either a song_id or album_id. If a song_id and album_id are passed, we assume you want the review for the song.
+
+        :param review_id: The id of a given review.
+        :type review_id: int
+        :param user_id: The id of the user fetching the review.
+        :type user_id: int
+        :param song_id: The id of the song being fetched.
+        :type song_id: int
+        :param album_id: The id of the album being fetched.
+        :type album_id: int
+        :return:
+        """
+        if review_id:
+            self.cursor.execute("SELECT * FROM Review WHERE review_id = %s", (review_id,))
+            review = self.cursor.fetchone()
+            if review:
+                return review
+        elif song_id:
+            self.cursor.execute("SELECT * FROM Review WHERE user_id = %s AND WHERE song_id = %s", (user_id, song_id))
+            review = self.cursor.fetchone()
+            if review:
+                return review
+        elif album_id:
+            self.cursor.execute("SELECT * FROM Review WHERE user_id = %s AND WHERE album_id = %s", (user_id, album_id))
+            review = self.cursor.fetchone()
+            if review:
+                return review
+        raise Exception(f"Invalid request. Missing any of these fields: review_id, song_id, album_id")
     
     def delete_review(self, review_id: int) -> bool:
         """
