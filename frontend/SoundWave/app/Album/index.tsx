@@ -1,3 +1,4 @@
+
 import { StyleSheet, View, ScrollView,} from 'react-native';
 import React from 'react';
 import Header from '../../components/HeaderWithSearch';
@@ -6,27 +7,31 @@ import AlbumDetails from '@components/AlbumDetails';
 
 export default function Album() {
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
-      <View style={styles.container}>
-        <Header title="SoundWave" />
-        <AlbumDetails/>
-        <CommentBoxWithTracks/>
-      </View>
-    </ScrollView>
+    <View style = {styles.safeArea}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        style={styles.scroll} 
+        contentContainerStyle={styles.scrollContent}
+        >
+          <Header title="SoundWave" />
+          <AlbumDetails/>
+          <CommentBoxWithTracks/>
+        </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#1E2345', // ensures even system areas (like notch/edges) match
+    backgroundColor: '#1E2345',
   },
   scroll: {
     flex: 1,
-    backgroundColor: '#1E2345', // scroll view background
+    backgroundColor: '#1E2345',
   },
   scrollContent: {
     flexGrow: 1,
-    backgroundColor: '#1E2345', // ensures the scrollable content area matches
+    backgroundColor: '#1E2345',
   },
 });
