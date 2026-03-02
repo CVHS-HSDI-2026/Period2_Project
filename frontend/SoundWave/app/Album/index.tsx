@@ -1,25 +1,36 @@
-import React, { useState } from 'react';
+import { StyleSheet, View, ScrollView,} from 'react-native';
+import React from 'react';
+import Header from '../../components/HeaderWithSearch';
+import CommentBoxWithTracks from '../../components/AlbumBox';
+import AlbumDetails from '@components/AlbumDetails';
 
-interface Album{
-    title: string;
-    artist: string;
-    date: string;
-    rating: string;
-    genre: string;
+export default function Album() {
+  return (
+    <View style = {styles.safeArea}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        style={styles.scroll} 
+        contentContainerStyle={styles.scrollContent}
+        >
+          <Header title="SoundWave" />
+          <AlbumDetails/>
+          <CommentBoxWithTracks/>
+        </ScrollView>
+    </View>
+  );
 }
 
-const AlbumView: React.FC = () => {
-
-    const [album, setAlbum] = useState<Album>({
-        title: '',
-        artist: 'justin bieber',
-        date: '',
-        rating: '4/10',
-        genre: ''
-    })
-
-    const [tracks, setTracks] = useState<string[]>([]);
-
-    const [comments, setComments] = useState<string('');
-    const [recommended, setRecommended] = useState<string>('');
-}
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#1E2345',
+  },
+  scroll: {
+    flex: 1,
+    backgroundColor: '#1E2345',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    backgroundColor: '#1E2345',
+  },
+});

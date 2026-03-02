@@ -6,7 +6,7 @@ export default function RecommendedBox() {
     <div style={{ padding: "10px" }}>
       
       <div style={{ display: "flex", flexDirection: "row", gap: "10px", overflowX: "auto" }}>
-        {Array.from({ length: 5 }).map((_, i) => (
+        {Array.from({ length: 15 }).map((_, i) => (
           <SongCard
             key={`popular-${i}`}
             variant="popular"
