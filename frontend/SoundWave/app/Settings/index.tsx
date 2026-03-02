@@ -10,6 +10,7 @@ export default function Settings(){
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [privacy, setPrivacy] = useState("Public"); 
   const [showPrivacyDropdown, setShowPrivacyDropdown] = useState(false);
@@ -21,18 +22,13 @@ export default function Settings(){
 
   //save these changes somewhere in the backend???
   const handleSaveChanges = () => {
-    if (newPassword !== confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
-//    setIsEditing(false);
-  };
-
-  const handleCancel = () => {
-//    setIsEditing(false);
-    setNewPassword("");
-    setConfirmPassword("");
-  };
+  if (newPassword !== confirmPassword) {
+    setPasswordError("Passwords do not match");
+    return;
+  }
+  setPasswordError("");
+  setIsSaved(true);
+};
 
   return (
     <View style={styles.container}>
@@ -48,24 +44,6 @@ export default function Settings(){
           />
         </Pressable>
 
-        {/* edit save buttons */}
-        {/* <View style={styles.editButtonsRow}>
-          {isEditing ? (
-            <>
-              <Pressable onPress={handleSaveChanges}>
-                <Text style={styles.edit}>Save</Text>
-              </Pressable>
-              <Pressable onPress={handleCancel}>
-                <Text style={styles.edit}>✕ Cancel</Text>
-              </Pressable>
-            </>
-          ) : (
-            <Pressable onPress={() => setIsEditing(true)}>
-              <Text style={styles.edit}>Edit ✎</Text>
-            </Pressable>
-          )}
-        </View> */}
-
         {/* password reset */}
         <Text style={styles.headings}>Settings</Text>
         <Text style={styles.titles}>Password</Text>
@@ -76,7 +54,6 @@ export default function Settings(){
           placeholderTextColor="#aaa"
           value={newPassword}
           onChangeText={setNewPassword}
-  //        editable={isEditing}
         />
         <Text style={styles.subTitles}>Confirm Password</Text>
         <View style={styles.passwordWrapper}>
@@ -87,7 +64,6 @@ export default function Settings(){
           placeholderTextColor="#aaa"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
-   //       editable={isEditing}
         />
         <Pressable onPress={() => setIsSecure(!isSecure)} style={styles.eyeInside}>
             <Image
@@ -97,6 +73,9 @@ export default function Settings(){
             />
         </Pressable>
         </View>
+        {passwordError !== "" && (
+            <Text style={styles.errorText}>{passwordError}</Text>
+        )}
 
         {/* display name */}
         <Text style={styles.titles}>Display Name</Text>
@@ -107,7 +86,6 @@ export default function Settings(){
           placeholderTextColor="#aaa"
           value={displayName}
           onChangeText={setDisplayName}
-   //       editable={isEditing}
         />
 
         {/* account */}
@@ -138,9 +116,6 @@ export default function Settings(){
           </Pressable>
         </View>  
 
-        {/* Linked Music Apps */}
-
-
         {/* privacy */}
         <Text style={styles.titles}>Privacy</Text>
         <Pressable style={styles.dropdownHeader} onPress={() => setShowPrivacyDropdown(!showPrivacyDropdown)} >
@@ -166,10 +141,9 @@ export default function Settings(){
             </Pressable>
           </View>
         )}
-        <button onClick={() => setIsSaved(isSaved)} style={styles.saveButton}>
-            
+        <Pressable style={styles.saveButton} onPress={handleSaveChanges}>
             <Text style={styles.buttonText}>Save</Text>
-        </button>
+        </Pressable>
       </ScrollView>
     </View>
   );
@@ -191,17 +165,6 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
   }, 
-
-//   editButtonsRow: {
-//     flexDirection: "row",
-//     justifyContent: "flex-end",
-//   },
-//   edit: {
-//     fontSize: 14,
-//     color: "#FFFFFF",
-//     fontFamily: "Jost_400Regular",
-//     marginLeft: 12,
-//   },
 
   headings: {
     fontSize: 30,
@@ -378,5 +341,13 @@ const styles = StyleSheet.create({
     color: "black",
     fontFamily: "Jost_500Medium",
     fontSize: 16,
+     textAlign: "center",
+  },
+  errorText: {
+    color: "red",
+    fontSize: 13,
+    marginBottom: 10,
+    marginLeft: 5,
+    fontFamily: "Jost_400Regular",
   }
 });
