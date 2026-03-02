@@ -167,6 +167,7 @@ export default function Settings(){
           </View>
         )}
         <button onClick={() => setIsSaved(isSaved)} style={styles.saveButton}>
+            
             <Text style={styles.buttonText}>Save</Text>
         </button>
       </ScrollView>
