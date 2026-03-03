@@ -17,13 +17,13 @@ export default function App() {
     <View style={styles.container}>
       <HeaderWithSearch title="SoundWave" />
 
-      <ScrollView showsVerticalScrollIndicator>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {/* ================= Popular ================= */}
         <Text style={styles.sectionTitle}>Popular</Text>
 
         <ScrollView
           horizontal
-          showsHorizontalScrollIndicator
+          showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.horizontalContent}
         >
           {Array.from({ length: 10 }).map((_, i) => (
@@ -44,7 +44,7 @@ export default function App() {
 
         <ScrollView
           horizontal
-          showsHorizontalScrollIndicator
+          showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.horizontalContent}
         >
           {Array.from({ length: 10 }).map((_, i) => (
@@ -54,8 +54,7 @@ export default function App() {
               title="Title"
               artist="Artist"
               rating={9}
-              commentsCount={0}
-              //releaseDate="02/06/2026"
+              releaseDate="02/06/2026"
               onPress={() => router.push("Song")}  
             />
           ))}

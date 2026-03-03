@@ -1,14 +1,7 @@
+import { router } from "expo-router/build/exports";
 import React, { FC } from "react";
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  Pressable,
-  ImageSourcePropType,
-  TouchableOpacity,
-} from "react-native";
-import { router, useRouter } from 'expo-router';
+import {View, Text, Image, StyleSheet, Pressable, ImageSourcePropType, TouchableOpacity,} from "react-native";
+
 /* ---------- Helpers ---------- */
 const formatCount = (count: number) => {
   if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}m`;
@@ -89,7 +82,10 @@ const SongCard: FC<SongCardProps> = ({
         </View>
       </View>
       {!isPopular && releaseDate && (
-        <Text style={styles.releaseDate}>{releaseDate}</Text>
+        <View style={styles.metaRight}>
+          <Text style={styles.releaseDate}>{releaseDate}</Text>
+        </View>
+        
       )}
     </Pressable>
   );
@@ -106,7 +102,6 @@ const styles = StyleSheet.create({
 
   popularCard: {
     backgroundColor: "#14172B",
-    padding: 12,
   },
 
   image: {
@@ -172,8 +167,7 @@ const styles = StyleSheet.create({
 
   releaseDate: {
     position: "absolute",
-    bottom: 8,
-    right: 8,
+    bottom: 2,
     fontSize: 13,
     fontWeight: "500",
     color: "#FFFFFF",

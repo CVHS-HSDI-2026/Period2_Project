@@ -36,7 +36,7 @@ export default function Profile() {
   return (
     <View style={styles.container}>
       <HeaderWithSearch title="SoundWAVE" />
-      <ScrollView style={{ width: '100%' }} contentContainerStyle={styles.scrollContent}>
+      <ScrollView style={{ width: '100%' }} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
         {/* profile stats */}
         <View style={styles.profileSection}>
@@ -52,12 +52,12 @@ export default function Profile() {
                   <Text style={styles.edit}>Save</Text>
                 </Pressable>
                 <Pressable onPress={handleCancel}>
-                  <Text style={styles.edit}>✕ Cancel</Text>
+                  <Text style={styles.edit}>Cancel</Text>
                 </Pressable>
               </View>
             ) : (
               <Pressable onPress={() => setIsEditing(true)}>
-                <Text style={styles.edit}>Edit ✎</Text>
+                <Text style={styles.edit}>Edit</Text>
               </Pressable>
             )}
 
@@ -107,37 +107,51 @@ export default function Profile() {
           </View>
         </View>
         <Text style={styles.sectionTitle}>Top Songs:</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
-          {Array.from({ length: 5 }).map((_, i) => (
-            <SongCard key={`song-${i}`} variant="popular" title="Title" artist="Artist" rating={8} commentsCount={12} onPress={() => router.push("./Song")} />
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>            
+          {Array.from({ length: 10 }).map((_, i) => (
+            <SongCard
+              key={`song-${i}`}
+              variant="popular"
+              title="Title"
+              artist="Artist"
+              rating={8}
+              commentsCount={12}
+              onPress={() => router.push("./Song")}
+            />
           ))}
         </ScrollView>
-
         <Text style={styles.sectionTitle}>Top Albums:</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
-          {Array.from({ length: 5 }).map((_, i) => (
-            <SongCard key={`album-${i}`} variant="popular" title="Title" artist="Artist" rating={8} commentsCount={12} onPress={() => router.push("./Album")} />
+          {Array.from({ length: 10 }).map((_, i) => (
+            <SongCard
+              key={`album-${i}`}
+              variant="popular"
+              title="Title"
+              artist="Artist"
+              rating={8}
+              commentsCount={12}
+              onPress={() => router.push("./Song")}
+            />
           ))}
         </ScrollView>
-
         <Text style={styles.sectionTitle}>Top Artists:</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
-          {Array.from({ length: 5 }).map((_, i) => (
-            <ArtistCard key={`artist-${i}`} variant="popular" title="Username" artist="Artist" rating={8} commentsCount={1278} onPress={() => router.push("./Artist")} />
+          {Array.from({ length: 10 }).map((_, i) => (
+            <ArtistCard
+              key={`artist-${i}`}
+              variant="popular"
+              title="Username"
+              artist="Artist"
+              rating={8}
+              commentsCount={1278}
+              onPress={() => router.push("./Song")}
+            />
           ))}
         </ScrollView>
-
-        <Text style={styles.sectionTitle}>Recent Activity:</Text>
+        <Text style={styles.sectionTitle}>Recommended Users:</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
-          {Array.from({ length: 5 }).map((_, i) => (
-            <SongCard key={`recent-${i}`} variant="popular" title="Title" artist="Artist" rating={8} commentsCount={12} onPress={() => router.push("./Recent")} />
-          ))}
-        </ScrollView>
-      
-       <Text style={styles.sectionTitle}>Recommended Users:</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
-          {Array.from({ length: 5 }).map((_, i) => (
-            <ArtistCard key={`rec-${i}`} variant="popular" title="Username" artist="Artist" rating={8} commentsCount={12} onPress={() => router.push("/Profile")} />
+          {Array.from({ length: 10 }).map((_, i) => (
+            <ArtistCard key={`rec-${i}`} variant="popular" title="Username" artist="Artist" rating={8} commentsCount={12} onPress={() => router.push("./Song")} />
           ))}
         </ScrollView>
       </ScrollView>
@@ -150,11 +164,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#181B33',
     alignItems: 'center',
-  },
-  scrollContent: {
-    alignItems: 'center',
-    paddingVertical: 40,
-    paddingHorizontal: 60,
   },
   profileSection: {
     flexDirection: 'row',
@@ -220,19 +229,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 4,
   },
+  scrollContent: {
+    paddingVertical: 40,
+    paddingHorizontal: 0,
+  },
   sectionTitle: {
-    fontSize: 20,
+   fontSize: 20,
     color: '#FFFFFF',
     fontFamily: 'Jost_500Medium',
     alignSelf: 'flex-start',
-    marginLeft: -20,
-    marginBottom: 20,
+    marginLeft: 40,
+    marginBottom: 16,
     marginTop: 30,
   },
   horizontalContent: {
     flexDirection: 'row',
     gap: 24,
-    paddingHorizontal: 20,
+    paddingLeft: 40,
+    paddingRight: 20,
+    width: '100%',
   },
   inlineEditRow: {
     flexDirection: 'row',

@@ -49,7 +49,7 @@ export default function Artist() {
         {/* top songs */}
         <Text style={styles.sectionTitle}>Top Songs:</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
-          {Array.from({ length: 5 }).map((_, i) => (
+          {Array.from({ length: 10 }).map((_, i) => (
             <SongCard
               key={`song-${i}`}
               variant="popular"
@@ -64,7 +64,7 @@ export default function Artist() {
         {/* top albums */}
         <Text style={styles.sectionTitle}>Top Albums:</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
-          {Array.from({ length: 5 }).map((_, i) => (
+          {Array.from({ length: 10 }).map((_, i) => (
             <SongCard
               key={`song-${i}`}
               variant="popular"
@@ -72,14 +72,14 @@ export default function Artist() {
               artist="Artist"
               rating={8}
               commentsCount={12}
-              onPress={() => router.push("./Album")}
+              onPress={() => router.push("./Song")}
             />
           ))}
         </ScrollView>
         {/* top artists */}
         <Text style={styles.sectionTitle}>Related Artists:</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
-          {Array.from({ length: 5 }).map((_, i) => (
+          {Array.from({ length: 10 }).map((_, i) => (
             <ArtistCard
               key={`song-${i}`}
               variant="popular"
@@ -87,6 +87,21 @@ export default function Artist() {
               artist="Artist"
               rating={8}
               commentsCount={1278}
+              onPress={() => router.push("./Song")}
+            />
+          ))}
+        </ScrollView>
+        {/* recommended users */}
+        <Text style={styles.sectionTitle}>Recommended Users:</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
+          {Array.from({ length: 10 }).map((_, i) => (
+            <ArtistCard
+              key={`song-${i}`}
+              variant="popular"
+              title="Username"
+              artist="Artist"
+              rating={8}
+              commentsCount={12}
               onPress={() => router.push("./Song")}
             />
           ))}
@@ -103,9 +118,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   scrollContent: {
-    alignItems: 'center',
     paddingVertical: 40,
-    paddingHorizontal: 60,
   },
   profileSection: {
     flexDirection: 'row',
@@ -124,6 +137,7 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 100,
     backgroundColor: '#ffffff20',
+    marginLeft: 150,
   },
   profileRight: {
     width: '65%',
@@ -166,13 +180,15 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontFamily: 'Jost_500Medium',
     alignSelf: 'flex-start',
-    marginLeft: -20,
-    marginBottom: 20,
+    marginLeft: 40,
+    marginBottom: 16,
     marginTop: 30,
   },
   horizontalContent: {
     flexDirection: 'row',
     gap: 24,
-    paddingHorizontal: 20,
+    paddingLeft: 40,
+    paddingRight: 20,
+    width: '100%',
   },
 });
