@@ -333,16 +333,16 @@ const styles = StyleSheet.create({
     width: "10%",
     borderRadius: 7,
     marginTop: 10,
-    boxShadow: "none",
-     borderWidth: 0,
-     cursor: "pointer",
+    borderWidth: 0,
+    cursor: "pointer",
+    justifyContent: "center",
+    alignItems: "center",
   },
   buttonText: {
     color: "black",
     fontFamily: "Jost_500Medium",
     fontSize: 16,
-    marginBottom: 20,
-     textAlign: "center",
+    
   },
   errorText: {
     color: "red",
