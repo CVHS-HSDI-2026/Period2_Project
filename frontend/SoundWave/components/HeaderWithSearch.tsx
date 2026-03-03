@@ -198,11 +198,12 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: '-45%',
+    flex: 1,
+    marginLeft: "2%",
+    marginRight: "1%",
     backgroundColor: '#fff',
     borderRadius: 8,
     paddingHorizontal: 10,
-    width: "40%",
   },
 
   searchInput: {
