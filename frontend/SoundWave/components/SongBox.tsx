@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-nati
 import { useFonts, Jost_400Regular } from "@expo-google-fonts/jost";
 import CommentBox from "./CommentBox";
 import RecommendedBox from "./RecomendedBox";
+import Commentsonly from "./Commentsonly";
 
 type Tab = "comments" | "recomended";
 
@@ -33,7 +34,7 @@ export default function SongBox() {
       {/* Content */}
       <View style={styles.contentBox}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          {activeTab === "comments" && <CommentBox />}
+          {activeTab === "comments" && <Commentsonly />}
           {activeTab === "recomended" && <RecommendedBox />}
         </ScrollView>
       </View>
