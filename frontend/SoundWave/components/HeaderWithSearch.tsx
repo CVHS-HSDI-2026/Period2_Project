@@ -14,7 +14,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
 
   const handleLogoPress = () => {
     console.log('Logo pressed!');
-    router.push("/");
+    router.push("/Homepage");
   }
   const handleSearchPress = () => {
     console.log('Search pressed! Query:', searchText);
@@ -42,7 +42,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
 
   const handleSettingsPress = () => {
     console.log('Settings pressed');
-    router.push('/Settings');
+    router.push("/Settings");
     setIsDropdownVisible(false);
   };
 

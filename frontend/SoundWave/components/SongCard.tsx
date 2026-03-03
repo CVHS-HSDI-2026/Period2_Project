@@ -102,7 +102,6 @@ const styles = StyleSheet.create({
 
   popularCard: {
     backgroundColor: "#14172B",
-    padding: 12,
   },
 
   image: {
