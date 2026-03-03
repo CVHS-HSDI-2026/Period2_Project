@@ -1,4 +1,5 @@
-import { router } from 'expo-router/build/exports';
+import { Platform } from 'react-native';
+import { router } from 'expo-router';
 import React, { FC, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { Image } from 'react-native';
@@ -211,6 +212,9 @@ const styles = StyleSheet.create({
     height: 40,
     fontSize: 14,
     color: '#333',
+    ...(Platform.OS === 'web' && {
+    outlineStyle: 'none',
+  }),
   },
 
   searchButton: {
