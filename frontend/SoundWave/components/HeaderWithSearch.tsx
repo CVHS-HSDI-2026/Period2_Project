@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router } from 'expo-router/build/exports';
 import React, { FC, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { Image } from 'react-native';
@@ -13,7 +13,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
 
   const handleLogoPress = () => {
     console.log('Logo pressed!');
-    router.push("/");
+    router.push("/Homepage");
   }
   const handleSearchPress = () => {
     console.log('Search pressed! Query:', searchText);
@@ -41,7 +41,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
 
   const handleSettingsPress = () => {
     console.log('Settings pressed');
-    router.push('/Settings');
+    router.push("/Settings");
     setIsDropdownVisible(false);
   };
 

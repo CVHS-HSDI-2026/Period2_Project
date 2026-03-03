@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity,} from "react-native";
-import { ScrollView } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { useFonts, Jost_400Regular } from "@expo-google-fonts/jost";
+import RecommendedBox from "../components/RecomendedBox";
+import Commentsonly from "./Commentsonly";
+
 type Tab = "comments" | "recommended";
 
 export default function CommentBox() {
@@ -11,70 +13,87 @@ export default function CommentBox() {
 
   return (
     <View style={styles.container}>
+      {/* Tabs */}
+      <View style={styles.tabRow}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "comments" && styles.activeTab]}
+          onPress={() => setActiveTab("comments")}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === "comments" && styles.activeTabText,
+            ]}
+          >
+            Comments
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "recommended" && styles.activeTab]}
+          onPress={() => setActiveTab("recommended")}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === "recommended" && styles.activeTabText,
+            ]}
+          >
+            Recommended
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Content */}
         <ScrollView showsVerticalScrollIndicator={false}>
         {activeTab === "comments" ? (
-          <>
-            <Comment text="Wow this is so peak Kenshi really outdid himself this time yad wa wadsda..." />
-            <Comment text="Ts so mid how did he even come up with this. This song is a disgrace to j-pop." />
-            <Comment text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do temporas..." />
-
-            <View style={styles.replyIndent}>
-              <Comment text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, se dor amit..." />
-            </View>
-          </>
+          <Commentsonly />
         ) : (
-          <Text style={styles.emptyText}>No recommendations yet.</Text>
+          <RecommendedBox />
         )}
         </ScrollView>
     </View>
   );
 }
 
-/* Individual comment row */
-function Comment({ text }: { text: string }) {
-  return (
-    <View style={styles.commentRow}>
-      <View style={styles.avatar} />
-
-      <Text style={styles.commentText} numberOfLines={2}>
-        {text}
-      </Text>
-
-      {/*Need to add Thumbs up icon and reply icon with icon functionality*/}
-
-
-      <Text style={styles.icon}>↩</Text>
-    </View>
-  );
-}
 
 const styles = StyleSheet.create({
   container: {
     width: "90%",
-    marginTop: 10,
+    marginTop: 20,
+    alignSelf: "center",
   },
 
   tabRow: {
     flexDirection: 'row',
   },
 
-  tab: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    backgroundColor: '#161B36',
-    borderTopLeftRadius: 6,
-    borderTopRightRadius: 6,
-    marginRight: 6,
-    borderWidth: 1,
-    borderColor: '#FFFFFF',
-  },
+tab: {
+  paddingVertical: 8,
+  paddingHorizontal: 16,
+  backgroundColor: '#161B36',
+  borderTopLeftRadius: 6,
+  borderTopRightRadius: 6,
+  marginRight: 6,
+  borderWidth: 1,
+  borderColor: '#FFFFFF',
+  borderBottomWidth: 0,   
+  zIndex: 2,              
+},
 
-  activeTab: {
-    backgroundColor: '#1E2345',
-    borderWidth: 1,
-    borderColor: '#FFFFFF',
-  },
+activeTab: {
+  backgroundColor: '#1E2345',
+},
+
+contentBox: {
+  backgroundColor: '#1E2345',
+  borderRadius: 6,
+  padding: 16,
+  maxHeight: 350,
+  borderWidth: 1,
+  borderColor: '#FFFFFF',
+  marginTop: -1,          
+},
 
   tabText: {
     fontSize: 16,
@@ -84,16 +103,6 @@ const styles = StyleSheet.create({
 
   activeTabText: {
     color: '#FFFFFF',
-  },
-
-  contentBox: {
-    backgroundColor: '#1E2345',
-    borderRadius: 6,
-    padding: 16,
-    minHeight: 260,
-
-    borderWidth: 1,
-    borderColor: '#FFFFFF',
   },
 
   commentRow: {
@@ -125,11 +134,52 @@ const styles = StyleSheet.create({
   },
 
   replyIndent: {
-    marginLeft: 38,
+    marginLeft: 8,
   },
 
   emptyText: {
     color: '#9AA2D6',
     fontFamily: 'Jost_400Regular',
   },
+  iconRow: {
+  flexDirection: "row",
+  alignItems: "center",
+  gap: 10, 
+},
+
+iconImage: {
+  width: 16,
+  height: 16,
+  tintColor: "#ffffff", 
+},
+  isliked: {
+  width: 16,
+  height: 16,
+  tintColor: "#1e00ff", 
+},
+replyBox: {
+  marginLeft: 38,
+  marginTop: 6,
+  width: "90%",
+},
+
+replyInput: {
+  backgroundColor: "#2A2F5A",
+  padding: 8,
+  borderRadius: 6,
+  color: "white",
+},
+
+postReply: {
+  color: "#9AA2D6",
+  marginTop: 4,
+},
+replyVector: {
+  width: 14,
+  height: 14,
+  marginRight: 6,
+  tintColor: "#9AA2D6",
+  alignSelf: "center",
+},
 });
+
