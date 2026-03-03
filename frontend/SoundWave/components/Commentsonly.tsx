@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
 
-  /* SAME as before but NO border */
+  
   contentBox: {
     backgroundColor: "#1E2345",
     borderRadius: 6,
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
 
   replyBox: {
     marginLeft: 38,
-    marginTop: 6,
+    marginTop: 30,
     width: "90%",
   },
 

@@ -5,6 +5,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import CustomTypeBox from "../../components/CustomTypeBox";
@@ -28,90 +31,100 @@ export default function SignUp() {
   };
 
   return (
-    <View style={styles.background}>
-      <View style={styles.card}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.card}>
+          {/* Logo */}
+          <Image
+            source={require("../../assets/web-name.png")}
+            style={styles.logo}
+            resizeMode="contain"
+          />
 
-        {/* Logo */}
-        <Image
-          source={require("../../assets/web-name.png")}
-          style={styles.logo}
-          resizeMode="contain"
-        />
+          {/* Avatar */}
+          <View style={styles.avatar}>
+            <Ionicons name="person-add" size={60} color="black" />
+          </View>
 
-        {/* Avatar */}
-        <View style={styles.avatar}>
-          <Ionicons name="person-add" size={60} color="black" />
+          {/* Google Signup */}
+          <TouchableOpacity
+            style={styles.googleButton}
+            onPress={handleGoogleSignup}
+          >
+            <Ionicons name="logo-google" size={20} color="white" />
+            <Text style={styles.googleText}> Sign up with Google</Text>
+          </TouchableOpacity>
+
+          {/* Username */}
+          <Text style={styles.label}>Username</Text>
+          <CustomTypeBox
+            value={username}
+            onChange={setUsername}
+            placeholder="Enter your username"
+            type="text"
+          />
+
+          {/* Email */}
+          <Text style={styles.label}>Email</Text>
+          <CustomTypeBox
+            value={email}
+            onChange={setEmail}
+            placeholder="Enter your email"
+            type="email"
+          />
+
+          {/* Password */}
+          <Text style={styles.label}>Password</Text>
+          <CustomTypeBox
+            value={password}
+            onChange={setPassword}
+            placeholder="Enter your password"
+            type="password"
+          />
+
+          {/* Confirm Password */}
+          <Text style={styles.label}>Confirm Password</Text>
+          <CustomTypeBox
+            value={confirmPassword}
+            onChange={setConfirmPassword}
+            placeholder="Confirm your password"
+            type="password"
+          />
+
+          {/* Signup Button */}
+          <TouchableOpacity
+            style={styles.signupButton}
+            onPress={handleSignup}
+          >
+            <Text style={styles.signupText}>Sign Up</Text>
+          </TouchableOpacity>
+
+          {/* Back to Login */}
+          <TouchableOpacity onPress={() => router.push("Login")}>
+            <Text style={styles.link}>
+              Already have an account? Log in
+            </Text>
+          </TouchableOpacity>
         </View>
-
-        {/* Google Signup */}
-        <TouchableOpacity
-          style={styles.googleButton}
-          onPress={handleGoogleSignup}
-        >
-          <Ionicons name="logo-google" size={20} color="white" />
-          <Text style={styles.googleText}> Sign up with Google</Text>
-        </TouchableOpacity>
-
-        {/* Username */}
-        <Text style={styles.label}>Username</Text>
-        <CustomTypeBox
-          value={username}
-          onChange={setUsername}
-          placeholder="Enter your username"
-          type="text"
-        />
-
-        {/* Email */}
-        <Text style={styles.label}>Email</Text>
-        <CustomTypeBox
-          value={email}
-          onChange={setEmail}
-          placeholder="Enter your email"
-          type="email"
-        />
-
-        {/* Password */}
-        <Text style={styles.label}>Password</Text>
-        <CustomTypeBox
-          value={password}
-          onChange={setPassword}
-          placeholder="Enter your password"
-          type="password"
-        />
-
-        {/* Confirm Password */}
-        <Text style={styles.label}>Confirm Password</Text>
-        <CustomTypeBox
-          value={confirmPassword}
-          onChange={setConfirmPassword}
-          placeholder="Confirm your password"
-          type="password"
-        />
-
-        {/* Signup Button */}
-        <TouchableOpacity
-          style={styles.signupButton}
-          onPress={handleSignup}
-        >
-          <Text style={styles.signupText}>Sign Up</Text>
-        </TouchableOpacity>
-
-        {/* Back to Login */}
-        <TouchableOpacity onPress={() => router.push("/login")}>
-          <Text style={styles.link}>Already have an account? Log in</Text>
-        </TouchableOpacity>
-
-      </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
+  scrollContainer: {
+    flexGrow: 1,
     backgroundColor: "#0F1535",
     justifyContent: "center",
     alignItems: "center",
+    paddingVertical: 40,
   },
   card: {
     width: "85%",
