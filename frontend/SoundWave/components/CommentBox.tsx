@@ -1,246 +1,58 @@
-import SongCard from "../components/SongCard";
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-} from "react-native";
-import { ScrollView } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useFonts, Jost_400Regular } from "@expo-google-fonts/jost";
-import { Image } from 'react-native';
-import thumbsUp from "../assets/thumbsUp.png";
-import replyIcon from "../assets/reply.png";
 import RecommendedBox from "../components/RecomendedBox";
-import replypoint from "../assets/Vector4.png"; // needs to be placed b4 the profile in reply indent \\
-import { router, useRouter } from 'expo-router';
-//Idk why they render as errors yet still render on the page
+import Commentsonly from "./Commentsonly";
+
 type Tab = "comments" | "recommended";
 
-  type Reply = {
-    id: string;
-    text: string;
-  };
-
-  type CommentType = {
-    id: string;
-    text: string;
-    replies: Reply[];
-  };
-
-  export default function CommentBox() {
+export default function CommentBox() {
   const [activeTab, setActiveTab] = useState<Tab>("comments");
   const [fontsLoaded] = useFonts({ Jost_400Regular });
 
-  const [comments, setComments] = useState<CommentType[]>([
-    {
-      id: "1",
-      text: "Wow this is so peak Kenshi really outdid himself...",
-      replies: [],
-    },
-    {
-      id: "2",
-      text: "Ts so mid how did he even come up with this.",
-      replies: [],
-    },
-  ]);
-
-  
-  const [newComment, setNewComment] = useState("");
-  const [showCommentBox, setShowCommentBox] = useState(false);
-
   if (!fontsLoaded) return null;
 
-return (
-  <View style={styles.container}>
-
-    {/* Tabs */}
-    <View style={styles.tabRow}>
-      <TouchableOpacity
-        style={[styles.tab, activeTab === "comments" && styles.activeTab]}
-        onPress={() => setActiveTab("comments")}
-      >
-        <Text style={[styles.tabText, activeTab === "comments" && styles.activeTabText]}>
-          Comments
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.tab, activeTab === "recommended" && styles.activeTab]}
-        onPress={() => setActiveTab("recommended")}
-      >
-        <Text style={[styles.tabText, activeTab === "recommended" && styles.activeTabText]}>
-          Recommended
-        </Text>
-      </TouchableOpacity>
-    </View>
-
-    {/* Content box shared by both tabs */}
-    <View style={styles.contentBox}>
-      {activeTab === "comments" ? (
-        <>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            style={{ flex: 1 }}
-            contentContainerStyle={{ paddingBottom: 20 }}
-          >
-            {comments.map((c) => (
-              <View key={c.id}>
-                <Comment
-                  text={c.text}
-                  onReply={(replyText) => {
-                    setComments((prev) =>
-                      prev.map((item) =>
-                        item.id === c.id
-                          ? {
-                              ...item,
-                              replies: [
-                                ...item.replies,
-                                {
-                                  id: Date.now().toString(),
-                                  text: replyText,
-                                },
-                              ],
-                            }
-                          : item
-                      )
-                    );
-                  }}
-                />
-
-                {c.replies.map((r) => (
-                  <View key={r.id} style={styles.replyIndent}>
-                    <Comment text={r.text} isReply />
-                  </View>
-                ))}
-              </View>
-            ))}
-          </ScrollView>
-
-          <TouchableOpacity onPress={() => setShowCommentBox(!showCommentBox)}>
-            <Text style={{ color: "#9AA2D6", marginTop: 10 }}>
-              Add Comment
-            </Text>
-          </TouchableOpacity>
-
-          {showCommentBox && (
-            <View style={{ marginTop: 8 }}>
-              <TextInput
-                value={newComment}
-                onChangeText={setNewComment}
-                placeholder="Write a comment..."
-                placeholderTextColor="#aaa"
-                style={{
-                  backgroundColor: "#2A2F5A",
-                  padding: 10,
-                  borderRadius: 6,
-                  color: "white",
-                }}
-              />
-
-              <TouchableOpacity
-                onPress={() => {
-                  if (newComment.trim()) {
-                    setComments((prev) => [
-                      ...prev,
-                      {
-                        id: Date.now().toString(),
-                        text: newComment,
-                        replies: [],
-                      },
-                    ]);
-                    setNewComment("");
-                    setShowCommentBox(false);
-                  }
-                }}
-              >
-                <Text style={{ color: "#9AA2D6", marginTop: 4 }}>
-                  Post Comment
-                </Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </>
-      ) : (
-        <>
-          <RecommendedBox />
-          
-        </>
-      )}
-    </View>
-
-  </View>
-);
-}
-/* Individual comment row */
-function Comment({
-  text,
-  onReply,
-  isReply = false,
-}: {
-  text: string;
-  onReply?: (text: string) => void;
-  isReply?: boolean;
-}) {
-  const [liked, setLiked] = useState(false);
-  const [replyOpen, setReplyOpen] = useState(false);
-  const [replyText, setReplyText] = useState("");
-
   return (
-    <View style={{ marginBottom: 14 }}>
-      {/* top row */}
-      <View style={styles.commentRow}>
-  {/* Reply connector icon */}
-  {isReply && (
-    <Image source={replypoint} style={styles.replyVector} />
-  )}
-
-  <View style={styles.avatar} />
-
-  <Text style={styles.commentText}>{text}</Text>
-
-  <View style={styles.iconRow}>
-    <TouchableOpacity onPress={() => setLiked(!liked)}>
-      <Image
-        source={thumbsUp}
-        style={[styles.iconImage, liked && styles.isliked]}
-      />
-    </TouchableOpacity>
-
-    {!isReply && (
-      <TouchableOpacity onPress={() => setReplyOpen(!replyOpen)}>
-        <Image source={replyIcon} style={styles.iconImage} />
-      </TouchableOpacity>
-    )}
-  </View>
-</View>
-      
-
-      {/* reply input BELOW the row */}
-      {replyOpen && (
-        <View style={styles.replyBox}>
-          <TextInput
-            value={replyText}
-            onChangeText={setReplyText}
-            placeholder="Write a reply..."
-            placeholderTextColor="#aaa"
-            style={styles.replyInput}
-          />
-
-          <TouchableOpacity
-            onPress={() => {
-              if (replyText.trim() && onReply) {
-                onReply(replyText);
-                setReplyText("");
-                setReplyOpen(false);
-              }
-            }}
+    <View style={styles.container}>
+      {/* Tabs */}
+      <View style={styles.tabRow}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "comments" && styles.activeTab]}
+          onPress={() => setActiveTab("comments")}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === "comments" && styles.activeTabText,
+            ]}
           >
-            <Text style={styles.postReply}>Post Reply</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+            Comments
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "recommended" && styles.activeTab]}
+          onPress={() => setActiveTab("recommended")}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === "recommended" && styles.activeTabText,
+            ]}
+          >
+            Recommended
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Content */}
+      <View style={styles.contentBox}>
+        {activeTab === "comments" ? (
+          <Commentsonly />
+        ) : (
+          <RecommendedBox />
+        )}
+      </View>
     </View>
   );
 }

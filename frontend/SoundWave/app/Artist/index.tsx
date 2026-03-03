@@ -72,7 +72,7 @@ export default function Artist() {
               artist="Artist"
               rating={8}
               commentsCount={12}
-              onPress={() => router.push("./Song")}
+              onPress={() => router.push("./Album")}
             />
           ))}
         </ScrollView>
