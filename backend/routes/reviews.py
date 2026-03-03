@@ -96,7 +96,7 @@ def get_reviews(song_id):
     if not song_id:
         return jsonify("Missing song_id"), 400
 
-    reviews = db.fetch_review(song_id)
+    reviews = db.fetch_reviews(song_id)
 
     # 1. Query Review table where song_id matches.
     # 2. Join with Users table to get username/pfp of the reviewer.

@@ -327,12 +327,12 @@ class Database:
         :return: list
         """
         if song_id:
-            self.cursor.execute("SELECT * FROM Review WHERE song_id = %s", (song_id,))
+            self.cursor.execute("SELECT * FROM Review WHERE song_id = %s INNER JOIN Users ON Review.user_id = Users.id", (song_id,))
             reviews = self.cursor.fetchall()
             if reviews:
                 return reviews
         elif album_id:
-            self.cursor.execute("SELECT * FROM Review WHERE album_id = %s", (album_id,))
+            self.cursor.execute("SELECT * FROM Review WHERE album_id = %s INNER JOIN Users ON Review.user_id = Users.id", (album_id,))
             reviews = self.cursor.fetchall()
             if reviews:
                 return reviews
