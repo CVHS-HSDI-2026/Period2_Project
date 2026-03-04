@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class MusicBrainzDatabase:
     def __init__(self):
         """
