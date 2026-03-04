@@ -16,15 +16,49 @@ export default function Login() {
   const [emailOrUsername, setEmailOrUsername] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleGoogleLogin = () => {
-    console.log("Google login pressed");
+  // Placeholder Google login
+  const handleGoogleLogin = async () => {
+    alert("Google login not connected");
   };
 
-  const handleLogin = () => {
-    console.log("Login pressed");
+  const handleLogin = async () => {
+    setError("");
 
-            router.push("/"); // change later to your home route
+    if (!emailOrUsername.trim() || !password.trim()) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await fetch("http://backendurl/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          emailOrUsername,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if( !response.ok ) {
+        setError(data.message || "Login failed");
+        return;
+      }
+      
+      router.replace("/");
+    } catch (err) {
+      setError("Network error. Please try again");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -68,6 +102,11 @@ export default function Login() {
           placeholder="Enter your password"
           type="password"
         />
+        
+        {error ? (
+          <Text style={{ color: "red", marginTop: 5 }}>{error}</Text>
+        ) : null}
+        
 
         {/* Remember Me */}
         <TouchableOpacity
@@ -87,16 +126,19 @@ export default function Login() {
         <TouchableOpacity
           style={styles.loginButton}
           onPress={handleLogin}
+          disabled={loading}
         >
-          <Text style={styles.loginText}>Login</Text>
+          <Text style={styles.loginText}>
+            {loading ? "Logging in" : "Login"}
+          </Text>
         </TouchableOpacity>
 
         {/* Links */}
-        <TouchableOpacity onPress={() => router.push("/signup")}>
+        <TouchableOpacity onPress={() => router.push("/Signup")}>
           <Text style={styles.link}>Click here to sign up</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.push("/forgot-password")}>
+        <TouchableOpacity onPress={() => router.push("/forgot")}>
           <Text style={styles.link}>Forgot password?</Text>
         </TouchableOpacity>
 
