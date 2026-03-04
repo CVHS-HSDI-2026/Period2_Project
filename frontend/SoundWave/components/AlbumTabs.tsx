@@ -8,8 +8,8 @@ export default function AlbumTabs() {
 
   return (
     <div>
-      <div style={{ display: "flex", gap: "10px" }}>
-        <button onClick={() => setTab("comments")}>
+      <div style={{ display: "flex", gap: "10px", }}>
+        <button style={{marginLeft:"15px"}} onClick={() => setTab("comments")}>
           Comments
         </button>
 
@@ -21,7 +21,7 @@ export default function AlbumTabs() {
         </button>
       </div>
 
-      <div style={{ border: "1px solid black", height: "200px", marginTop: "10px" }}>
+      <div style={{ border: "1px solid black", height: "200px", marginTop: "10px", }}>
         {tab === "comments" ? <CommentBox /> : tab === "recommended" ? <RecommendedBox /> : <TracksBox />}
       </div>
     </div>

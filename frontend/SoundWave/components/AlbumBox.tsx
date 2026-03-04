@@ -78,6 +78,7 @@ const styles = StyleSheet.create({
   contentBox: {
     backgroundColor: "#1E2345",
     borderRadius: 6,
+    borderTopLeftRadius: 0,
     padding: 16,
     minHeight: 260,
     borderWidth: 1,

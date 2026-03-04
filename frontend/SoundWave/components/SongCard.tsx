@@ -2,6 +2,7 @@ import { router } from "expo-router/build/exports";
 import React, { FC } from "react";
 import {View, Text, Image, StyleSheet, Pressable, ImageSourcePropType, TouchableOpacity,} from "react-native";
 
+const chatbubble = require("../assets/speech-bubble.png");
 /* ---------- Helpers ---------- */
 const formatCount = (count: number) => {
   if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}m`;
@@ -58,7 +59,7 @@ const SongCard: FC<SongCardProps> = ({
           </Text>
           <Text style={styles.artist} numberOfLines={1}>
             <TouchableOpacity onPress={() => router.push("Artist")}>
-                        <Text style={styles.artist}>{artist}</Text>
+              <Text style={styles.artist}>{artist}</Text>
             </TouchableOpacity>
             {}
           </Text>
@@ -72,7 +73,7 @@ const SongCard: FC<SongCardProps> = ({
 
           {commentsCount !== undefined && (
             <View style={styles.commentBadge}>
-              <Text style={styles.commentIcon}>💬</Text>
+              <Image source={chatbubble} style={styles.commentIcon} />
               <Text style={styles.commentCount}>
                 {formatCount(commentsCount)}
               </Text>
@@ -156,8 +157,9 @@ const styles = StyleSheet.create({
   },
 
   commentIcon: {
-    fontSize: 13,
-    color: "#FFFFFF",
+    width: 18,
+    height: 18,
+    tintColor: "#FFFFFF",
   },
 
   commentCount: {
