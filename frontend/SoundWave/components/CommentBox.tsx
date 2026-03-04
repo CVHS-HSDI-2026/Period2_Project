@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-nati
 import { useFonts, Jost_400Regular } from "@expo-google-fonts/jost";
 import RecommendedBox from "../components/RecomendedBox";
 import Commentsonly from "./Commentsonly";
-
+//seperated comments from this file
 type Tab = "comments" | "recommended";
 
 export default function CommentBox() {
