@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Pressable, ScrollView, TextInput, Image } from 'react-native';
+import { StyleSheet, Text, View, Pressable, ScrollView, TextInput, Image, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
 import HeaderWithSearch from "../../components/HeaderWithSearch";
 import { useRouter } from "expo-router";
@@ -36,13 +36,13 @@ export default function Settings(){
       <ScrollView style={{ width: '100%' }} contentContainerStyle={styles.scrollContent}>
         
         {/* back arrow */}
-        <Pressable onPress={() => router.back()}>
+        <TouchableOpacity onPress={() => router.back()} style={{ alignSelf: "flex-start" }}>
           <Image
             source= {require('../../assets/chevron-right.png')}
             style={styles.backArrow}
-            resizeMode="contain"
+            resizeMode= "contain"
           />
-        </Pressable>
+        </TouchableOpacity>
 
         {/* password reset */}
         <Text style={styles.headings}>Settings</Text>
