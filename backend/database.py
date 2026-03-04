@@ -7,6 +7,9 @@ import os
 
 load_dotenv()
 
+# Todo: We should make a separate database class for the MusicBrainz DB to prevent confusion about which DB we're
+#  calling in the code.
+
 # Im choosing to document everything in this file for clarity :D
 class Database:
     def __init__(self):
@@ -16,7 +19,7 @@ class Database:
         :raises ConnectionError: If unable to connect to PostgreSQL.
         """
 
-        self.connection = psycopg.connect(os.getenv("POSTGRES_CONNECTION_STRING"))
+        self.connection = psycopg.connect(os.getenv("USER_POSTGRES_CONNECTION_STRING"))
         self.connection.autocommit = True
         self.cursor = self.connection.cursor()
 
@@ -102,8 +105,6 @@ class Database:
             return None
         user_dict = dict(zip([desc[0] for desc in self.cursor.description], user)) # for those who dont understand, this turns the data into a dictionary
 
-        if "password_hash" in user_dict:
-            del user_dict["password_hash"]
         for field in filter:
             if field in user_dict:
                 del user_dict[field]
@@ -278,8 +279,8 @@ if __name__ == "__main__":
         print("DB connection failed.")
         sys.exit(1)
 
-    password = 'password123'
-    password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    password = b'password123'
+    password_hash = bcrypt.hashpw(password, bcrypt.gensalt(rounds=12))
     user_data = {
         "username": "testuser",
         "email": "testuserlol@test.com",

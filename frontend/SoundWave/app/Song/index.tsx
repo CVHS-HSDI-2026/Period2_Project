@@ -1,25 +1,37 @@
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import React from 'react';
 import Header from '../../components/HeaderWithSearch';
 import SongDetails from '../../components/SongDetails';
-import CommentBox from '../../components/CommentBox';
+import SongBox from '../../components/SongBox';
 
 export default function Song() {
 
   return (
-    <View style={styles.container}>
-      <Header title="SoundWave" />
-
-      <SongDetails />
-
-      <CommentBox />
+    <View style = {styles.safeArea}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        style={styles.scroll} 
+        contentContainerStyle={styles.scrollContent}
+        >
+          <Header title="SoundWave" />
+          <SongDetails/>
+          <SongBox/>
+        </ScrollView>
     </View>
+
   );
 }
-
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
+    backgroundColor: '#1E2345',
+  },
+  scroll: {
+    flex: 1,
+    backgroundColor: '#1E2345',
+  },
+  scrollContent: {
+    flexGrow: 1,
     backgroundColor: '#1E2345',
   },
 });

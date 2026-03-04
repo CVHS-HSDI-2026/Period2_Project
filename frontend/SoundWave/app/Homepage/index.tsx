@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
-
+ 
 import HeaderWithSearch from "../../components/HeaderWithSearch";
 import SongCard from "../../components/SongCard";
 

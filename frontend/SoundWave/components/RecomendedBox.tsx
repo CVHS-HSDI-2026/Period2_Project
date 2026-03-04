@@ -1,7 +1,8 @@
-import SongCard from "./SongCard";
-import { router } from 'expo-router';
+import SongCard from "../components/SongCard";
+import { useRouter } from 'expo-router';
 
 export default function RecommendedBox() {
+  const router = useRouter();
   return (
     <div style={{ padding: "10px" }}>
       

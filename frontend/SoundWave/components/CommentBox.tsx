@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { useFonts, Jost_400Regular } from "@expo-google-fonts/jost";
 import RecommendedBox from "../components/RecomendedBox";
 import Commentsonly from "./Commentsonly";
@@ -9,7 +9,6 @@ type Tab = "comments" | "recommended";
 export default function CommentBox() {
   const [activeTab, setActiveTab] = useState<Tab>("comments");
   const [fontsLoaded] = useFonts({ Jost_400Regular });
-
   if (!fontsLoaded) return null;
 
   return (
@@ -46,13 +45,13 @@ export default function CommentBox() {
       </View>
 
       {/* Content */}
-      <View style={styles.contentBox}>
+        <ScrollView showsVerticalScrollIndicator={false}>
         {activeTab === "comments" ? (
           <Commentsonly />
         ) : (
           <RecommendedBox />
         )}
-      </View>
+        </ScrollView>
     </View>
   );
 }
