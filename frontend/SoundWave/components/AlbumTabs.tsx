@@ -9,7 +9,7 @@ export default function AlbumTabs() {
   return (
     <div>
       <div style={{ display: "flex", gap: "10px", }}>
-        <button style={{marginLeft:"15px"}} onClick={() => setTab("comments")}>
+        <button onClick={() => setTab("comments")}>
           Comments
         </button>
 
