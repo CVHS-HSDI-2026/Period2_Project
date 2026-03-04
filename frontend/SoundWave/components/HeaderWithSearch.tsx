@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { router } from 'expo-router';
 import React, { FC, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native';
@@ -13,7 +14,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
 
   const handleLogoPress = () => {
     console.log('Logo pressed!');
-    router.push("/");
+    router.push("/Homepage");
   }
   const handleSearchPress = () => {
     console.log('Search pressed! Query:', searchText);
@@ -41,7 +42,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
 
   const handleSettingsPress = () => {
     console.log('Settings pressed');
-    router.push('/Settings');
+    router.push("/Settings");
     setIsDropdownVisible(false);
   };
 
@@ -211,6 +212,9 @@ const styles = StyleSheet.create({
     height: 40,
     fontSize: 14,
     color: '#333',
+    ...(Platform.OS === 'web' && {
+    outlineStyle: 'none',
+  }),
   },
 
   searchButton: {
