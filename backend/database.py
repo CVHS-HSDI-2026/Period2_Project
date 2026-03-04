@@ -1,11 +1,12 @@
-from typing import Any
-
 import psycopg2
-from dotenv import load_dotenv
+import psycopg2.extras
 import datetime
 import bcrypt
 import sys
 import os
+
+from typing import Any
+from dotenv import load_dotenv
 
 load_dotenv()
 
