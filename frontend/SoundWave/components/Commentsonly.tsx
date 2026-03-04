@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
 
   
   contentBox: {
-    backgroundColor: "#1E2345",
+    backgroundColor: "#14172B",
     borderRadius: 6,
     padding: 16,
     maxHeight: 350,
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
   },
 
   replyInput: {
-    backgroundColor: "#2A2F5A",
+    backgroundColor: "#14172B",
     padding: 8,
     borderRadius: 6,
     color: "white",
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    backgroundColor: "#2A2F5A",
+    backgroundColor: "#14172B",
     padding: 10,
     borderRadius: 6,
     color: "white",

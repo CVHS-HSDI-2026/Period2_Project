@@ -121,7 +121,7 @@ export default function SignUp() {
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
-    backgroundColor: "#0F1535",
+    backgroundColor: "#14172B",
     justifyContent: "center",
     alignItems: "center",
     paddingVertical: 40,

@@ -150,7 +150,7 @@ export default function Login() {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    backgroundColor: "#0F1535",
+    backgroundColor: "#14172B",
     justifyContent: "center",
     alignItems: "center",
   },
