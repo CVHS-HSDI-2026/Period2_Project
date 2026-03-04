@@ -206,7 +206,7 @@ class Database:
         :return: The user data dict if found, None if not.
         :rtype: dict
         """
-        self.cursor.execute("SELECT * FROM users WHERE username = %s", username)
+        self.cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
         fetch_user = self.cursor.fetchone()
         if not fetch_user:
             return None
@@ -262,14 +262,14 @@ class Database:
         return list_favorites
 
     def get_followed_count(self, followed_user_id: int) -> int:
-        self.cursor.execute("SELECT * FROM User_Follow WHERE followed_id = %s", followed_user_id)
+        self.cursor.execute("SELECT * FROM User_Follow WHERE followed_id = %s", (followed_user_id,))
         count_followed = self.cursor.rowcount()
         if not count_followed:
             return -1
         return count_followed
 
     def get_following_count(self, following_user_id: int) -> int:
-        self.cursor.execute("SELECT * FROM User_Follow WHERE following_id = %s", following_user_id)
+        self.cursor.execute("SELECT * FROM User_Follow WHERE following_id = %s", (following_user_id,))
         count_following = self.cursor.rowcount()
         if not count_following:
             return -1
@@ -410,12 +410,12 @@ class Database:
             if review:
                 return review
         elif song_id:
-            self.cursor.execute("SELECT * FROM Review WHERE user_id = %s AND WHERE song_id = %s", (user_id, song_id))
+            self.cursor.execute("SELECT * FROM Review WHERE user_id = %s AND song_id = %s", (user_id, song_id))
             review = self.cursor.fetchone()
             if review:
                 return review
         elif album_id:
-            self.cursor.execute("SELECT * FROM Review WHERE user_id = %s AND WHERE album_id = %s", (user_id, album_id))
+            self.cursor.execute("SELECT * FROM Review WHERE user_id = %s AND album_id = %s", (user_id, album_id))
             review = self.cursor.fetchone()
             if review:
                 return review

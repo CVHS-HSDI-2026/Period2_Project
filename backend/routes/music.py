@@ -34,7 +34,7 @@ def search_music():
         return jsonify({"message": "Missing search query"}), 400
 
     results = mb_db.search(query, search_type)
-    return jsonify(results), 200
+    return jsonify(results=results), 200
 
 
 @music_bp.route('/artist/<mbid>', methods=['GET'])
@@ -49,7 +49,7 @@ def get_artist(mbid):
         app_db.create_artist(mb_artist)
         local_artist = app_db.get_artist_by_mbid(mbid)
 
-    return jsonify(local_artist), 200
+    return jsonify(local_artist=local_artist), 200
 
 
 @music_bp.route('/album/<mbid>', methods=['GET'])
@@ -74,7 +74,7 @@ def get_album(mbid):
         app_db.create_album(mb_album, cover_art_url)
         local_album = app_db.get_album_by_mbid(mbid)
 
-    return jsonify(local_album), 200
+    return jsonify(local_album=local_album), 200
 
 
 @music_bp.route('/song/<mbid>', methods=['GET'])

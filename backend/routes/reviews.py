@@ -6,8 +6,8 @@ from database import Database
 reviews_bp = Blueprint('reviews', __name__)
 db = Database()
 
-@jwt_required
 @reviews_bp.route('/', methods=['POST'])
+@jwt_required()
 def create_review():
     """
     Creates a new review for a Song OR Album.
@@ -38,8 +38,8 @@ def create_review():
     else:
         return jsonify({"message": "Failed to create review"}), 500
 
-@jwt_required
 @reviews_bp.route('/<int:review_id>', methods=['DELETE'])
+@jwt_required()
 def delete_review(review_id):
     """
     Deletes a review.
@@ -60,8 +60,8 @@ def delete_review(review_id):
     else:
         return jsonify({"message": "Failed to delete review"}), 500
 
-@jwt_required
 @reviews_bp.route('/<int:review_id>/reply', methods=['POST'])
+@jwt_required()
 def reply_to_review(review_id):
     """
     Adds a reply to an existing review.

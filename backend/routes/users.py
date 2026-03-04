@@ -33,8 +33,8 @@ def get_user_profile(username):
 
     return jsonify(user=user, followed=followed_by, following=following_count, activity=activity), 200
 
-@jwt_required()
 @users_bp.route('/<username>', methods=['DELETE'])
+@jwt_required()
 def delete_user(username):
     """
     Deletes a user account.
@@ -55,8 +55,8 @@ def delete_user(username):
 
     return jsonify({"message": "Successfully deleted user"}), 200
 
-@jwt_required()
 @users_bp.route('/follow', methods=['POST'])
+@jwt_required()
 def follow_user():
     """
     Makes the logged-in user follow another user.
@@ -82,9 +82,8 @@ def follow_user():
     db.follow_user(follower_id, followed_id)
     return jsonify({"message": "Successfully followed user"}), 200
 
-
-@jwt_required()
 @users_bp.route('/unfollow', methods=['POST'])
+@jwt_required()
 def unfollow_user():
     """
     Unfollows a user.
@@ -125,8 +124,8 @@ def get_user_favorites(username):
 
     return jsonify(username=username, favorites=favorites), 200
 
-@jwt_required()
 @users_bp.route('/favorite/song', methods=['POST'])
+@jwt_required()
 def add_favorite_song():
     """
     Adds a song to the user's favorites.

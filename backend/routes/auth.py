@@ -69,13 +69,14 @@ def login():
         return jsonify({"message": "Invalid user credentials"}), 401
     password_hash = bytes.fromhex(user["password_hash"].replace("\\x",""))
 
-    if not bcrypt.checkpw(password, password_hash):
+    if not bcrypt.checkpw(password.encode('utf-8'), password_hash):
         return jsonify({"message": "Invalid credentials"}), 401
-      
-    response = jsonify({"message": "Login Successful"})
+
+    sanitized_user = db.get_user(username, filter=["password_hash"])
+    response = jsonify({"message": "Login Successful", "user": sanitized_user})
     access_token = create_access_token(identity=username)
     set_access_cookies(response, access_token)
-    return jsonify(response, user=user), 200
+    return response, 200
 
 
 @auth_bp.route('/logout', methods=['POST'])
@@ -85,10 +86,10 @@ def logout():
     """
     response = jsonify({"message": "Logout Successful"})
     unset_jwt_cookies(response)
-    return jsonify(response), 200
+    return response, 200
 
-@jwt_required
 @auth_bp.route('/me', methods=['GET'])
+@jwt_required()
 def get_current_user():
     """
     Gets the currently logged-in user's session data.
@@ -100,8 +101,10 @@ def get_current_user():
     current_user = db.get_user(current_user_identity)
     if not current_user:
         return jsonify({"message": "User not found"}), 404
-    response = jsonify({"message": "Fetched successfully"})
-    return jsonify(response, user=current_user), 200
+
+    sanitized_user = db.get_user(current_user_identity, filter=["password_hash"])
+
+    return jsonify({"message": "Fetched successfully", "user": sanitized_user}), 200
 
 def hash_password(password, salt):
         return bcrypt.hashpw(password, salt)
