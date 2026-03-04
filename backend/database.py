@@ -39,6 +39,110 @@ class Database:
         except Exception as e:
             print(f"PostgreSQL ping failed: {e}")
             raise ConnectionError("Failed to connect to PostgreSQL")
+
+    def get_artist_by_mbid(self, mbid: str) -> dict | None:
+        """
+        Fetches an artist from the local database using their MusicBrainz ID.
+        """
+        self.cursor.execute("SELECT * FROM Artist WHERE mbid = %s", (mbid,))
+        row = self.cursor.fetchone()
+        return dict(row) if row else None
+
+    def create_artist(self, data: dict) -> int | None:
+        """
+        Inserts a new artist into the local database from MusicBrainz data.
+        """
+        born = f"{data['begin_date_year']}-01-01" if data.get('begin_date_year') else None
+        died = f"{data['end_date_year']}-01-01" if data.get('end_date_year') else None
+
+        try:
+            self.cursor.execute("""
+                INSERT INTO Artist (mbid, name, born, died, disambiguation) 
+                VALUES (%s, %s, %s, %s, %s) 
+                ON CONFLICT (mbid) DO NOTHING
+                RETURNING id
+            """, (
+                data['mbid'],
+                data['name'],
+                born,
+                died,
+                data.get('disambiguation')
+            ))
+            res = self.cursor.fetchone()
+            return res[0] if res else None
+        except Exception as e:
+            print(f"Failed to create artist locally: {e}")
+            return None
+
+    def get_album_by_mbid(self, mbid: str) -> dict | None:
+        """
+        Fetches an album from the local database using its MusicBrainz ID.
+        """
+        self.cursor.execute("SELECT * FROM Album WHERE mbid = %s", (mbid,))
+        row = self.cursor.fetchone()
+        return dict(row) if row else None
+
+    def create_album(self, data: dict, cover_url: str = None) -> int | None:
+        """
+        Inserts a new album and optional cover art into the local database.
+        """
+        cover_art_id = None
+
+        if cover_url:
+            try:
+                self.cursor.execute(
+                    "INSERT INTO Cover_Art (url) VALUES (%s) RETURNING id",
+                    (cover_url,)
+                )
+                cover_art_id = self.cursor.fetchone()[0]
+            except Exception as e:
+                print(f"Failed to insert cover art: {e}")
+
+        self.cursor.execute("SELECT id FROM Artist WHERE mbid = %s", (data.get('artist_mbid'),))
+        artist_row = self.cursor.fetchone()
+        artist_id = artist_row[0] if artist_row else None
+
+        try:
+            self.cursor.execute("""
+                INSERT INTO Album (mbid, title, artist_id, cover_art_id)
+                VALUES (%s, %s, %s, %s)
+                ON CONFLICT (mbid) DO NOTHING
+                RETURNING id
+            """, (data['mbid'], data['title'], artist_id, cover_art_id))
+            res = self.cursor.fetchone()
+            return res[0] if res else None
+        except Exception as e:
+            print(f"Failed to create album locally: {e}")
+            return None
+
+    def get_song_by_mbid(self, mbid: str) -> dict | None:
+        """
+        Fetches a song from the local database using its MusicBrainz ID.
+        """
+        self.cursor.execute("SELECT * FROM Song WHERE mbid = %s", (mbid,))
+        row = self.cursor.fetchone()
+        return dict(row) if row else None
+
+    def create_song(self, data: dict) -> int | None:
+        """
+        Inserts a new song into the local database.
+        """
+        self.cursor.execute("SELECT id FROM Artist WHERE mbid = %s", (data.get('artist_mbid'),))
+        artist_row = self.cursor.fetchone()
+        artist_id = artist_row[0] if artist_row else None
+
+        try:
+            self.cursor.execute("""
+                INSERT INTO Song (mbid, title, duration, artist_id)
+                VALUES (%s, %s, %s, %s)
+                ON CONFLICT (mbid) DO NOTHING
+                RETURNING id
+            """, (data['mbid'], data['title'], data.get('duration'), artist_id))
+            res = self.cursor.fetchone()
+            return res[0] if res else None
+        except Exception as e:
+            print(f"Failed to create song locally: {e}")
+            return None
     
    
     # High-level validation should be done before calling this method
@@ -328,12 +432,12 @@ class Database:
         :return: list
         """
         if song_id:
-            self.cursor.execute("SELECT * FROM Review WHERE song_id = %s INNER JOIN Users ON Review.user_id = Users.id", (song_id,))
+            self.cursor.execute("SELECT * FROM Review INNER JOIN Users ON Review.user_id = Users.id WHERE song_id = %s", (song_id,))
             reviews = self.cursor.fetchall()
             if reviews:
                 return reviews
         elif album_id:
-            self.cursor.execute("SELECT * FROM Review WHERE album_id = %s INNER JOIN Users ON Review.user_id = Users.id", (album_id,))
+            self.cursor.execute("SELECT * FROM Review INNER JOIN Users ON Review.user_id = Users.id WHERE album_id = %s", (album_id,))
             reviews = self.cursor.fetchall()
             if reviews:
                 return reviews
