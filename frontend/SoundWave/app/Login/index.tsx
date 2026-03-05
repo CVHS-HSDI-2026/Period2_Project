@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ScrollView } from "react-native";
 import {
   View,
   Text,
@@ -63,6 +64,7 @@ export default function Login() {
 
   return (
     <View style={styles.background}>
+      <ScrollView style={{ width: '100%' }} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       <View style={styles.card}>
 
         {/* Title */}
@@ -141,8 +143,8 @@ export default function Login() {
         <TouchableOpacity onPress={() => router.push("/forgot")}>
           <Text style={styles.link}>Forgot password?</Text>
         </TouchableOpacity>
-
       </View>
+      </ScrollView>
     </View>
   );
 }
@@ -154,6 +156,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  scrollContent: {
+    flexGrow: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 40,
+    paddingHorizontal: 10,
+    // width: "90%",
+    // maxWidth: 1200,
+    marginLeft: 0,
+  },
   card: {
     width: "85%",
     maxWidth: 400,
@@ -161,6 +173,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     padding: 25,
     alignItems: "center",
+    alignSelf: "center",
   },
   logo: {
   width: "40%",

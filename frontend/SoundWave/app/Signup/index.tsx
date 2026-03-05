@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ScrollView } from "react-native";
 import {
   View,
   Text,
@@ -26,9 +27,10 @@ export default function SignUp() {
     console.log("Signup pressed");
     router.push("/"); // change later to your home route
   };
-
+  
   return (
     <View style={styles.background}>
+      <ScrollView style={{ width: '100%' }} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       <View style={styles.card}>
 
         {/* Logo */}
@@ -97,11 +99,12 @@ export default function SignUp() {
         </TouchableOpacity>
 
         {/* Back to Login */}
-        <TouchableOpacity onPress={() => router.push("/login")}>
+        <TouchableOpacity onPress={() => router.push("/Login")}>
           <Text style={styles.link}>Already have an account? Log in</Text>
         </TouchableOpacity>
 
       </View>
+      </ScrollView>
     </View>
   );
 }
@@ -112,6 +115,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#0F1535",
     justifyContent: "center",
     alignItems: "center",
+  },
+  scrollContent: {
+    flexGrow: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 40,
+    paddingHorizontal: 10,
+    // width: "90%",
+    // maxWidth: 1200,
+    marginLeft: 0,
   },
   card: {
     width: "85%",
