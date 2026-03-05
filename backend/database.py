@@ -421,27 +421,25 @@ class Database:
                 return review
         raise Exception(f"Invalid request. Missing any of these fields: review_id, song_id, album_id")
 
-    def fetch_reviews(self, song_id: int = None, album_id: int = None) -> list[dict[str | Any]]:
+    def fetch_reviews(self, song_id: int = None, album_id: int = None) -> list[dict]:
         """
         Fetches all reviews for a song or album.
-
-        :param song_id: The id of the song to fetch reviews for
-        :type song_id: int
-        :param album_id: The id of the album being fetched.
-        :type album_id: int
-        :return: list
         """
         if song_id:
-            self.cursor.execute("SELECT * FROM Review INNER JOIN Users ON Review.user_id = Users.id WHERE song_id = %s", (song_id,))
-            reviews = self.cursor.fetchall()
-            if reviews:
-                return reviews
+            self.cursor.execute(
+                "SELECT * FROM Review INNER JOIN Users ON Review.user_id = Users.id WHERE song_id = %s",
+                (song_id,)
+            )
+            return [dict(row) for row in self.cursor.fetchall()]
+
         elif album_id:
-            self.cursor.execute("SELECT * FROM Review INNER JOIN Users ON Review.user_id = Users.id WHERE album_id = %s", (album_id,))
-            reviews = self.cursor.fetchall()
-            if reviews:
-                return reviews
-        raise Exception("Failed to fetch reviews for song or album")
+            self.cursor.execute(
+                "SELECT * FROM Review INNER JOIN Users ON Review.user_id = Users.id WHERE album_id = %s",
+                (album_id,)
+            )
+            return [dict(row) for row in self.cursor.fetchall()]
+
+        raise Exception("Invalid request: Must provide either song_id or album_id")
 
     def delete_review(self, review_id: int) -> bool:
         """

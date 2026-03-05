@@ -43,22 +43,25 @@ class MusicBrainzDatabase:
         search_term = f"%{query}%"
         if search_type == 'artist':
             self.cursor.execute("""
-                SELECT gid AS mbid, name, type.name AS artist_type 
-                FROM artist 
-                LEFT JOIN artist_type type ON artist.type = type.id
-                WHERE artist.name ILIKE %s LIMIT 20
-            """, (search_term,))
+                        SELECT artist.gid AS mbid, artist.name, type.name AS artist_type 
+                        FROM artist 
+                        LEFT JOIN artist_type type ON artist.type = type.id
+                        WHERE artist.name ILIKE %s LIMIT 20
+                    """, (search_term,))
+
+        elif search_type == 'album':
             self.cursor.execute("""
-                SELECT gid AS mbid, name AS title 
-                FROM release_group 
-                WHERE name ILIKE %s LIMIT 20
-            """, (search_term,))
+                        SELECT gid AS mbid, name AS title 
+                        FROM release_group 
+                        WHERE name ILIKE %s LIMIT 20
+                    """, (search_term,))
+
         elif search_type == 'song':
             self.cursor.execute("""
-                SELECT gid AS mbid, name AS title, length AS duration 
-                FROM recording 
-                WHERE name ILIKE %s LIMIT 20
-            """, (search_term,))
+                        SELECT gid AS mbid, name AS title, length AS duration 
+                        FROM recording 
+                        WHERE name ILIKE %s LIMIT 20
+                    """, (search_term,))
         else:
             return []
 
@@ -74,11 +77,16 @@ class MusicBrainzDatabase:
 
     def get_album_by_mbid(self, mbid: str) -> dict | None:
         self.cursor.execute("""
-            SELECT rg.gid AS mbid, rg.name AS title, a.gid AS artist_mbid 
+            SELECT 
+                rg.gid AS mbid, 
+                rg.name AS title, 
+                a.gid AS artist_mbid,
+                rgm.first_release_date_year AS release_year
             FROM release_group rg
             JOIN artist_credit ac ON rg.artist_credit = ac.id
             JOIN artist_credit_name acn ON ac.id = acn.artist_credit
             JOIN artist a ON acn.artist = a.id
+            LEFT JOIN release_group_meta rgm ON rg.id = rgm.id
             WHERE rg.gid = %s
         """, (mbid,))
         row = self.cursor.fetchone()
