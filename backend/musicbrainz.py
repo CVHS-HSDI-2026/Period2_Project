@@ -20,6 +20,8 @@ class MusicBrainzDatabase:
         self.connection.autocommit = True
         self.cursor = self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
+        self.cursor.execute("SET search_path TO musicbrainz, public;")
+
     def ping(self) -> bool:
         """
         Ping the PostgreSQL server to check if the connection is alive.
