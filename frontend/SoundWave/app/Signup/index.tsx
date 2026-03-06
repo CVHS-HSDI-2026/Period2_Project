@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { ScrollView } from "react-native";
 import {
   View,
   Text,
@@ -32,7 +31,7 @@ export default function SignUp() {
   };
   
   return (
-    <View style={styles.background}>
+    <View style={styles.scrollContainer}>
       <ScrollView style={{ width: '100%' }} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       <View style={styles.card}>
 
