@@ -1,9 +1,12 @@
-import psycopg
-from dotenv import load_dotenv
+import psycopg2
+import psycopg2.extras
 import datetime
 import bcrypt
 import sys
 import os
+
+from typing import Any
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -19,9 +22,9 @@ class Database:
         :raises ConnectionError: If unable to connect to PostgreSQL.
         """
 
-        self.connection = psycopg.connect(os.getenv("USER_POSTGRES_CONNECTION_STRING"))
+        self.connection = psycopg2.connect(os.getenv("USER_POSTGRES_CONNECTION_STRING"))
         self.connection.autocommit = True
-        self.cursor = self.connection.cursor()
+        self.cursor = self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
     def ping(self) -> bool:
         """
@@ -36,6 +39,110 @@ class Database:
         except Exception as e:
             print(f"PostgreSQL ping failed: {e}")
             raise ConnectionError("Failed to connect to PostgreSQL")
+
+    def get_artist_by_mbid(self, mbid: str) -> dict | None:
+        """
+        Fetches an artist from the local database using their MusicBrainz ID.
+        """
+        self.cursor.execute("SELECT * FROM Artist WHERE mbid = %s", (mbid,))
+        row = self.cursor.fetchone()
+        return dict(row) if row else None
+
+    def create_artist(self, data: dict) -> int | None:
+        """
+        Inserts a new artist into the local database from MusicBrainz data.
+        """
+        born = f"{data['begin_date_year']}-01-01" if data.get('begin_date_year') else None
+        died = f"{data['end_date_year']}-01-01" if data.get('end_date_year') else None
+
+        try:
+            self.cursor.execute("""
+                INSERT INTO Artist (mbid, name, born, died, disambiguation) 
+                VALUES (%s, %s, %s, %s, %s) 
+                ON CONFLICT (mbid) DO NOTHING
+                RETURNING id
+            """, (
+                data['mbid'],
+                data['name'],
+                born,
+                died,
+                data.get('disambiguation')
+            ))
+            res = self.cursor.fetchone()
+            return res[0] if res else None
+        except Exception as e:
+            print(f"Failed to create artist locally: {e}")
+            return None
+
+    def get_album_by_mbid(self, mbid: str) -> dict | None:
+        """
+        Fetches an album from the local database using its MusicBrainz ID.
+        """
+        self.cursor.execute("SELECT * FROM Album WHERE mbid = %s", (mbid,))
+        row = self.cursor.fetchone()
+        return dict(row) if row else None
+
+    def create_album(self, data: dict, cover_url: str = None) -> int | None:
+        """
+        Inserts a new album and optional cover art into the local database.
+        """
+        cover_art_id = None
+
+        if cover_url:
+            try:
+                self.cursor.execute(
+                    "INSERT INTO Cover_Art (url) VALUES (%s) RETURNING id",
+                    (cover_url,)
+                )
+                cover_art_id = self.cursor.fetchone()[0]
+            except Exception as e:
+                print(f"Failed to insert cover art: {e}")
+
+        self.cursor.execute("SELECT id FROM Artist WHERE mbid = %s", (data.get('artist_mbid'),))
+        artist_row = self.cursor.fetchone()
+        artist_id = artist_row[0] if artist_row else None
+
+        try:
+            self.cursor.execute("""
+                INSERT INTO Album (mbid, title, artist_id, cover_art_id)
+                VALUES (%s, %s, %s, %s)
+                ON CONFLICT (mbid) DO NOTHING
+                RETURNING id
+            """, (data['mbid'], data['title'], artist_id, cover_art_id))
+            res = self.cursor.fetchone()
+            return res[0] if res else None
+        except Exception as e:
+            print(f"Failed to create album locally: {e}")
+            return None
+
+    def get_song_by_mbid(self, mbid: str) -> dict | None:
+        """
+        Fetches a song from the local database using its MusicBrainz ID.
+        """
+        self.cursor.execute("SELECT * FROM Song WHERE mbid = %s", (mbid,))
+        row = self.cursor.fetchone()
+        return dict(row) if row else None
+
+    def create_song(self, data: dict) -> int | None:
+        """
+        Inserts a new song into the local database.
+        """
+        self.cursor.execute("SELECT id FROM Artist WHERE mbid = %s", (data.get('artist_mbid'),))
+        artist_row = self.cursor.fetchone()
+        artist_id = artist_row[0] if artist_row else None
+
+        try:
+            self.cursor.execute("""
+                INSERT INTO Song (mbid, title, duration, artist_id)
+                VALUES (%s, %s, %s, %s)
+                ON CONFLICT (mbid) DO NOTHING
+                RETURNING id
+            """, (data['mbid'], data['title'], data.get('duration'), artist_id))
+            res = self.cursor.fetchone()
+            return res[0] if res else None
+        except Exception as e:
+            print(f"Failed to create song locally: {e}")
+            return None
     
    
     # High-level validation should be done before calling this method
@@ -88,7 +195,7 @@ class Database:
         self.cursor.execute("DELETE FROM users WHERE username = %s", (username,))
         return self.cursor.rowcount > 0
 
-    def get_user(self, username: str, filter: list[str]) -> dict:
+    def get_user(self, username: str, filter: list[str] = None) -> dict[Any, Any] | None:
         """
         Get a user from the database.
         
@@ -100,16 +207,73 @@ class Database:
         :rtype: dict
         """
         self.cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
-        user = self.cursor.fetchone()
-        if not user:
+        fetch_user = self.cursor.fetchone()
+        if not fetch_user:
             return None
-        user_dict = dict(zip([desc[0] for desc in self.cursor.description], user)) # for those who dont understand, this turns the data into a dictionary
+        user_dict = dict(zip([desc[0] for desc in self.cursor.description], fetch_user)) # for those who dont understand, this turns the data into a dictionary
 
-        for field in filter:
-            if field in user_dict:
-                del user_dict[field]
+        if filter:
+            for field in filter:
+                if field in user_dict:
+                    del user_dict[field]
         return user_dict
-    
+
+    def get_user_activity(self, user_id: int) -> list[dict[str, Any]]:
+        """
+        Returns the user's most recent review and reply activity.
+
+        :param user_id:
+        :type user_id: int
+        :return: The list of dictionaries describing the recent activity.
+        :rtype: list
+        """
+        self.cursor.execute("SELECT * FROM Review WHERE user_id = %s ORDER BY created_at DESC", (user_id,))
+        reviews = self.cursor.fetchmany(10)
+        list_reviews = []
+
+        for review in reviews:
+            list_reviews.append(review)
+
+        self.cursor.execute("SELECT * FROM Reply WHERE user_id = %s ORDER BY created_at DESC", (user_id,))
+        replies = self.cursor.fetchmany(10)
+        list_replies = []
+
+        for reply in replies:
+            list_replies.append(reply)
+
+
+
+    def get_user_favorites(self, user_id: int) -> list[dict[str, Any]]:
+        """
+        Returns the favorite songs + the rank of the favorites for a given user.
+
+        :param user_id:
+        :type user_id: int
+        :return: The list of dictionaries describing the favorite songs.
+        :rtype: list
+        """
+        self.cursor.execute("SELECT * FROM User_Favorite_Song WHERE user_id = %s ORDER BY rank", (user_id,))
+        favorites = self.cursor.fetchall()
+        list_favorites = []
+
+        for favorite in favorites:
+            list_favorites.append(favorite)
+
+        return list_favorites
+
+    def get_followed_count(self, followed_user_id: int) -> int:
+        self.cursor.execute("SELECT * FROM User_Follow WHERE followed_id = %s", (followed_user_id,))
+        count_followed = self.cursor.rowcount()
+        if not count_followed:
+            return -1
+        return count_followed
+
+    def get_following_count(self, following_user_id: int) -> int:
+        self.cursor.execute("SELECT * FROM User_Follow WHERE following_id = %s", (following_user_id,))
+        count_following = self.cursor.rowcount()
+        if not count_following:
+            return -1
+        return count_following
 
     def follow_user(self, follower_id: int, followed_id: int) -> bool:
         """
@@ -223,7 +387,60 @@ class Database:
         except Exception as e:
             print(f"Failed to create review: {e}")
             return False
-    
+
+    def fetch_review(self, user_id: int, review_id: int = None, song_id: int = None, album_id: int = None) -> dict:
+        """
+        Fetches a review for a song or album.
+
+        Must pass either a song_id or album_id. If a song_id and album_id are passed, we assume you want the review for the song.
+
+        :param review_id: The id of a given review.
+        :type review_id: int
+        :param user_id: The id of the user fetching the review.
+        :type user_id: int
+        :param song_id: The id of the song being fetched.
+        :type song_id: int
+        :param album_id: The id of the album being fetched.
+        :type album_id: int
+        :return:
+        """
+        if review_id:
+            self.cursor.execute("SELECT * FROM Review WHERE review_id = %s", (review_id,))
+            review = self.cursor.fetchone()
+            if review:
+                return review
+        elif song_id:
+            self.cursor.execute("SELECT * FROM Review WHERE user_id = %s AND song_id = %s", (user_id, song_id))
+            review = self.cursor.fetchone()
+            if review:
+                return review
+        elif album_id:
+            self.cursor.execute("SELECT * FROM Review WHERE user_id = %s AND album_id = %s", (user_id, album_id))
+            review = self.cursor.fetchone()
+            if review:
+                return review
+        raise Exception(f"Invalid request. Missing any of these fields: review_id, song_id, album_id")
+
+    def fetch_reviews(self, song_id: int = None, album_id: int = None) -> list[dict]:
+        """
+        Fetches all reviews for a song or album.
+        """
+        if song_id:
+            self.cursor.execute(
+                "SELECT * FROM Review INNER JOIN Users ON Review.user_id = Users.id WHERE song_id = %s",
+                (song_id,)
+            )
+            return [dict(row) for row in self.cursor.fetchall()]
+
+        elif album_id:
+            self.cursor.execute(
+                "SELECT * FROM Review INNER JOIN Users ON Review.user_id = Users.id WHERE album_id = %s",
+                (album_id,)
+            )
+            return [dict(row) for row in self.cursor.fetchall()]
+
+        raise Exception("Invalid request: Must provide either song_id or album_id")
+
     def delete_review(self, review_id: int) -> bool:
         """
         Delete a review from the database.
@@ -285,16 +502,10 @@ if __name__ == "__main__":
         "username": "testuser",
         "email": "testuserlol@test.com",
         "password_hash": password_hash,
-        "rating": 0,
-        "followers": [],
-        "following": [],
-        "ratings": [],
         "bio": "",
-        "top_songs": [],
-        "top_albums": [],
-        "top_artists": [],
-        "activity_log": [],
-        "date_created": datetime.datetime.now()
+        "profile_pic_url": "",
+        "created_at": datetime.datetime.now(),
+        "updated_at": datetime.datetime.now()
     }
 
     try:
