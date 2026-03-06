@@ -6,6 +6,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import CustomTypeBox from "../../components/CustomTypeBox";
@@ -110,11 +113,12 @@ export default function SignUp() {
 }
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    backgroundColor: "#0F1535",
+  scrollContainer: {
+    flexGrow: 1,
+    backgroundColor: "#14172B",
     justifyContent: "center",
     alignItems: "center",
+    paddingVertical: 40,
   },
   scrollContent: {
     flexGrow: 1,
