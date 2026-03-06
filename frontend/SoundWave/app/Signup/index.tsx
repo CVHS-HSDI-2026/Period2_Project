@@ -50,7 +50,12 @@ export default function SignUp() {
           style={styles.googleButton}
           onPress={handleGoogleSignup}
         >
-          <Ionicons name="logo-google" size={20} color="white" />
+           <View style={styles.googleLogoContainer}>
+          <Image source={require("../../assets/google-logo.png")}
+              style={styles.logoForGoogle}
+              resizeMode="contain"
+          />
+          </View>
           <Text style={styles.googleText}> Sign up with Google</Text>
         </TouchableOpacity>
 
@@ -139,6 +144,22 @@ const styles = StyleSheet.create({
     height: 80,
     marginBottom: 15,
   },
+  googleLogoContainer: {
+    width: 30,
+    height: 20,
+    position: "relative",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: '19%',
+    marginLeft: 7,
+  },
+  logoForGoogle: {
+    width: 30,
+    height: 30,
+    position: "absolute",
+    marginVertical: 2,
+    marginHorizontal: 2,
+  },
   avatar: {
     width: 110,
     height: 110,
@@ -150,8 +171,8 @@ const styles = StyleSheet.create({
   },
   googleButton: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: "flex-start",
+    justifyContent: "flex-start",
     backgroundColor: "#4285F4",
     paddingVertical: 10,
     borderRadius: 8,
