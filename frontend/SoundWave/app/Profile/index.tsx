@@ -144,14 +144,14 @@ export default function Profile() {
               artist="Artist"
               rating={8}
               commentsCount={1278}
-              onPress={() => router.push("./Song")}
+              onPress={() => router.push("./Artist")}
             />
           ))}
         </ScrollView>
         <Text style={styles.sectionTitle}>Recommended Users:</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
           {Array.from({ length: 10 }).map((_, i) => (
-            <ArtistCard key={`rec-${i}`} variant="popular" title="Username" artist="Artist" rating={8} commentsCount={12} onPress={() => router.push("./Song")} />
+            <ArtistCard key={`rec-${i}`} variant="popular" title="Username" artist="Artist" rating={8} commentsCount={12} onPress={() => router.push("./Artist")} />
           ))}
         </ScrollView>
       </ScrollView>
