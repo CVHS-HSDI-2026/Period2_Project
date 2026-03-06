@@ -33,7 +33,7 @@ export default function Settings(){
   return (
     <View style={styles.container}>
         <HeaderWithSearch title="SoundWAVE" />
-      <ScrollView style={{ width: '100%' }} contentContainerStyle={styles.scrollContent}>
+      <ScrollView style={{ width: '100%' }} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
         {/* back arrow */}
         <TouchableOpacity onPress={() => router.back()} style={{ alignSelf: "flex-start" }}>
