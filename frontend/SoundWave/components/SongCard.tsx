@@ -1,14 +1,6 @@
 import { router } from "expo-router/build/exports";
 import React, { FC } from "react";
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  Pressable,
-  ImageSourcePropType,
-  TouchableOpacity,
-} from "react-native";
+import {View, Text, Image, StyleSheet, Pressable, ImageSourcePropType, TouchableOpacity,} from "react-native";
 
 /* ---------- Helpers ---------- */
 const formatCount = (count: number) => {
@@ -48,6 +40,7 @@ const SongCard: FC<SongCardProps> = ({
     <Pressable
       onPress={onPress}
       style={[styles.card, isPopular && styles.popularCard]}
+
     >
       {/* Album Art */}
       {image ? (
@@ -63,11 +56,12 @@ const SongCard: FC<SongCardProps> = ({
           <Text style={styles.title} numberOfLines={1}>
             {title}
           </Text>
-          <TouchableOpacity onPress={() =>router.push("/Album")}>
-            <Text style={styles.artist} numberOfLines={1}>
-              {artist}
-            </Text>
-          </TouchableOpacity>
+          <Text style={styles.artist} numberOfLines={1}>
+            <TouchableOpacity onPress={() => router.push("Artist")}>
+                        <Text style={styles.artist}>{artist}</Text>
+            </TouchableOpacity>
+            {}
+          </Text>
         </View>
 
         {/* Right */}
@@ -85,11 +79,14 @@ const SongCard: FC<SongCardProps> = ({
             </View>
           )}
 
-          {!isPopular && releaseDate && (
-            <Text style={styles.releaseDate}>{releaseDate}</Text>
-          )}
         </View>
       </View>
+      {!isPopular && releaseDate && (
+        <View style={styles.metaRight}>
+          <Text style={styles.releaseDate}>{releaseDate}</Text>
+        </View>
+        
+      )}
     </Pressable>
   );
 };
@@ -100,11 +97,11 @@ export default SongCard;
 const styles = StyleSheet.create({
   card: {
     width: 220,
+    position: "relative",
   },
 
   popularCard: {
     backgroundColor: "#14172B",
-    padding: 12,
   },
 
   image: {
@@ -169,6 +166,8 @@ const styles = StyleSheet.create({
   },
 
   releaseDate: {
+    position: "absolute",
+    bottom: 2,
     fontSize: 13,
     fontWeight: "500",
     color: "#FFFFFF",

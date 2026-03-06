@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { router } from 'expo-router';
 import React, { FC, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native';
@@ -13,7 +14,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
 
   const handleLogoPress = () => {
     console.log('Logo pressed!');
-    router.push("/");
+    router.push("/Homepage");
   }
   const handleSearchPress = () => {
     console.log('Search pressed! Query:', searchText);
@@ -36,22 +37,18 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
   const handleProfileMenuPress = () => {
     console.log('Profile menu item pressed');
     router.push("/Profile");
-    router.push("/Profile");
     setIsDropdownVisible(false);
   };
 
   const handleSettingsPress = () => {
     console.log('Settings pressed');
-    router.push('/Settings');
+    router.push("/Settings");
     setIsDropdownVisible(false);
-  };
-
-  const handleDarkModePress = () => {
-    console.log('Dark Mode pressed');
   };
 
   const handleLogoutPress = () => {
     console.log('Logout pressed');
+    router.push("/Login");
     setIsDropdownVisible(false);
   
   };
@@ -86,6 +83,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
         <TouchableOpacity 
           style={styles.searchButton}
           onPress={handleSearchPress}
+
         >
         <Image
           source= {require('../assets/Search.png')}
@@ -141,17 +139,6 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
 
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={handleDarkModePress}
-            >
-              <Text style={styles.menuIcon}><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Zm0-80q88 0 158-48.5T740-375q-20 5-40 8t-40 3q-123 0-209.5-86.5T364-660q0-20 3-40t8-40q-78 32-126.5 102T200-480q0 116 82 198t198 82Zm-10-270Z"/></svg></Text>
-              <Text style={styles.menuText}>Dark Mode</Text>
-              <View style={styles.toggle}>
-                <View style={styles.toggleThumb} />
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={styles.menuItem}
               onPress={handleLogoutPress}
             >
               <Text style={styles.menuIcon}><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/></svg></Text>
@@ -186,7 +173,6 @@ const styles = StyleSheet.create({
   logoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8
   },
 
   logoText: {
@@ -208,14 +194,14 @@ const styles = StyleSheet.create({
   infoImage: {
     width: 45,
     height: 45,
-    marginLeft: 3,
   },
 
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    marginHorizontal: 15,
+    marginLeft: "2%",
+    marginRight: "1%",
     backgroundColor: '#fff',
     borderRadius: 8,
     paddingHorizontal: 10,
@@ -226,6 +212,9 @@ const styles = StyleSheet.create({
     height: 40,
     fontSize: 14,
     color: '#333',
+    ...(Platform.OS === 'web' && {
+    outlineStyle: 'none',
+    }),
   },
 
   searchButton: {
@@ -242,7 +231,7 @@ const styles = StyleSheet.create({
   },
 
   profileButton: {
-    padding: 3,
+    padding: 10,
     zIndex: 1001,
   },
 

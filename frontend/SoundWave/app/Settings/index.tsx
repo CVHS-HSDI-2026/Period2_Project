@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Pressable, ScrollView, TextInput, Image } from 'react-native';
+import { StyleSheet, Text, View, Pressable, ScrollView, TextInput, Image, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
 import HeaderWithSearch from "../../components/HeaderWithSearch";
 import { useRouter } from "expo-router";
@@ -10,100 +10,82 @@ export default function Settings(){
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [privacy, setPrivacy] = useState<"Public" | "Private">("Public");
-  const [isEditing, setIsEditing] = useState(false);
+  const [privacy, setPrivacy] = useState("Public"); 
+  const [showPrivacyDropdown, setShowPrivacyDropdown] = useState(false);
+//  const [isEditing, setIsEditing] = useState(false);
+  const [isSaved, setIsSaved]=useState(false);
   const [isSecure, setIsSecure] = useState<boolean>(true);
 
   if(!fontsLoaded) return null;
 
   //save these changes somewhere in the backend???
   const handleSaveChanges = () => {
-    if (newPassword !== confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
-    setIsEditing(false);
-    alert("Settings updated!");
-  };
-
-  const handleCancel = () => {
-    setIsEditing(false);
-    setNewPassword("");
-    setConfirmPassword("");
-  };
+  if (newPassword !== confirmPassword) {
+    setPasswordError("Passwords do not match");
+    return;
+  }
+  setPasswordError("");
+  setIsSaved(true);
+};
 
   return (
     <View style={styles.container}>
         <HeaderWithSearch title="SoundWAVE" />
-      <ScrollView style={{ width: '100%' }} contentContainerStyle={styles.scrollContent}>
+      <ScrollView style={{ width: '100%' }} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
         {/* back arrow */}
-        <Pressable onPress={() => router.back()}>
+        <TouchableOpacity onPress={() => router.back()} style={{ alignSelf: "flex-start" }}>
           <Image
             source= {require('../../assets/chevron-right.png')}
             style={styles.backArrow}
-            resizeMode="contain"
+            resizeMode= "contain"
           />
-        </Pressable>
-
-        {/* edit save buttons */}
-        <View style={styles.editButtonsRow}>
-          {isEditing ? (
-            <>
-              <Pressable onPress={handleSaveChanges}>
-                <Text style={styles.edit}>Save</Text>
-              </Pressable>
-              <Pressable onPress={handleCancel}>
-                <Text style={styles.edit}>✕ Cancel</Text>
-              </Pressable>
-            </>
-          ) : (
-            <Pressable onPress={() => setIsEditing(true)}>
-              <Text style={styles.edit}>Edit ✎</Text>
-            </Pressable>
-          )}
-        </View>
+        </TouchableOpacity>
 
         {/* password reset */}
+        <Text style={styles.headings}>Settings</Text>
         <Text style={styles.titles}>Password</Text>
         <Text style={styles.subTitles}>New Password</Text>
         <TextInput
-          style={styles.newPasInput}
-          secureTextEntry
+          style={styles.newInput}
           placeholder="Enter new password"
           placeholderTextColor="#aaa"
           value={newPassword}
           onChangeText={setNewPassword}
-          editable={isEditing}
         />
         <Text style={styles.subTitles}>Confirm Password</Text>
+        <View style={styles.passwordWrapper}>
         <TextInput
-          style={styles.newPasInput}
+          style={styles.newInput}
           secureTextEntry={isSecure}
           placeholder="Re-enter new password"
           placeholderTextColor="#aaa"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
-          editable={isEditing}
         />
-        <Pressable onPress={() => setIsSecure(!isSecure)}>
+        <Pressable onPress={() => setIsSecure(!isSecure)} style={styles.eyeInside}>
             <Image
                 source={ isSecure ? require("../../assets/open-eye.png") : require("../../assets/closed-eye.png") }
                 style={styles.eyes}
+                resizeMode="contain"
             />
         </Pressable>
+        </View>
+        {passwordError !== "" && (
+            <Text style={styles.errorText}>{passwordError}</Text>
+        )}
 
         {/* display name */}
         <Text style={styles.titles}>Display Name</Text>
         <Text style={styles.subTitles}>New Display Name</Text>
         <TextInput
-          style={styles.newPasInput}
+          style={styles.newInput}
           placeholder="Enter new display name"
           placeholderTextColor="#aaa"
           value={displayName}
           onChangeText={setDisplayName}
-          editable={isEditing}
         />
 
         {/* account */}
@@ -134,24 +116,34 @@ export default function Settings(){
           </Pressable>
         </View>  
 
-        {/* Linked Music Apps */}
-
-
         {/* privacy */}
         <Text style={styles.titles}>Privacy</Text>
-        <View style={styles.privacyRow}>
-          <Pressable onPress={() => isEditing && setPrivacy("Public")}>
-            <Text style={privacy === "Public" ? styles.selected : styles.option}>
-              Public
-            </Text>
-          </Pressable>
-          <Pressable onPress={() => isEditing && setPrivacy("Private")}>
-            <Text style={privacy === "Private" ? styles.selected : styles.option}>
-              Private
-            </Text>
-          </Pressable>
-        </View>  
-
+        <Pressable style={styles.dropdownHeader} onPress={() => setShowPrivacyDropdown(!showPrivacyDropdown)} >
+          <Text style={styles.dropdownHeaderText}>{privacy}</Text>
+          <Text style={styles.dropdownArrow}>
+            {showPrivacyDropdown ? <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#FFFFFF"><path d="M480-528 296-344l-56-56 240-240 240 240-56 56-184-184Z"/></svg> : <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#FFFFFF"><path d="M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z"/></svg>}
+          </Text>
+        </Pressable>
+        {showPrivacyDropdown && (
+          <View style={styles.dropdownContainer}>
+            <Pressable style={styles.optionRow} onPress={() => { setPrivacy("Public"); setShowPrivacyDropdown(false); }} >
+              <View style={styles.mcCircle}>
+                {privacy === "Public" && <View style={styles.selected} />}
+              </View>
+              <Text style={styles.optionText}>Public</Text>
+            </Pressable>
+            
+            <Pressable style={styles.optionRow} onPress={() => { setPrivacy("Private"); setShowPrivacyDropdown(false); }} >
+              <View style={styles.mcCircle}>
+                {privacy === "Private" && <View style={styles.selected} />}
+              </View>
+              <Text style={styles.optionText}>Private</Text>
+            </Pressable>
+          </View>
+        )}
+        <Pressable style={styles.saveButton} onPress={handleSaveChanges}>
+            <Text style={styles.buttonText}>Save</Text>
+        </Pressable>
       </ScrollView>
     </View>
   );
@@ -172,25 +164,24 @@ const styles = StyleSheet.create({
   backArrow: {
     width: 20,
     height: 20,
-    marginBottom: 20,
   }, 
 
-  editButtonsRow: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    marginBottom: 20,
-  },
-  edit: {
-    fontSize: 14,
+  headings: {
+    fontSize: 30,
     color: "#FFFFFF",
-    fontFamily: "Jost_400Regular",
-    marginLeft: 12,
+    fontFamily: "Jost_500Medium",
+    marginTop:7,
+    marginBottom:1,
+  //  marginLeft: 5,
+    
   },
+
   titles: {
     fontSize: 20,
     color: "#FFFFFF",
     fontFamily: "Jost_500Medium",
-    marginVertical: 10,
+    marginTop: 3,
+    marginBottom: 6,
   //  marginLeft: 5,
     
   },
@@ -201,15 +192,33 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     marginLeft: 5,
   },
-  newPasInput: {
+  newInput: {
     borderWidth: 1,
     borderColor: "#FFFFFF50",
     borderRadius: 8,
     padding: 12,
+//    paddingRight: 35,
     color: "#FFFFFF",
     fontFamily: "Jost_400Regular",
     fontSize: 16,
-    marginBottom: 16,
+    marginBottom: 15,
+  },
+  passwordWrapper: {
+  position: "relative",
+  justifyContent: "center",
+  marginBottom: 2,
+  },
+  eyeInside: {
+  position: "absolute",
+  right: 15,
+  height: "100%",
+  justifyContent: "center",
+  marginBottom:16,
+  
+  },
+  eyes: {
+    height: 20,
+    width: 20,
   },
   accountBox: {
     backgroundColor: "#cfcfe3",
@@ -256,28 +265,90 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
   },
-  privacyRow: {
+  dropdownHeader: {
     flexDirection: "row",
-    marginTop: 12,
-    marginLeft: 10,
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#FFFFFF50",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 10,
   },
-  option: {
+
+  dropdownHeaderText: {
+    color: "#FFFFFF",
     fontFamily: "Jost_400Regular",
     fontSize: 16,
+  },
+
+  dropdownArrow: {
     color: "#FFFFFF",
-    paddingVertical: 6,
+    fontSize: 14,
+    marginTop: 6,
+  },
+
+  dropdownContainer: {
+    backgroundColor: "#1f2245",
+    borderRadius: 8,
+    paddingVertical: 8,
+    marginBottom: 16,
+  },
+
+  optionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
     paddingHorizontal: 12,
-    marginLeft: 20,
+  },
+
+  optionText: {
+    color: "#FFFFFF",
+    fontFamily: "Jost_400Regular",
+    fontSize: 15,
+  },
+
+  mcCircle: {
+    height: 18,
+    width: 18,
+    borderRadius: 9,
+    borderWidth: 2,
+    borderColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 10,
+    objectFit: 'contain',
   },
   selected: {
-    fontFamily: "Jost_700Bold",
-    fontSize: 16,
-    color: "#0099ff",
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    height: 8,
+    width: 8,
+    borderRadius: 4,
+    backgroundColor: "#FFFFFF",
   },
-  eyes: {
-    height: 10,
-    width: 10,
+  saveButton: {
+    backgroundColor: "#cfcfe3",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    height:35,
+    width: "10%",
+    borderRadius: 7,
+    marginTop: 10,
+    borderWidth: 0,
+    cursor: "pointer",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "black",
+    fontFamily: "Jost_500Medium",
+    fontSize: 16,
+    
+  },
+  errorText: {
+    color: "red",
+    fontSize: 13,
+    marginBottom: 10,
+    marginLeft: 5,
+    fontFamily: "Jost_400Regular",
   }
 });

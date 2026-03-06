@@ -1,5 +1,5 @@
 import { Slot } from 'expo-router';
 
-export default function HomepageLayout() {
+export default function AlbumLayout() {
   return <Slot />;
-} 
+}

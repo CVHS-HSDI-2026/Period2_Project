@@ -5,7 +5,7 @@ type CustomTypeBoxProps = {
   onChange: (value: string) => void;
   placeholder: string;
   type?: "text" | "password" | "email";
-  width?: string;
+  width?: string | number;
   height?: number;
   margin?: number;
 };
@@ -16,8 +16,8 @@ export default function CustomTypeBox({
   placeholder,
   type = "text",
   width = "100%",
-  height = 45,
-  margin = 8,
+  height = 50,
+  margin = 10,
 }: CustomTypeBoxProps) {
   return (
     <TextInput
@@ -25,9 +25,15 @@ export default function CustomTypeBox({
       placeholder={placeholder}
       onChangeText={onChange}
       secureTextEntry={type === "password"}
+      keyboardType={type === "email" ? "email-address" : "default"}
+      autoCapitalize="none"
       style={[
         styles.input,
-        { width, height, marginVertical: margin },
+        {
+          width: width,
+          height: height,
+          marginVertical: margin,
+        },
       ]}
       placeholderTextColor="#888"
     />
@@ -37,10 +43,10 @@ export default function CustomTypeBox({
 const styles = StyleSheet.create({
   input: {
     backgroundColor: "#F5F5F5",
-    borderRadius: 6,
-    paddingHorizontal: 12,
+    borderRadius: 10,
+    paddingHorizontal: 15,
     borderWidth: 1,
     borderColor: "#AAA",
-    fontSize: 14,
+    fontSize: 15,
   },
 });

@@ -36,7 +36,7 @@ export default function Profile() {
   return (
     <View style={styles.container}>
       <HeaderWithSearch title="SoundWAVE" />
-      <ScrollView style={{ width: '100%' }} contentContainerStyle={styles.scrollContent}>
+      <ScrollView style={{ width: '100%' }} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
         {/* profile stats */}
         <View style={styles.profileSection}>
@@ -52,12 +52,12 @@ export default function Profile() {
                   <Text style={styles.edit}>Save</Text>
                 </Pressable>
                 <Pressable onPress={handleCancel}>
-                  <Text style={styles.edit}>✕ Cancel</Text>
+                  <Text style={styles.edit}>Cancel</Text>
                 </Pressable>
               </View>
             ) : (
               <Pressable onPress={() => setIsEditing(true)}>
-                <Text style={styles.edit}>Edit ✎</Text>
+                <Text style={styles.edit}>Edit</Text>
               </Pressable>
             )}
 
@@ -162,7 +162,7 @@ export default function Profile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#181B33',
+    backgroundColor: '#14172B',
     alignItems: 'center',
   },
   profileSection: {

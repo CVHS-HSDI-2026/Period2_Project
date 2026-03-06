@@ -2,27 +2,23 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 
-interface Song {
+interface Album {
   title: string;
   artist: string;
-  album: string;
   rating: string;
   genre: string;
-  duration: string;
   date: string;
   cover: string;
 }
 
-const SongDetails: React.FC = () => {
+const AlbumDetails: React.FC = () => {
     const router = useRouter();
-  const song: Song = {
-    title: "IRIS OUT",
-    artist: "Kenshi Yonezu",
-    album: "IRIS OUT",
+  const album: Album = {
+    title: "Doo-Wops and Hooligans",
+    artist: "Bruno Mars",
     rating: "8.5/10",
-    genre: "J-pop",
-    duration: "2:31",
-    date: "9/15/25",
+    genre: "Contemporary R&B",
+    date: "10/4/10",
     cover: "https://picsum.photos/300" 
     
   };
@@ -32,31 +28,25 @@ const SongDetails: React.FC = () => {
     <View style={styles.outerContainer}>
       <View style={styles.contentRow}>
         {/* Left Side: Album Cover */}
-        <Image source={{ uri: song.cover }} style={styles.cover} />
+        <Image source={{ uri: album.cover }} style={styles.cover} />
 
         {/* Right Side: Two-Column Data Grid */}
         <View style={styles.gridContainer}>
           <View style={styles.column}>
-            <Text style={styles.text}><Text style={styles.label}>Title: </Text>{song.title}</Text>
+            <Text style={styles.text}><Text style={styles.label}>Title: </Text>{album.title}</Text>
             <Text style={styles.text}>
             <Text style={styles.label}>Artist: </Text>
             <TouchableOpacity onPress={() => router.push("Artist")}>
-            <Text style={styles.text}>{song.artist}</Text>
+            <Text style={styles.text}>{album.artist}</Text>
             </TouchableOpacity>
           </Text>
-
-            <TouchableOpacity onPress={() => router.push("Album")}>
-            <Text style={styles.text}><Text style={styles.label}>Album: </Text>{song.album}</Text>
-            </TouchableOpacity>
-            <Text style={styles.text}><Text style={styles.label}>Date: </Text>{song.date}</Text>
+            <Text style={styles.text}><Text style={styles.label}>Date: </Text>{album.date}</Text>
           </View>
 
           <View style={styles.column}>
-            <Text style={styles.text}><Text style={styles.label}>Rating: </Text>{song.rating}</Text>
+            <Text style={styles.text}><Text style={styles.label}>Rating: </Text>{album.rating}</Text>
             <Text style={styles.text}><Text style={styles.label}>Min streamed: </Text>unknown</Text>
-            <Text style={styles.text}><Text style={styles.label}>Genre: </Text>{song.genre}</Text>
-            <Text style={styles.text}><Text style={styles.label}>Duration: </Text>{song.duration}</Text>
-          </View>
+            <Text style={styles.text}><Text style={styles.label}>Genre: </Text>{album.genre}</Text>          </View>
         </View>
       </View>
     </View>
@@ -99,4 +89,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SongDetails;
+export default AlbumDetails;

@@ -12,6 +12,7 @@ export default function Layout() {
       <Stack.Screen name="Login" options={{ title: 'Login' }} />
       <Stack.Screen name="Profile" options={{ title: 'Profile' }} />
       <Stack.Screen name="Settings" options={{ title: 'Settings' }} />
+      <Stack.Screen name="Homepage" options={{ title: 'Homepage' }} />
     </Stack>
   );
 }
