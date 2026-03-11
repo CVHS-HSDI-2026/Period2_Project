@@ -1,45 +1,25 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-  Image,
-} from "react-native";
+import {View,Text,StyleSheet,TextInput,TouchableOpacity,ScrollView,Image,} from "react-native";
 import { useFonts, Jost_400Regular } from "@expo-google-fonts/jost";
+import { FontAwesome } from "@expo/vector-icons";
+import { router } from "expo-router";
 
-import thumbsUp from "../assets/thumbsUp.png";
-import replyIcon from "../assets/reply.png";
-import replypoint from "../assets/Vector4.png";
+const replyIcon = require("../assets/reply.png");
+const replypoint = require("../assets/Vector4.png");
+const send = require("../assets/send.png");
+const upArrow = require("../assets/up-arrow.png");
+const downArrow = require("../assets/down-arrow.png");
+const plus = require("../assets/plus.png");
 
-type Reply = {
-  id: string;
-  text: string;
-  
-};
-
-type CommentType = {
-  id: string;
-  text: string;
-  replies: Reply[];
-};
+type Reply = { id: string; text: string };
+type CommentType = { id: string; text: string; replies: Reply[] };
 
 export default function Commentsonly() {
   const [fontsLoaded] = useFonts({ Jost_400Regular });
 
   const [comments, setComments] = useState<CommentType[]>([
-    {
-      id: "1",
-      text: "Wow this is so peak Kenshi really outdid himself...",
-      replies: [],
-    },
-    {
-      id: "2",
-      text: "Ts so mid how did he even come up with this.",
-      replies: [],
-    },
+    { id: "1", text: "Wow this is so peak Kenshi really outdid himself...", replies: [] },
+    { id: "2", text: "Ts so mid how did he even come up with this.", replies: [] },
   ]);
 
   const [newComment, setNewComment] = useState("");
@@ -49,7 +29,6 @@ export default function Commentsonly() {
 
   return (
     <View style={styles.container}>
-      {/* SAME content area as before but NO border */}
       <View style={styles.contentBox}>
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -57,70 +36,62 @@ export default function Commentsonly() {
           contentContainerStyle={{ paddingBottom: 20 }}
         >
           {comments.map((c) => (
-            <View key={c.id}>
-              <Comment
-                text={c.text}
-                onReply={(replyText) => {
-                  setComments((prev) =>
-                    prev.map((item) =>
-                      item.id === c.id
-                        ? {
-                            ...item,
-                            replies: [
-                              ...item.replies,
-                              {
-                                id: Date.now().toString(),
-                                text: replyText,
-                              },
-                            ],
-                          }
-                        : item
-                    )
-                  );
-                }}
-              />
-
-              {c.replies.map((r) => (
-                <View key={r.id} style={styles.replyIndent}>
-                  <Comment text={r.text} isReply />
-                </View>
-              ))}
-            </View>
+            <Comment
+              key={c.id}
+              text={c.text}
+              replies={c.replies}
+              onReply={(replyText) => {
+                setComments((prev) =>
+                  prev.map((item) =>
+                    item.id === c.id
+                      ? {
+                          ...item,
+                          replies: [
+                            ...item.replies,
+                            { id: Date.now().toString(), text: replyText },
+                          ],
+                        }
+                      : item
+                  )
+                );
+              }}
+            />
           ))}
         </ScrollView>
 
         <TouchableOpacity onPress={() => setShowCommentBox(!showCommentBox)}>
-          <Text style={styles.addCommentText}>Add Comment</Text>
+          <View style={styles.userRow}>
+            <Image source={plus} style={styles.plusIcon} />
+            <Text style={styles.addCommentText}>Add Comment</Text>
+          </View>
         </TouchableOpacity>
 
         {showCommentBox && (
           <View style={{ marginTop: 8 }}>
-            <TextInput
-              value={newComment}
-              onChangeText={setNewComment}
-              placeholder="Write a comment..."
-              placeholderTextColor="#aaa"
-              style={styles.input}
-            />
-
-            <TouchableOpacity
-              onPress={() => {
-                if (newComment.trim()) {
-                  setComments((prev) => [
-                    ...prev,
-                    {
-                      id: Date.now().toString(),
-                      text: newComment,
-                      replies: [],
-                    },
-                  ]);
-                  setNewComment("");
-                  setShowCommentBox(false);
-                }
-              }}
-            >
-              <Text style={styles.addCommentText}>Post Comment</Text>
-            </TouchableOpacity>
+            <View style={styles.inputWrapper}>
+              <TextInput
+                value={newComment}
+                onChangeText={setNewComment}
+                placeholder="Write a comment..."
+                placeholderTextColor="#aaa"
+                style={styles.input}
+              />
+              <TouchableOpacity
+                style={styles.sendButton}
+                onPress={() => {
+                  if (newComment.trim()) {
+                    setComments((prev) => [
+                      ...prev,
+                      { id: Date.now().toString(), text: newComment, replies: [] },
+                    ]);
+                    setNewComment("");
+                    setShowCommentBox(false);
+                  }
+                }}
+              >
+                <Image source={send} style={styles.sendIcon} />
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       </View>
@@ -128,39 +99,42 @@ export default function Commentsonly() {
   );
 }
 
-/* Individual comment row */
+/* ---------- Individual comment ---------- */
+
 function Comment({
   text,
+  replies = [],
   onReply,
   isReply = false,
 }: {
   text: string;
+  replies?: Reply[];
   onReply?: (text: string) => void;
   isReply?: boolean;
 }) {
   const [liked, setLiked] = useState(false);
   const [replyOpen, setReplyOpen] = useState(false);
   const [replyText, setReplyText] = useState("");
+  const [showReplies, setShowReplies] = useState(false);
 
   return (
-    <View style={{ marginBottom: 14 }}>
+    <View style={{ marginBottom: 3 }}>
+      <TouchableOpacity onPress={() => router.push("/Artist")}>
+        <View style={styles.userRow}>
+          <View style={styles.avatar} />
+          <Text style={styles.usernameText}>Username</Text>
+        </View>
+      </TouchableOpacity>
       <View style={styles.commentRow}>
-        {isReply && (
-          <Image source={replypoint} style={styles.replyVector} />
-        )}
-
-        <View style={styles.avatar} />
-
         <Text style={styles.commentText}>{text}</Text>
-
         <View style={styles.iconRow}>
           <TouchableOpacity onPress={() => setLiked(!liked)}>
-            <Image
-              source={thumbsUp}
-              style={[styles.iconImage, liked && styles.isliked]}
+            <FontAwesome
+              name={liked ? "thumbs-up" : "thumbs-o-up"}
+              size={18}
+              color="#FFFFFF"
             />
           </TouchableOpacity>
-
           {!isReply && (
             <TouchableOpacity onPress={() => setReplyOpen(!replyOpen)}>
               <Image source={replyIcon} style={styles.iconImage} />
@@ -169,37 +143,68 @@ function Comment({
         </View>
       </View>
 
+      {/* Toggle replies */}
+      {!isReply && replies.length > 0 && (
+        <TouchableOpacity
+          style={styles.replyToggle}
+          onPress={() => setShowReplies(!showReplies)}
+        >
+          <View style={styles.replyToggleRow}>
+            <Text style={styles.replyToggleText}>
+              {showReplies
+                ? `Hide ${replies.length} repl${replies.length > 1 ? "ies" : "y"}`
+                : `View ${replies.length} repl${replies.length > 1 ? "ies" : "y"}`}
+            </Text>
+            <Image
+              source={showReplies ? upArrow : downArrow}
+              style={styles.arrowIcon}
+            />
+          </View>
+        </TouchableOpacity>
+      )}
+
+      {/* Replies */}
+      {showReplies &&
+        replies.map((r) => (
+          <View key={r.id} style={styles.replyIndent}>
+            <Comment text={r.text} isReply />
+          </View>
+        ))}
+
       {replyOpen && (
         <View style={styles.replyBox}>
-          <TextInput
-            value={replyText}
-            onChangeText={setReplyText}
-            placeholder="Write a reply..."
-            placeholderTextColor="#aaa"
-            style={styles.replyInput}
-          />
-
-          <TouchableOpacity
-            onPress={() => {
-              if (replyText.trim() && onReply) {
-                onReply(replyText);
-                setReplyText("");
-                setReplyOpen(false);
-              }
-            }}
-          >
-            <Text style={styles.postReply}>Post Reply</Text>
-          </TouchableOpacity>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              value={replyText}
+              onChangeText={setReplyText}
+              placeholder="Write a reply..."
+              placeholderTextColor="#aaa"
+              style={styles.replyInput}
+            />
+            <TouchableOpacity
+              style={styles.sendButton}
+              onPress={() => {
+                if (replyText.trim() && onReply) {
+                  onReply(replyText);
+                  setReplyText("");
+                  setReplyOpen(false);
+                }
+              }}
+            >
+              <Image source={send} style={styles.sendIcon} />
+            </TouchableOpacity>
+          </View>
         </View>
       )}
     </View>
   );
 }
 
+/* ---------- Styles ---------- */
+
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    marginTop: 0,
     alignSelf: "center",
   },
 
@@ -210,21 +215,44 @@ const styles = StyleSheet.create({
     padding: 16,
     maxHeight: 350,
   },
-
   commentRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 14,
+    marginBottom: 8,
+    marginLeft: 42
   },
-
   avatar: {
     width: 26,
     height: 26,
     borderRadius: 13,
     backgroundColor: "#3A3F6B",
-    marginRight: 12,
+    marginRight: 10,
   },
-
+  plusIcon: {
+    width: 12,
+    height: 12,
+    marginRight: 10,
+    marginTop: 6,
+  },
+  addCommentAvatar: {
+    width: 20,
+    height: 20,
+    borderRadius: 13,
+    backgroundColor: "#3A3F6B",
+    marginRight: 10,
+  },
+  usernameText:{
+    color: "#9AA2D6",
+    fontSize: 14,
+    fontFamily: "Jost_400Regular",
+    marginBottom: 4,
+  },
+  userRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 4,
+  },
   commentText: {
     flex: 1,
     color: "#E6E8F2",
@@ -232,63 +260,84 @@ const styles = StyleSheet.create({
     fontFamily: "Jost_400Regular",
     marginRight: 10,
   },
-
   iconRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
   },
-
   iconImage: {
     width: 16,
     height: 16,
     tintColor: "#ffffff",
   },
-
-  isliked: {
-    tintColor: "#1e00ff",
-  },
-
   replyIndent: {
-    marginLeft: 8,
+    marginLeft: 38,
   },
-
   replyBox: {
     marginLeft: 38,
     marginTop: 30,
     width: "90%",
   },
-
-  replyInput: {
-    backgroundColor: "#14172B",
-    padding: 8,
-    borderRadius: 6,
-    color: "white",
-  },
-
-  postReply: {
-    color: "#9AA2D6",
-    marginTop: 4,
-  },
-
   replyVector: {
     width: 14,
     height: 14,
     marginRight: 6,
     tintColor: "#9AA2D6",
-    alignSelf: "center",
   },
 
+  inputWrapper: {
+    position: "relative",
+    justifyContent: "center",
+  },
+  replyInput: {
+    backgroundColor: "#2A2F5A",
+    padding: 10,
+    paddingRight: 40,
+    borderRadius: 6,
+    color: "white",
+    marginBottom: 10,
+  },
   input: {
     backgroundColor: "#14172B",
     padding: 10,
+    paddingRight: 40,
     borderRadius: 6,
     color: "white",
   },
-
+  sendButton: {
+    position: "absolute",
+    right: 10,
+    top: "50%",
+    transform: [{ translateY: -12 }],
+  },
+  sendIcon: {
+    width: 18,
+    height: 18,
+    tintColor: "#9AA2D6",
+  },
+  replyToggle: {
+    marginLeft: 38,
+    marginBottom: 6,
+  },
+  replyToggleText: {
+    color: "#9AA2D6",
+    fontSize: 14,
+    marginLeft: 5,
+    fontFamily: "Jost_400Regular",
+  },
   addCommentText: {
     color: "#9AA2D6",
     marginTop: 10,
     fontFamily: "Jost_400Regular",
   },
+  replyToggleRow: {
+  flexDirection: "row",
+  alignItems: "center",
+  gap: 6,
+},
+arrowIcon: {
+  width: 12,
+  height: 12,
+  tintColor: "#9AA2D6",
+},
 });

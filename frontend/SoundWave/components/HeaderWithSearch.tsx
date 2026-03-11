@@ -14,7 +14,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
 
   const handleLogoPress = () => {
     console.log('Logo pressed!');
-    router.push("/Homepage");
+    router.push("/");
   }
   const handleSearchPress = () => {
     console.log('Search pressed! Query:', searchText);

@@ -51,7 +51,7 @@ export default function CommentBox() {
         ) : (
           <RecommendedBox />
         )}
-        </ScrollView>
+      </ScrollView>
     </View>
   );
 }
@@ -106,37 +106,32 @@ contentBox: {
   },
 
   commentRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 14,
   },
-
   avatar: {
     width: 26,
     height: 26,
     borderRadius: 13,
-    backgroundColor: '#3A3F6B',
+    backgroundColor: "#3A3F6B",
     marginRight: 12,
   },
-
   commentText: {
     flex: 1,
-    color: '#E6E8F2',
+    color: "#E6E8F2",
     fontSize: 20,
-    fontFamily: 'Jost_400Regular',
+    fontFamily: "Jost_400Regular",
     marginRight: 10,
   },
-
-  icon: {
-    color: '#9AA2D6',
-    marginLeft: 10,
-    fontSize: 14,
+  iconImage: {
+    width: 20,
+    height: 20,
+    tintColor: "#9AA2D6", // optional: recolor your icon to match your theme
   },
-
   replyIndent: {
     marginLeft: 8,
   },
-
   emptyText: {
     color: '#9AA2D6',
     fontFamily: 'Jost_400Regular',
