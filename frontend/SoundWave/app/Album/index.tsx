@@ -24,14 +24,14 @@ export default function Album() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#1E2345',
+    backgroundColor: '#14172B',
   },
   scroll: {
     flex: 1,
-    backgroundColor: '#1E2345',
+    backgroundColor: '#14172B',
   },
   scrollContent: {
     flexGrow: 1,
-    backgroundColor: '#1E2345',
+    backgroundColor: '#14172B',
   },
 });

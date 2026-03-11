@@ -207,8 +207,10 @@ const styles = StyleSheet.create({
     width: "100%",
     alignSelf: "center",
   },
+
+  
   contentBox: {
-    backgroundColor: "#1E2345",
+    backgroundColor: "#14172B",
     borderRadius: 6,
     padding: 16,
     maxHeight: 350,
@@ -273,7 +275,7 @@ const styles = StyleSheet.create({
   },
   replyBox: {
     marginLeft: 38,
-    marginTop: 6,
+    marginTop: 30,
     width: "90%",
   },
   replyVector: {
@@ -296,7 +298,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   input: {
-    backgroundColor: "#2A2F5A",
+    backgroundColor: "#14172B",
     padding: 10,
     paddingRight: 40,
     borderRadius: 6,

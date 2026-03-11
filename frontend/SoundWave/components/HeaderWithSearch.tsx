@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
     color: '#333',
     ...(Platform.OS === 'web' && {
     outlineStyle: 'none',
-  }),
+    }),
   },
 
   searchButton: {

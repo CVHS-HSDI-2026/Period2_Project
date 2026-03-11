@@ -1,53 +1,100 @@
+import requests
+
 from flask import Blueprint, request, jsonify
+from database import Database
+from musicbrainz import MusicBrainzDatabase
 
 music_bp = Blueprint('music', __name__)
+app_db = Database()
+mb_db = MusicBrainzDatabase()
+
+
+def _ensure_artist_exists(artist_mbid: str) -> bool:
+    if not artist_mbid:
+        return False
+
+    local_artist = app_db.get_artist_by_mbid(artist_mbid)
+    if local_artist:
+        return True
+
+    mb_artist = mb_db.get_artist_by_mbid(artist_mbid)
+    if not mb_artist:
+        return False
+
+    app_db.create_artist(mb_artist)
+    return True
+
 
 @music_bp.route('/search', methods=['GET'])
 def search_music():
-    """
-    Searches for Artists, Albums, or Songs using the Solr/MusicBrainz search container.
-    """
-    # Todo: Logic:
-    # 1. Get 'query' and 'type' (artist, release_group, recording) from request args.
-    # 2. Make a query the MusicBrainz DB directly (probably using ILIKE, though that might be slow; there might be a
-    # faster implementation that I'm not thinking of. Feel free to play around and figure out a better query!)
-    # Returns: List of search results with MBIDs, Names, and Artist info.
-    pass
+    query = request.args.get('query')
+    search_type = request.args.get('type', 'artist')
+
+    if not query:
+        return jsonify({"message": "Missing search query"}), 400
+
+    results = mb_db.search(query, search_type)
+    return jsonify(results=results), 200
+
 
 @music_bp.route('/artist/<mbid>', methods=['GET'])
 def get_artist(mbid):
-    """
-    Gets Artist details.
-    """
-    # Todo: Logic:
-    # 1. Check if Artist exists in local 'Artist' table.
-    # 2. If NO: Query MusicBrainz DB for artist details, insert into local 'Artist' table.
-    # 3. Get generic info (Bio, Image URL, etc.) from MusicBrainz/Cover Art Archive.
-    # 4. Fetch 'User_Follow' counts or local app ratings for this artist.
-    # Returns: Artist metadata + App-specific stats.
-    pass
+    local_artist = app_db.get_artist_by_mbid(mbid)
+
+    if not local_artist:
+        mb_artist = mb_db.get_artist_by_mbid(mbid)
+        if not mb_artist:
+            return jsonify({"message": "Artist not found"}), 404
+
+        app_db.create_artist(mb_artist)
+        local_artist = app_db.get_artist_by_mbid(mbid)
+
+    return jsonify(local_artist=local_artist), 200
+
 
 @music_bp.route('/album/<mbid>', methods=['GET'])
 def get_album(mbid):
-    """
-    Gets Album (Release Group) details and tracklist.
-    """
-    # Todo: Logic:
-    # 1. Check if Album exists in local 'Album' table.
-    # 2. If NO: Fetch from MB DB, insert into local 'Album' table.
-    # 3. Fetch Tracklist: Query MB 'track' and 'recording' tables linked to this release.
-    # 4. Fetch Cover Art: Use MBID to query Cover Art Archive API.
-    # Returns: Album metadata, tracklist, and cover art URL.
-    pass
+    local_album = app_db.get_album_by_mbid(mbid)
+
+    if not local_album:
+        mb_album = mb_db.get_album_by_mbid(mbid)
+        if not mb_album:
+            return jsonify({"message": "Album not found"}), 404
+
+        artist_mbid = mb_album.get('artist_mbid')
+        _ensure_artist_exists(artist_mbid)
+
+        cover_art_url = None
+        caa_response = requests.get(f"http://coverartarchive.org/release-group/{mbid}")
+        if caa_response.status_code == 200:
+            images = caa_response.json().get('images', [])
+            if images:
+                cover_art_url = images[0].get('image')
+
+        app_db.create_album(mb_album, cover_art_url)
+        local_album = app_db.get_album_by_mbid(mbid)
+
+    return jsonify(local_album=local_album), 200
+
 
 @music_bp.route('/song/<mbid>', methods=['GET'])
 def get_song(mbid):
-    """
-    Gets specific Song details and its reviews.
-    """
-    # Todo: Logic:
-    # 1. Check local 'Song' table. Insert if missing (using MB data).
-    # 2. Calculate average_rating from the 'Review' table.
-    # 3. Fetch reviews associated with this song_id.
-    # Returns: Song metadata, average rating, and list of reviews.
-    pass
+    local_song = app_db.get_song_by_mbid(mbid)
+
+    if not local_song:
+        mb_song = mb_db.get_song_by_mbid(mbid)
+        if not mb_song:
+            return jsonify({"message": "Song not found"}), 404
+
+        artist_mbid = mb_song.get('artist_mbid')
+        _ensure_artist_exists(artist_mbid)
+
+        app_db.create_song(mb_song)
+        local_song = app_db.get_song_by_mbid(mbid)
+
+    reviews = app_db.fetch_reviews(song_id=local_song['id'])
+
+    return jsonify({
+        "song": local_song,
+        "reviews": reviews
+    }), 200

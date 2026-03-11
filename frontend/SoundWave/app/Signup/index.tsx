@@ -5,6 +5,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import CustomTypeBox from "../../components/CustomTypeBox";
@@ -26,9 +29,10 @@ export default function SignUp() {
     console.log("Signup pressed");
     router.push("/"); // change later to your home route
   };
-
+  
   return (
-    <View style={styles.background}>
+    <View style={styles.scrollContainer}>
+      <ScrollView style={{ width: '100%' }} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       <View style={styles.card}>
 
         {/* Logo */}
@@ -97,21 +101,33 @@ export default function SignUp() {
         </TouchableOpacity>
 
         {/* Back to Login */}
-        <TouchableOpacity onPress={() => router.push("/login")}>
+        <TouchableOpacity onPress={() => router.push("/Login")}>
           <Text style={styles.link}>Already have an account? Log in</Text>
         </TouchableOpacity>
 
       </View>
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    backgroundColor: "#0F1535",
+  scrollContainer: {
+    flexGrow: 1,
+    backgroundColor: "#14172B",
     justifyContent: "center",
     alignItems: "center",
+    paddingVertical: 40,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 40,
+    paddingHorizontal: 10,
+    // width: "90%",
+    // maxWidth: 1200,
+    marginLeft: 0,
   },
   card: {
     width: "85%",
