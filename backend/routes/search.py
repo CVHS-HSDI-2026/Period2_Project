@@ -24,3 +24,10 @@ def search_artists(query):
     Searches for artists by name.
     """
     pass
+
+@search_bp.route('/user/<query>', methods=['POST'])
+def search_users(query):
+    """
+    Searches for users by username.
+    """
+    pass
