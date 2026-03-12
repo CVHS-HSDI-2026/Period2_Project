@@ -1,14 +1,6 @@
 import { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
+
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, KeyboardAvoidingView, Platform, } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import CustomTypeBox from "../../components/CustomTypeBox";
 import { useRouter } from "expo-router";
@@ -31,7 +23,7 @@ export default function SignUp() {
   };
   
   return (
-    <View style={styles.scrollContainer}>
+    <View style={styles.background}>
       <ScrollView style={{ width: '100%' }} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       <View style={styles.card}>
 
@@ -117,6 +109,12 @@ export default function SignUp() {
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    backgroundColor: "#14172B",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   scrollContainer: {
     flexGrow: 1,
     backgroundColor: "#14172B",
