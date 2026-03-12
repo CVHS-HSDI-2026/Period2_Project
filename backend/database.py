@@ -426,7 +426,6 @@ class Database:
         Fetches all reviews for a song or album.
         """
         if song_id:
-<<<<<<< Updated upstream
             self.cursor.execute(
                 "SELECT * FROM Review INNER JOIN Users ON Review.user_id = Users.id WHERE song_id = %s",
                 (song_id,)
@@ -441,18 +440,6 @@ class Database:
             return [dict(row) for row in self.cursor.fetchall()]
 
         raise Exception("Invalid request: Must provide either song_id or album_id")
-=======
-            self.cursor.execute("SELECT * FROM Review INNER JOIN Users ON Review.user_id = Users.id WHERE song_id = %s", (song_id,))
-            reviews = self.cursor.fetchall()
-            if reviews:
-                return reviews
-        elif album_id:
-            self.cursor.execute("SELECT * FROM Review INNER JOIN Users ON Review.user_id = Users.id WHERE album_id = %s", (album_id,))
-            reviews = self.cursor.fetchall()
-            if reviews:
-                return reviews
-        raise Exception("Failed to fetch reviews for song or album")
->>>>>>> Stashed changes
 
     def delete_review(self, review_id: int) -> bool:
         """
