@@ -36,7 +36,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
 
   const handleProfileMenuPress = () => {
     console.log('Profile menu item pressed');
-    router.push("/Profile");
+    router.push({pathname: "./Profile", params: { isOwner: "true" }})
     setIsDropdownVisible(false);
   };
 
