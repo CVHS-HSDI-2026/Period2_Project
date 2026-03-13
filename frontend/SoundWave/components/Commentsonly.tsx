@@ -77,7 +77,7 @@ export default function Commentsonly() {
                 style={styles.input}
               />
               <TouchableOpacity
-                style={styles.sendButton}
+                style={styles.sendButton2}
                 onPress={() => {
                   if (newComment.trim()) {
                     setComments((prev) => [
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
   },
   replyBox: {
     marginLeft: 38,
-    marginTop: 30,
+    marginTop: 10,
     width: "90%",
   },
   replyVector: {
@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   input: {
-    backgroundColor: "#14172B",
+    backgroundColor: "#2A2F5A",
     padding: 10,
     paddingRight: 40,
     borderRadius: 6,
@@ -308,7 +308,13 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 10,
     top: "50%",
-    transform: [{ translateY: -12 }],
+    transform: [{ translateY: -14 }],
+  },
+  sendButton2: {
+    position: "absolute",
+    right: 10,
+    top: "50%",
+    transform: [{ translateY: -8 }],
   },
   sendIcon: {
     width: 18,

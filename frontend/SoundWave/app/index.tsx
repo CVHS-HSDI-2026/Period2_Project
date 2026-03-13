@@ -21,11 +21,7 @@ export default function App() {
         {/* ================= Popular ================= */}
         <Text style={styles.sectionTitle}>Popular</Text>
 
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.horizontalContent}
-        >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
           {Array.from({ length: 10 }).map((_, i) => (
             <SongCard
               key={`popular-${i}`}
