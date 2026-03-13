@@ -11,24 +11,18 @@ import CustomTypeBox from "../../components/CustomTypeBox";
 import { useRouter } from "expo-router";
 import { Image } from 'react-native';
 
-export default function Login() {
+export default function ForgotPass() {
   const router = useRouter();
 
   const [emailOrUsername, setEmailOrUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Placeholder Google login
-  const handleGoogleLogin = async () => {
-    alert("Google login not connected");
-  };
 
   const handleLogin = async () => {
     setError("");
 
-    if (!emailOrUsername.trim() || !password.trim()) {
+    if (!emailOrUsername.trim()) {
       setError("Please fill in all fields");
       return;
     }
@@ -43,7 +37,6 @@ export default function Login() {
         },
         body: JSON.stringify({
           emailOrUsername,
-          password,
         }),
       });
 
@@ -78,19 +71,6 @@ export default function Login() {
           <Ionicons name="person" size={60} color="black" />
         </View>
 
-        {/* Google Login */}
-        <TouchableOpacity
-          style={styles.googleButton}
-          onPress={handleGoogleLogin}
-        >
-          <View style={styles.googleLogoContainer}>
-            <Image source={require("../../assets/google-logo.png")}
-              style={styles.logoForGoogle}
-              resizeMode="contain"
-            />
-          </View>
-          <Text style={styles.googleText}> Log in with Google</Text>
-        </TouchableOpacity>
 
         {/* Email */}
         <Text style={styles.label}>Email/Username</Text>
@@ -101,33 +81,11 @@ export default function Login() {
           type="text"
         />
 
-        {/* Password */}
-        <Text style={styles.label}>Password</Text>
-        <CustomTypeBox
-          value={password}
-          onChange={setPassword}
-          placeholder="Enter your password"
-          type="password"
-        />
         
         {error ? (
           <Text style={{ color: "red", marginTop: 5 }}>{error}</Text>
         ) : null}
         
-
-        {/* Remember Me */}
-        <TouchableOpacity
-          style={styles.rememberContainer}
-          onPress={() => setRememberMe(!rememberMe)}
-        >
-          <View
-            style={[
-              styles.checkbox,
-              rememberMe && styles.checkboxChecked
-            ]}
-          />
-          <Text style={styles.rememberText}>Remember me</Text>
-        </TouchableOpacity>
 
         {/* Login Button */}
         <TouchableOpacity
@@ -145,9 +103,7 @@ export default function Login() {
           <Text style={styles.link}>Click here to sign up</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.push("/ForgotPass")}>
-          <Text style={styles.link}>Forgot password?</Text>
-        </TouchableOpacity>
+        
       </View>
       </ScrollView>
     </View>
@@ -231,26 +187,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     marginTop: 10,
   },
-  rememberContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    alignSelf: "flex-start",
-    marginTop: 10,
-  },
-  checkbox: {
-    width: 18,
-    height: 18,
-    borderWidth: 2,
-    borderColor: "black",
-    borderRadius: 4,
-    marginRight: 8,
-  },
-  checkboxChecked: {
-    backgroundColor: "black",
-  },
-  rememberText: {
-    fontSize: 13,
-  },
+
   loginButton: {
     width: "60%",
     backgroundColor: "black",
