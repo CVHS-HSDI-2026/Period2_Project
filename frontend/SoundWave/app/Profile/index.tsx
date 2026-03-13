@@ -329,17 +329,19 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   buttonBack:{
-    width: 75,    
+    width: 80,    
     height: 25,
     borderRadius: 6,
     backgroundColor: '#9AA2D6',
     justifyContent: 'center',
     alignItems: 'center',
+    alignSelf: 'flex-end',
   },
   buttonText: {
     fontSize: 14,
     color: '#14172B',
     fontFamily: 'Jost_400Regular',
     alignSelf: 'center',
+    userSelect: 'none'
   },
 });
