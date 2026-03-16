@@ -9,6 +9,7 @@ from routes.auth import auth_bp
 from routes.users import users_bp
 from routes.music import music_bp
 from routes.reviews import reviews_bp
+from routes.search import search_bp
 
 from database import Database
 
@@ -26,6 +27,7 @@ app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(users_bp, url_prefix='/api/users')
 app.register_blueprint(music_bp, url_prefix='/api/music')
 app.register_blueprint(reviews_bp, url_prefix='/api/reviews')
+app.register_blueprint(search_bp, url_prefix='/api/search')
 
 @app.route('/health')
 def health_check():
