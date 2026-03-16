@@ -1,5 +1,3 @@
-import requests
-
 from flask import Blueprint, request, jsonify
 from database import Database
 from musicbrainz import MusicBrainzDatabase

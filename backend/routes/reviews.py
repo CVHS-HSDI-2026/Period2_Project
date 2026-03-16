@@ -2,9 +2,11 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from database import Database
+from musicbrainz import MusicBrainzDatabase
 
 reviews_bp = Blueprint('reviews', __name__)
 db = Database()
+mbdb = MusicBrainzDatabase()
 
 @reviews_bp.route('/', methods=['POST'])
 @jwt_required()
@@ -94,15 +96,17 @@ def get_reviews(song_id):
     """
 
     if not song_id:
-        return jsonify("Missing song_id"), 400
+        return jsonify({"message": "Missing song_id"}), 400
 
-    reviews = db.fetch_reviews(song_id)
+    try:
+        reviews = db.fetch_reviews(song_id=song_id)
+    except Exception as e:
+        return jsonify({"message": "Failed to fetch reviews", "error": str(e)}), 500
 
-    # 1. Query Review table where song_id matches.
-    # 2. Join with Users table to get username/pfp of the reviewer.
-    # 3. Fetch replies for each review (could be done via a separate query or nested).
-    # Returns: List of reviews with nested replies.
-    pass
+    if not reviews:
+        return jsonify({"message": "No reviews found for this song"}), 200
+
+    return jsonify(reviews), 200
 
 @reviews_bp.route('/album/<int:album_id>', methods=['GET'])
 def get_album_reviews(album_id):
@@ -111,12 +115,14 @@ def get_album_reviews(album_id):
     """
 
     if not album_id:
-        return jsonify("Missing album_id"), 400
+        return jsonify({"message": "Missing album_id"}), 400
 
-    reviews = db.fetch_review(album_id=album_id)
+    try:
+        reviews = db.fetch_reviews(album_id=album_id)
+    except Exception as e:
+        return jsonify({"message": "Failed to fetch reviews", "error": str(e)}), 500
 
-    # 1. Query Review table where album_id matches.
-    # 2. Join with Users table to get username/pfp of the reviewer.
-    # 3. Fetch replies for each review (could be done via a separate query or nested).
-    # Returns: List of reviews with nested replies.
-    pass
+    if not reviews:
+        return jsonify({"message": "No reviews found for this album"}), 200
+
+    return jsonify(reviews), 200
