@@ -5,8 +5,10 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { useFonts, Jost_400Regular, Jost_500Medium, Jost_700Bold } from '@expo-google-fonts/jost'; 
 import SongCard from "../../components/SongCard";
 import ArtistCard from "../../components/ArtistCard";
+import FollowPopUp from "../../components/FollowingPopUp";
 
 export default function Profile() {
+
   const router = useRouter();
   const { isOwner } = useLocalSearchParams();
   const isProfileOwner = isOwner === "true";
@@ -19,51 +21,53 @@ export default function Profile() {
   const [displayName, setDisplayName] = useState('get from database');
   const [bio, setBio] = useState('this user does not have a bio yet so this is placeholder text.');
 
-  const handleSave = () => {
-    setIsEditing(false);
+  const [showFollowPopUp, setShowFollowPopUp] = useState(false);
+  const [activeTab, setActiveTab] = useState("following");
+
+  const handleSave = () => setIsEditing(false);
+  const handleCancel = () => setIsEditing(false);
+  const toggleFollow = () => setIsFollowing(!isFollowing);
+
+  const openFollowers = () => {
+    setActiveTab("followers");
+    setShowFollowPopUp(true);
   };
 
-  const handleCancel = () => {
-    setIsEditing(false);
-  };
-
-  const toggleFollow = () => {
-    setIsFollowing(!isFollowing);
+  const openFollowing = () => {
+    setActiveTab("following");
+    setShowFollowPopUp(true);
   };
 
   const colone = isProfileOwner
-  ? [
-      { columnName: 'Username:', value: 'get from database' },
-      { columnName: '# followers' },
-      { columnName: '# ratings' },
-    ]
-  : [
-      { columnName: 'Display Name:', value: displayName },
-      { columnName: '# followers' },
-      { columnName: '# ratings' },
-    ];
+    ? [
+        { columnName: 'Username:', value: 'get from database' },
+        { columnName: '# followers', clickable: true, action: openFollowers },
+        { columnName: '# ratings' },
+      ]
+    : [
+        { columnName: 'Display Name:', value: displayName },
+        { columnName: '# followers', clickable: true, action: openFollowers },
+        { columnName: '# ratings' },
+      ];
 
   const coltwo = isProfileOwner
-  ? [
-      { columnName: 'Display Name:', value: displayName },
-      { columnName: '# following' },
-      { columnName: '# comments' },
-    ]
-  : [
-      { columnName: ' ', value: ' ' }, 
-      { columnName: '# following' },
-      { columnName: '# comments' },
-    ];
+    ? [
+        { columnName: 'Display Name:', value: displayName },
+        { columnName: '# following', clickable: true, action: openFollowing },
+        { columnName: '# comments' },
+      ]
+    : [
+        { columnName: ' ', value: ' ' },
+        { columnName: '# following', clickable: true, action: openFollowing },
+        { columnName: '# comments' },
+      ];
 
   return (
     <View style={styles.container}>
+
       <HeaderWithSearch title="SoundWAVE" />
 
-      <ScrollView
-        style={{ width: '100%' }}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView style={{ width: '100%' }} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
         <View style={styles.profileSection}>
 
@@ -73,7 +77,8 @@ export default function Profile() {
 
           <View style={styles.profileRight}>
 
-            {/* Owner Edit Controls */}
+            {/* Edit / Follow button */}
+
             {isProfileOwner ? (
               isEditing ? (
                 <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 10 }}>
@@ -100,40 +105,66 @@ export default function Profile() {
             )}
 
             {/* Columns */}
+
             <View style={styles.columnsContainer}>
 
               <View style={styles.column}>
-                {colone.map((item, idx) => (
-                  <Text style={styles.columnText} key={`col1-${idx}`}>
-                    {item.columnName}{item.value ? ` ${item.value}` : ''}
-                  </Text>
-                ))}
+                {colone.map((item, idx) => {
+
+                  if (item.clickable) {
+                    return (
+                      <Pressable key={`col1-${idx}`} onPress={item.action}>
+                        <Text style={styles.columnText}>{item.columnName}</Text>
+                      </Pressable>
+                    );
+                  }
+
+                  return (
+                    <Text style={styles.columnText} key={`col1-${idx}`}>
+                      {item.columnName}{item.value ? ` ${item.value}` : ''}
+                    </Text>
+                  );
+                })}
               </View>
 
               <View style={styles.column}>
-                {coltwo.map((item, idx) => (
-                  item.columnName === 'Display Name:' && isEditing && isProfileOwner ? (
-                    <View key={`col2-${idx}`} style={styles.inlineEditRow}>
-                      <Text style={styles.columnText}>{item.columnName} </Text>
-                      <TextInput
-                        style={[styles.inputInline, { flex: 1 }]}
-                        value={displayName}
-                        onChangeText={setDisplayName}
-                        placeholder="Enter display name"
-                        placeholderTextColor="#aaa"
-                      />
-                    </View>
-                  ) : (
+                {coltwo.map((item, idx) => {
+
+                  if (item.clickable) {
+                    return (
+                      <Pressable key={`col2-${idx}`} onPress={item.action}>
+                        <Text style={styles.columnText}>{item.columnName}</Text>
+                      </Pressable>
+                    );
+                  }
+
+                  if (item.columnName === 'Display Name:' && isEditing && isProfileOwner) {
+                    return (
+                      <View key={`col2-${idx}`} style={styles.inlineEditRow}>
+                        <Text style={styles.columnText}>{item.columnName} </Text>
+                        <TextInput
+                          style={[styles.inputInline, { flex: 1 }]}
+                          value={displayName}
+                          onChangeText={setDisplayName}
+                          placeholder="Enter display name"
+                          placeholderTextColor="#aaa"
+                        />
+                      </View>
+                    );
+                  }
+
+                  return (
                     <Text style={styles.columnText} key={`col2-${idx}`}>
                       {item.columnName}{item.value ? ` ${item.value}` : ''}
                     </Text>
-                  )
-                ))}
+                  );
+                })}
               </View>
 
             </View>
 
             {/* Bio */}
+
             <Text style={styles.titleBioText}>Bio:</Text>
 
             {isEditing && isProfileOwner ? (
@@ -149,6 +180,8 @@ export default function Profile() {
 
           </View>
         </View>
+
+        {/* Top Songs */}
 
         <Text style={styles.sectionTitle}>Top Songs:</Text>
 
@@ -166,6 +199,8 @@ export default function Profile() {
           ))}
         </ScrollView>
 
+        {/* Top Albums */}
+
         <Text style={styles.sectionTitle}>Top Albums:</Text>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
@@ -182,6 +217,8 @@ export default function Profile() {
           ))}
         </ScrollView>
 
+        {/* Top Artists */}
+
         <Text style={styles.sectionTitle}>Top Artists:</Text>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
@@ -197,6 +234,8 @@ export default function Profile() {
             />
           ))}
         </ScrollView>
+
+        {/* Recommended Users */}
 
         <Text style={styles.sectionTitle}>Recommended Users:</Text>
 
@@ -220,6 +259,16 @@ export default function Profile() {
         </ScrollView>
 
       </ScrollView>
+
+      {/* Follow modal */}
+
+      <FollowPopUp
+        visible={showFollowPopUp}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onClose={() => setShowFollowPopUp(false)}
+      />
+
     </View>
   );
 }
@@ -230,6 +279,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#14172B',
     alignItems: 'center',
   },
+
   profileSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -237,20 +287,24 @@ const styles = StyleSheet.create({
     maxWidth: 1200,
     marginBottom: 40,
   },
+
   profileLeft: {
     width: '35%',
     alignItems: 'center',
     justifyContent: 'center',
   },
+
   avatarPlaceholder: {
     width: 200,
     height: 200,
     borderRadius: 100,
     backgroundColor: '#ffffff20',
   },
+
   profileRight: {
     width: '65%',
   },
+
   edit: {
     fontSize: 14,
     color: '#FFFFFF',
@@ -258,32 +312,38 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     marginBottom: 10,
   },
+
   columnsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 20,
   },
+
   column: {
     width: '48%',
   },
+
   columnText: {
     fontSize: 18,
     color: '#FFFFFF',
     fontFamily: 'Jost_400Regular',
     paddingVertical: 6,
   },
+
   titleBioText: {
     fontSize: 20,
     color: '#FFFFFF',
     fontFamily: 'Jost_500Medium',
     marginBottom: 8,
   },
+
   biotext: {
     fontSize: 16,
     color: '#FFFFFF',
     fontFamily: 'Jost_400Regular',
     lineHeight: 22,
   },
+
   input: {
     borderWidth: 1,
     borderColor: '#FFFFFF50',
@@ -294,12 +354,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 4,
   },
+
   scrollContent: {
     paddingVertical: 40,
-    paddingHorizontal: 0,
   },
+
   sectionTitle: {
-   fontSize: 20,
+    fontSize: 20,
     color: '#FFFFFF',
     fontFamily: 'Jost_500Medium',
     alignSelf: 'flex-start',
@@ -307,6 +368,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     marginTop: 30,
   },
+
   horizontalContent: {
     flexDirection: 'row',
     gap: 24,
@@ -314,11 +376,13 @@ const styles = StyleSheet.create({
     paddingRight: 20,
     width: '100%',
   },
+
   inlineEditRow: {
     flexDirection: 'row',
-   alignItems: 'center',
+    alignItems: 'center',
     paddingVertical: 6,
   },
+
   inputInline: {
     borderBottomWidth: 1,
     borderColor: '#FFFFFF50',
@@ -328,8 +392,9 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     marginLeft: 4,
   },
-  buttonBack:{
-    width: 80,    
+
+  buttonBack: {
+    width: 80,
     height: 25,
     borderRadius: 6,
     backgroundColor: '#9AA2D6',
@@ -337,11 +402,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'flex-end',
   },
+
   buttonText: {
     fontSize: 14,
     color: '#14172B',
     fontFamily: 'Jost_400Regular',
     alignSelf: 'center',
-    userSelect: 'none'
+    userSelect: 'none',
   },
+
 });

@@ -21,7 +21,7 @@ export default function Artist() {
   return (
     <View style={styles.container}>
       <HeaderWithSearch title="SoundWAVE" />
-      <ScrollView style={{ width: '100%' }} contentContainerStyle={styles.scrollContent}>
+      <ScrollView style={{ width: '100%' }} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
         {/* profile stats */}
         <View style={styles.profileSection}>

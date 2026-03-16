@@ -60,17 +60,19 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
         <TouchableOpacity 
           style={styles.searchButton}
           onPress={handleLogoPress}>
-          <Image
-            source= {require('../assets/web-name.png')}
-            style={styles.logoImage}
-            resizeMode="contain"
-          />
+            <View style={styles.row}>
+              <Image
+                source= {require('../assets/web-name.png')}
+                style={styles.logoImage}
+                resizeMode="contain"
+              />
+              <Image
+                source= {require('../assets/logo.png')}
+                style={styles.infoImage}
+                resizeMode="contain"
+              />
+            </View>
         </TouchableOpacity>
-        <Image
-          source= {require('../assets/logo.png')}
-          style={styles.infoImage}
-          resizeMode="contain"
-        />
       </View>
       <View style={styles.searchContainer}>
         <TextInput
@@ -338,6 +340,10 @@ const styles = StyleSheet.create({
     bottom: 0,
     zIndex: 999,
   },
+  row:{
+    flexDirection: 'row',
+    justifyContent: "space-between",
+  }
 });
 
 export default HeaderWithSearch;
