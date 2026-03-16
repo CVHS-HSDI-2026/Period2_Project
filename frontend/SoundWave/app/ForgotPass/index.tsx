@@ -1,22 +1,17 @@
 import { useState } from "react";
 import { ScrollView } from "react-native";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { View, Text, StyleSheet, TouchableOpacity, } from "react-native";
 import CustomTypeBox from "../../components/CustomTypeBox";
 import { useRouter } from "expo-router";
 import { Image } from 'react-native';
 
-export default function ForgotPass() {
+export default function Login() {
   const router = useRouter();
 
   const [emailOrUsername, setEmailOrUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
 
   const handleLogin = async () => {
@@ -29,6 +24,11 @@ export default function ForgotPass() {
 
     try {
       setLoading(true);
+      // delete this later when connected to backend
+      // its just a test
+      setTimeout(() => {
+        setSuccess(true);
+      }, 1000);
 
       const response = await fetch("http://backendurl/login", {
         method: "POST",
@@ -43,11 +43,11 @@ export default function ForgotPass() {
       const data = await response.json();
 
       if( !response.ok ) {
-        setError(data.message || "Login failed");
+        setError(data?.message || "Failed to send");
         return;
       }
+      setSuccess(true);
       
-      router.replace("/");
     } catch (err) {
       setError("Network error. Please try again");
     } finally {
@@ -59,6 +59,16 @@ export default function ForgotPass() {
     <View style={styles.background}>
       <ScrollView style={{ width: '100%' }} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       <View style={styles.card}>
+        {success ? (
+        <>
+          <Text style={styles.title}>Email Sent</Text>
+
+          <Text style={styles.description}>
+            We've sent a password reset link to your email. Please check your inbox.
+          </Text>
+            </>
+            ) : (
+        <>
 
         {/* Title */}
         <Image source={require("../../assets/web-name.png")}
@@ -67,43 +77,52 @@ export default function ForgotPass() {
          />
 
         {/* Avatar Circle */}
-        <View style={styles.avatar}>
-          <Ionicons name="person" size={60} color="black" />
-        </View>
+          <View style={styles.avatar}>
+            <Image
+              source={require('../../assets/logo.png')}
+              style={styles.avatarLogo}
+              resizeMode="contain"
+            />
+          </View>
 
+        {/* Password Reset Title */}
+        <Text style={styles.title}>Password Reset</Text>
+
+        {/* Description */}
+        <Text style={styles.description}>
+          Enter your email and we'll send you a link to reset your password.
+        </Text>
 
         {/* Email */}
-        <Text style={styles.label}>Email/Username</Text>
+        <Text style={styles.label}>Email</Text>
         <CustomTypeBox
           value={emailOrUsername}
           onChange={setEmailOrUsername}
-          placeholder="Enter your email or username"
+          placeholder="Enter your email"
           type="text"
         />
+        {error ? <Text style={styles.error}>{error}</Text> : null}
 
-        
-        {error ? (
-          <Text style={{ color: "red", marginTop: 5 }}>{error}</Text>
-        ) : null}
-        
-
-        {/* Login Button */}
+        {/* Send email Button */}
         <TouchableOpacity
-          style={styles.loginButton}
+          style={[styles.loginButton, loading && styles.loginButtonDisabled]}
           onPress={handleLogin}
           disabled={loading}
         >
           <Text style={styles.loginText}>
-            {loading ? "Logging in" : "Login"}
+            {loading ? "Sending..." : "Send Reset Link"}
           </Text>
         </TouchableOpacity>
 
         {/* Links */}
-        <TouchableOpacity onPress={() => router.push("/Signup")}>
-          <Text style={styles.link}>Click here to sign up</Text>
+        <TouchableOpacity onPress={() => router.push("/Login")}>
+          <Text style={styles.link}>Back to login</Text>
         </TouchableOpacity>
-
-        
+        <TouchableOpacity onPress={() => router.push("/ResetPass")}>
+          <Text style={styles.link}>reset pass page test</Text>
+        </TouchableOpacity>
+        </>
+      )}
       </View>
       </ScrollView>
     </View>
@@ -123,8 +142,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 40,
     paddingHorizontal: 10,
-    // width: "90%",
-    // maxWidth: 1200,
     marginLeft: 0,
   },
   card: {
@@ -140,7 +157,7 @@ const styles = StyleSheet.create({
   width: "40%",
   height: 80,
   marginBottom: 15,
-},
+  },
   avatar: {
     width: 110,
     height: 110,
@@ -150,36 +167,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 25,
   },
-  googleLogoContainer: {
-    width: 30,
-    height: 20,
-    position: "relative",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: '19%',
-    marginLeft: 7,
-  },
-  logoForGoogle: {
-    width: 30,
-    height: 30,
-    position: "absolute",
-    marginVertical: 2,
-    marginHorizontal: 2,
-  },
-  googleButton: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "flex-start",
-    backgroundColor: "#4285F4",
-    paddingVertical: 10,
-    borderRadius: 8,
-    width: "100%",
-    marginBottom: 15,
-  },
-  googleText: {
-    color: "white",
-    fontWeight: "600",
-    marginLeft: 8,
+  avatarLogo: {
+    width: 90,
+    height: 90,
   },
   label: {
     alignSelf: "flex-start",
@@ -187,7 +177,6 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     marginTop: 10,
   },
-
   loginButton: {
     width: "60%",
     backgroundColor: "black",
@@ -204,5 +193,25 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textDecorationLine: "underline",
     marginTop: 8,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  description: {
+    fontSize: 13,
+    textAlign: "center",
+    color: "#444",
+    marginVertical:12,
+  },
+  error: {
+    color: "#cc0000",
+    fontSize: 13,
+    marginTop: 6,
+    alignSelf: "center",
+  },
+  loginButtonDisabled: {
+    opacity: 0.6,
   },
 });
