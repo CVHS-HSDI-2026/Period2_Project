@@ -16,6 +16,16 @@ interface ArtistCardProps {
   releaseDate?: string;
 }
 
+const getInitials = (name: string) => {
+  if (!name) return "";
+  return name
+    .split(" ")
+    .map((word) => word.charAt(0))
+    .join("")
+    .toUpperCase()
+    .substring(0, 3);
+};
+
 /* ---------- Component ---------- */
 const ArtistCard: FC<ArtistCardProps> = ({
   title,
@@ -31,18 +41,23 @@ const ArtistCard: FC<ArtistCardProps> = ({
       onPress={onPress}
       style={[styles.card, isPopular && styles.popularCard]}
     >
-      {/* Album Art */}
       {image ? (
         <Image source={image} style={styles.image} />
       ) : (
-        <View style={[styles.image, styles.imageFallback]} />
+        <View style={[styles.image, styles.imageFallback]}>
+          <Text style={styles.initialsText}>{getInitials(title)}</Text>
+        </View>
       )}
+
       <View style={styles.infoRow}>
         <View style={styles.textBlock}>
           <Text style={styles.title} numberOfLines={1}>
-          {title}
+            {title}
           </Text>
-      </View>
+          <Text style={styles.artist} numberOfLines={1}>
+            {artist}
+          </Text>
+        </View>
       </View>
     </Pressable>
   );
