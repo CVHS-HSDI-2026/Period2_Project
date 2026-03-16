@@ -52,15 +52,11 @@ class MusicBrainzDatabase:
         def search_albums():
             self.cursor.execute("""
                 SELECT 
-                    rg.gid AS mbid, 
-                    rg.name AS title,
-                    CASE 
-                        WHEN caa.release_group IS NOT NULL THEN 'https://coverartarchive.org/release-group/' || rg.gid || '/front-250'
-                        ELSE NULL 
-                    END as cover_url
-                FROM release_group rg
-                LEFT JOIN cover_art_archive.release_group_cover_art caa ON rg.id = caa.release_group
-                WHERE rg.name ILIKE %s LIMIT 10
+                    gid AS mbid, 
+                    name AS title,
+                    'https://coverartarchive.org/release-group/' || gid || '/front-250' as cover_url
+                FROM release_group 
+                WHERE name ILIKE %s LIMIT 10
             """, (search_term,))
             return [dict(row) for row in self.cursor.fetchall()]
 
@@ -76,7 +72,6 @@ class MusicBrainzDatabase:
                         JOIN medium m ON t.medium = m.id
                         JOIN release rel ON m.release = rel.id
                         JOIN release_group rg ON rel.release_group = rg.id
-                        JOIN cover_art_archive.release_group_cover_art caa ON rg.id = caa.release_group
                         WHERE t.recording = r.id
                         LIMIT 1
                     ) as cover_url
