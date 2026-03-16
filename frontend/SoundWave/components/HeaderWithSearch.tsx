@@ -14,7 +14,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
 
   const handleLogoPress = () => {
     console.log('Logo pressed!');
-    router.push("/Homepage");
+    router.push("/");
   }
   const handleSearchPress = () => {
     console.log('Search pressed! Query:', searchText);
@@ -54,108 +54,113 @@ const HeaderWithSearch: FC<HeaderProps> = ({ title }) => {
   };
 
   return (
-    <View style={styles.headerContainer}>
-      
-      <View style={styles.logoContainer}>
-        <TouchableOpacity 
-          style={styles.searchButton}
-          onPress={handleLogoPress}>
-          <Image
-            source= {require('../assets/web-name.png')}
-            style={styles.logoImage}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-        <Image
-          source= {require('../assets/logo.png')}
-          style={styles.infoImage}
-          resizeMode="contain"
-        />
-      </View>
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search"
-          value={searchText}
-          onChangeText={handleSearchChange}
-          placeholderTextColor="#999"
-        />
-        <TouchableOpacity 
-          style={styles.searchButton}
-          onPress={handleSearchPress}
-
-        >
-        <Image
-          source= {require('../assets/Search.png')}
-          style={styles.searchImg}
-          resizeMode="contain"
-        />
-          {/* <Text style={styles.searchIcon}>🔍︎</Text> */}
-        </TouchableOpacity>
-      </View>
-
-      {/* Profile button with dropdown */}
-      <View>
-        <TouchableOpacity 
-          style={styles.profileButton}
-          onPress={handleProfilePress}
-        >
-          <Text style={styles.profileIcon}><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M367-527q-47-47-47-113t47-113q47-47 113-47t113 47q47 47 47 113t-47 113q-47 47-113 47t-113-47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Z"/></svg></Text>
-        </TouchableOpacity>
-
-        {/* Dropdown Menu */}
-        {isDropdownVisible && (
-          <View style={styles.dropdown}>
-            {/* User info section */}
-            <View style={styles.userInfo}>
-              <View style={styles.userAvatar}>
-                <Text style={styles.userAvatarText}><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M367-527q-47-47-47-113t47-113q47-47 113-47t113 47q47 47 47 113t-47 113q-47 47-113 47t-113-47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Z"/></svg></Text>
-              </View>
-              <View>
-                <Text style={styles.username}>Username</Text>
-                <Text style={styles.userEmail}>dummy@yy.zxed</Text>
-              </View>
-            </View>
-
-            {/* Divider */}
-            <View style={styles.divider} />
-
-            {/* Menu items */}
-            <TouchableOpacity 
-              style={styles.menuItem}
-              onPress={handleProfileMenuPress}
-            >
-              <Text style={styles.menuIcon}><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M367-527q-47-47-47-113t47-113q47-47 113-47t113 47q47 47 47 113t-47 113q-47 47-113 47t-113-47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Z"/></svg></Text>
-              <Text style={styles.menuText}>Profile</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={styles.menuItem}
-              onPress={handleSettingsPress}
-            >
-              <Text style={styles.menuIcon}><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z"/></svg></Text>
-              <Text style={styles.menuText}>Settings</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={styles.menuItem}
-              onPress={handleLogoutPress}
-            >
-              <Text style={styles.menuIcon}><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/></svg></Text>
-              <Text style={styles.menuText}>Logout</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      </View>
-
-      {/* Overlay to close dropdown when clicking outside */}
+    <>
       {isDropdownVisible && (
         <TouchableWithoutFeedback onPress={handleCloseDropdown}>
           <View style={styles.overlay} />
         </TouchableWithoutFeedback>
       )}
-      
-    </View>
+
+      <View style={styles.headerContainer}>
+        
+        <View style={styles.logoContainer}>
+          <TouchableOpacity 
+            style={styles.searchButton}
+            onPress={handleLogoPress}>
+            <Image
+              source= {require('../assets/web-name.png')}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+          <Image
+            source= {require('../assets/logo.png')}
+            style={styles.infoImage}
+            resizeMode="contain"
+          />
+        </View>
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search"
+            value={searchText}
+            onChangeText={handleSearchChange}
+            placeholderTextColor="#999"
+          />
+          <TouchableOpacity 
+            style={styles.searchButton}
+            onPress={handleSearchPress}
+
+          >
+          <Image
+            source= {require('../assets/Search.png')}
+            style={styles.searchImg}
+            resizeMode="contain"
+          />
+            {/* <Text style={styles.searchIcon}>🔍︎</Text> */}
+          </TouchableOpacity>
+        </View>
+
+        {/* Profile button with dropdown */}
+        <View>
+          <TouchableOpacity 
+            style={styles.profileButton}
+            onPress={handleProfilePress}
+          >
+            <Text style={styles.profileIcon}><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M367-527q-47-47-47-113t47-113q47-47 113-47t113 47q47 47 47 113t-47 113q-47 47-113 47t-113-47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Z"/></svg></Text>
+          </TouchableOpacity>
+
+          {/* Dropdown Menu */}
+          {isDropdownVisible && (
+            <View style={styles.dropdown}>
+              {/* User info section */}
+              <View style={styles.userInfo}>
+                <View style={styles.userAvatar}>
+                  <Text style={styles.userAvatarText}><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M367-527q-47-47-47-113t47-113q47-47 113-47t113 47q47 47 47 113t-47 113q-47 47-113 47t-113-47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Z"/></svg></Text>
+                </View>
+                <View>
+                  <Text style={styles.username}>Username</Text>
+                  <Text style={styles.userEmail}>dummy@yy.zxed</Text>
+                </View>
+              </View>
+
+              {/* Divider */}
+              <View style={styles.divider} />
+
+              {/* Menu items */}
+              <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={handleProfileMenuPress}
+              >
+                <Text style={styles.menuIcon}><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M367-527q-47-47-47-113t47-113q47-47 113-47t113 47q47 47 47 113t-47 113q-47 47-113 47t-113-47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Z"/></svg></Text>
+                <Text style={styles.menuText}>Profile</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={handleSettingsPress}
+              >
+                <Text style={styles.menuIcon}><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z"/></svg></Text>
+                <Text style={styles.menuText}>Settings</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={handleLogoutPress}
+              >
+                <Text style={styles.menuIcon}><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/></svg></Text>
+                <Text style={styles.menuText}>Logout</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+        {isDropdownVisible && (
+        <TouchableWithoutFeedback onPress={handleCloseDropdown}>
+          <View style={styles.overlay} />
+        </TouchableWithoutFeedback>
+        )}
+      </View>
+    </>
   );
 }
 

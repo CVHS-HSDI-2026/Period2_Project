@@ -83,7 +83,12 @@ export default function Login() {
           style={styles.googleButton}
           onPress={handleGoogleLogin}
         >
-          <Ionicons name="logo-google" size={20} color="white" />
+          <View style={styles.googleLogoContainer}>
+            <Image source={require("../../assets/google-logo.png")}
+              style={styles.logoForGoogle}
+              resizeMode="contain"
+            />
+          </View>
           <Text style={styles.googleText}> Log in with Google</Text>
         </TouchableOpacity>
 
@@ -189,10 +194,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 25,
   },
+  googleLogoContainer: {
+    width: 30,
+    height: 20,
+    position: "relative",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: '19%',
+    marginLeft: 7,
+  },
+  logoForGoogle: {
+    width: 30,
+    height: 30,
+    position: "absolute",
+    marginVertical: 2,
+    marginHorizontal: 2,
+  },
   googleButton: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: "flex-start",
+    justifyContent: "flex-start",
     backgroundColor: "#4285F4",
     paddingVertical: 10,
     borderRadius: 8,

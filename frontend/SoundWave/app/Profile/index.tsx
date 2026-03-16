@@ -1,68 +1,107 @@
 import { StyleSheet, Text, View, Pressable, ScrollView, TextInput } from 'react-native';
 import React, { useState } from 'react';
 import HeaderWithSearch from "../../components/HeaderWithSearch";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { useFonts, Jost_400Regular, Jost_500Medium, Jost_700Bold } from '@expo-google-fonts/jost'; 
 import SongCard from "../../components/SongCard";
 import ArtistCard from "../../components/ArtistCard";
 
 export default function Profile() {
   const router = useRouter();
+  const { isOwner } = useLocalSearchParams();
+  const isProfileOwner = isOwner === "true";
+
   const [fontsLoaded] = useFonts({ Jost_400Regular, Jost_500Medium, Jost_700Bold });
 
   const [isEditing, setIsEditing] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
+
   const [displayName, setDisplayName] = useState('get from database');
   const [bio, setBio] = useState('this user does not have a bio yet so this is placeholder text.');
+
   const handleSave = () => {
-    // need to save changes to database here
-    setIsEditing(false);
-  };
-  const handleCancel = () => {
-    // reset changes or just exit edit mode
     setIsEditing(false);
   };
 
-  const colone = [
-    { columnName: 'Username:', value: 'get from database' },
-    { columnName: '# followers' },
-    { columnName: '# ratings' },
-  ];
-  const coltwo = [
-    { columnName: 'Display Name:', value: displayName },
-    { columnName: '# following' },
-    { columnName: '# comments' },
-  ];
+  const handleCancel = () => {
+    setIsEditing(false);
+  };
+
+  const toggleFollow = () => {
+    setIsFollowing(!isFollowing);
+  };
+
+  const colone = isProfileOwner
+  ? [
+      { columnName: 'Username:', value: 'get from database' },
+      { columnName: '# followers' },
+      { columnName: '# ratings' },
+    ]
+  : [
+      { columnName: 'Display Name:', value: displayName },
+      { columnName: '# followers' },
+      { columnName: '# ratings' },
+    ];
+
+  const coltwo = isProfileOwner
+  ? [
+      { columnName: 'Display Name:', value: displayName },
+      { columnName: '# following' },
+      { columnName: '# comments' },
+    ]
+  : [
+      { columnName: ' ', value: ' ' }, 
+      { columnName: '# following' },
+      { columnName: '# comments' },
+    ];
 
   return (
     <View style={styles.container}>
       <HeaderWithSearch title="SoundWAVE" />
-      <ScrollView style={{ width: '100%' }} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-        {/* profile stats */}
+      <ScrollView
+        style={{ width: '100%' }}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+
         <View style={styles.profileSection}>
+
           <View style={styles.profileLeft}>
             <View style={styles.avatarPlaceholder} />
           </View>
 
           <View style={styles.profileRight}>
-            {/* edit save buttons */}
-            {isEditing ? (
-              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 10 }}>
-                <Pressable onPress={handleSave}>
-                  <Text style={styles.edit}>Save</Text>
+
+            {/* Owner Edit Controls */}
+            {isProfileOwner ? (
+              isEditing ? (
+                <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 10 }}>
+                  <Pressable onPress={handleSave}>
+                    <Text style={styles.edit}>Save</Text>
+                  </Pressable>
+                  <Pressable onPress={handleCancel}>
+                    <Text style={styles.edit}>Cancel</Text>
+                  </Pressable>
+                </View>
+              ) : (
+                <Pressable onPress={() => setIsEditing(true)}>
+                  <Text style={styles.edit}>Edit</Text>
                 </Pressable>
-                <Pressable onPress={handleCancel}>
-                  <Text style={styles.edit}>Cancel</Text>
-                </Pressable>
-              </View>
+              )
             ) : (
-              <Pressable onPress={() => setIsEditing(true)}>
-                <Text style={styles.edit}>Edit</Text>
+              <Pressable onPress={toggleFollow}>
+                <View style={styles.buttonBack}>
+                  <Text style={styles.buttonText}>
+                    {isFollowing ? "Requested" : "Follow"}
+                  </Text>
+                </View>
               </Pressable>
             )}
 
             {/* Columns */}
             <View style={styles.columnsContainer}>
+
               <View style={styles.column}>
                 {colone.map((item, idx) => (
                   <Text style={styles.columnText} key={`col1-${idx}`}>
@@ -70,31 +109,34 @@ export default function Profile() {
                   </Text>
                 ))}
               </View>
+
               <View style={styles.column}>
                 {coltwo.map((item, idx) => (
-                  item.columnName === 'Display Name:' && isEditing ? (
-                <View key={`col2-${idx}`} style={styles.inlineEditRow}>
-                  <Text style={styles.columnText}>{item.columnName} </Text>
-                  <TextInput
-                    style={[styles.inputInline, { flex: 1 }]}
-                    value={displayName}
-                    onChangeText={setDisplayName}
-                    placeholder="Enter display name"
-                    placeholderTextColor="#aaa"
-                  />
-                </View>
+                  item.columnName === 'Display Name:' && isEditing && isProfileOwner ? (
+                    <View key={`col2-${idx}`} style={styles.inlineEditRow}>
+                      <Text style={styles.columnText}>{item.columnName} </Text>
+                      <TextInput
+                        style={[styles.inputInline, { flex: 1 }]}
+                        value={displayName}
+                        onChangeText={setDisplayName}
+                        placeholder="Enter display name"
+                        placeholderTextColor="#aaa"
+                      />
+                    </View>
                   ) : (
-                <Text style={styles.columnText} key={`col2-${idx}`}>
-                  {item.columnName}{item.value ? ` ${item.value}` : ''}
-                </Text>
-                )
+                    <Text style={styles.columnText} key={`col2-${idx}`}>
+                      {item.columnName}{item.value ? ` ${item.value}` : ''}
+                    </Text>
+                  )
                 ))}
               </View>
+
             </View>
 
             {/* Bio */}
             <Text style={styles.titleBioText}>Bio:</Text>
-            {isEditing ? (
+
+            {isEditing && isProfileOwner ? (
               <TextInput
                 style={[styles.biotext, styles.input, { height: 100 }]}
                 multiline
@@ -104,10 +146,13 @@ export default function Profile() {
             ) : (
               <Text style={styles.biotext}>{bio}</Text>
             )}
+
           </View>
         </View>
+
         <Text style={styles.sectionTitle}>Top Songs:</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>            
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
           {Array.from({ length: 10 }).map((_, i) => (
             <SongCard
               key={`song-${i}`}
@@ -120,7 +165,9 @@ export default function Profile() {
             />
           ))}
         </ScrollView>
+
         <Text style={styles.sectionTitle}>Top Albums:</Text>
+
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
           {Array.from({ length: 10 }).map((_, i) => (
             <SongCard
@@ -134,7 +181,9 @@ export default function Profile() {
             />
           ))}
         </ScrollView>
+
         <Text style={styles.sectionTitle}>Top Artists:</Text>
+
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
           {Array.from({ length: 10 }).map((_, i) => (
             <ArtistCard
@@ -144,16 +193,32 @@ export default function Profile() {
               artist="Artist"
               rating={8}
               commentsCount={1278}
-              onPress={() => router.push("./Song")}
+              onPress={() => router.push("./Artist")}
             />
           ))}
         </ScrollView>
+
         <Text style={styles.sectionTitle}>Recommended Users:</Text>
+
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
           {Array.from({ length: 10 }).map((_, i) => (
-            <ArtistCard key={`rec-${i}`} variant="popular" title="Username" artist="Artist" rating={8} commentsCount={12} onPress={() => router.push("./Song")} />
+            <ArtistCard
+              key={`rec-${i}`}
+              variant="popular"
+              title="Username"
+              artist="Artist"
+              rating={8}
+              commentsCount={12}
+              onPress={() =>
+                router.push({
+                  pathname: "./Profile",
+                  params: { isOwner: "false" }
+                })
+              }
+            />
           ))}
         </ScrollView>
+
       </ScrollView>
     </View>
   );
@@ -173,7 +238,7 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   profileLeft: {
-    width: '20%',
+    width: '35%',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -262,5 +327,21 @@ const styles = StyleSheet.create({
     fontSize: 18,
     paddingVertical: 2,
     marginLeft: 4,
+  },
+  buttonBack:{
+    width: 80,    
+    height: 25,
+    borderRadius: 6,
+    backgroundColor: '#9AA2D6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+  },
+  buttonText: {
+    fontSize: 14,
+    color: '#14172B',
+    fontFamily: 'Jost_400Regular',
+    alignSelf: 'center',
+    userSelect: 'none'
   },
 });

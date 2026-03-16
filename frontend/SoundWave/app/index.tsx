@@ -21,11 +21,7 @@ export default function App() {
         {/* ================= Popular ================= */}
         <Text style={styles.sectionTitle}>Popular</Text>
 
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.horizontalContent}
-        >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
           {Array.from({ length: 10 }).map((_, i) => (
             <SongCard
               key={`popular-${i}`}
@@ -54,7 +50,7 @@ export default function App() {
               title="Title"
               artist="Artist"
               rating={9}
-              releaseDate="02/06/2026"
+              releaseDate="02/06"
               onPress={() => router.push("Song")}  
             />
           ))}

@@ -1,12 +1,6 @@
 import React, { FC } from "react";
 import {View, Text, Image, StyleSheet, Pressable, ImageSourcePropType,} from "react-native";
 import { useRouter } from "expo-router";
-/* ---------- Helpers ---------- */
-const formatCount = (count: number) => {
-  if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}m`;
-  if (count >= 1_000) return `${(count / 1_000).toFixed(1)}k`;
-  return `${count}`;
-};
 
 /* ---------- Types ---------- */
 interface ArtistCardProps {
@@ -29,9 +23,6 @@ const ArtistCard: FC<ArtistCardProps> = ({
   image,
   onPress,
   variant = "new",
-  rating,
-  commentsCount,
-  releaseDate,
 }) => {
   const isPopular = variant === "popular";
 
