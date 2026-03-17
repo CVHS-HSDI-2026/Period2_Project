@@ -26,7 +26,7 @@ def _ensure_artist_exists(artist_mbid: str) -> bool:
 @music_bp.route('/search', methods=['GET'])
 def search_music():
     query = request.args.get('query')
-    search_type = request.args.get('type', 'artist')
+    search_type = request.args.get('type', 'song')
 
     if not query:
         return jsonify({"message": "Missing search query"}), 400

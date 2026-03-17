@@ -2,23 +2,27 @@ import { StyleSheet, Text, View, Pressable, ScrollView, TextInput, Image, Toucha
 import React, { useState } from 'react';
 import HeaderWithSearch from "../../components/HeaderWithSearch";
 import { useRouter } from "expo-router";
-import { useFonts, Jost_400Regular, Jost_500Medium, Jost_700Bold } from '@expo-google-fonts/jost'; 
+import { useFonts, Jost_400Regular, Jost_500Medium, Jost_700Bold } from '@expo-google-fonts/jost';
+
 
 export default function Settings(){
   const router = useRouter();
   const [fontsLoaded] = useFonts({ Jost_400Regular, Jost_500Medium, Jost_700Bold });
 
+
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [privacy, setPrivacy] = useState("Public"); 
+  const [privacy, setPrivacy] = useState("Public");
   const [showPrivacyDropdown, setShowPrivacyDropdown] = useState(false);
 //  const [isEditing, setIsEditing] = useState(false);
   const [isSaved, setIsSaved]=useState(false);
   const [isSecure, setIsSecure] = useState<boolean>(true);
 
+
   if(!fontsLoaded) return null;
+
 
   //save these changes somewhere in the backend???
   const handleSaveChanges = () => {
@@ -30,11 +34,12 @@ export default function Settings(){
   setIsSaved(true);
 };
 
+
   return (
     <View style={styles.container}>
         <HeaderWithSearch title="SoundWAVE" />
       <ScrollView style={{ width: '100%' }} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        
+       
         {/* back arrow */}
         <TouchableOpacity onPress={() => router.back()} style={{ alignSelf: "flex-start" }}>
           <Image
@@ -43,6 +48,7 @@ export default function Settings(){
             resizeMode= "contain"
           />
         </TouchableOpacity>
+
 
         {/* password reset */}
         <Text style={styles.headings}>Settings</Text>
@@ -77,6 +83,7 @@ export default function Settings(){
             <Text style={styles.errorText}>{passwordError}</Text>
         )}
 
+
         {/* display name */}
         <Text style={styles.titles}>Display Name</Text>
         <Text style={styles.subTitles}>New Display Name</Text>
@@ -88,12 +95,13 @@ export default function Settings(){
           onChangeText={setDisplayName}
         />
 
+
         {/* account */}
         <Text style={styles.titles}>Account</Text>
         <View style={styles.accountBox}>
           <Pressable style={styles.deleteRow}>
             <View style={styles.deleteContent}>
-              <Text style={styles.deleteText}>Delete Account</Text> 
+              <Text style={styles.deleteText}>Delete Account</Text>
               <Image
                 source= {require('../../assets/Delete.png')}
                 style={styles.delete}
@@ -101,7 +109,9 @@ export default function Settings(){
               />  
             </View>
 
+
           </Pressable>
+
 
           <Pressable style={styles.logoutRow}>
             <View style={styles.logoutContent}>
@@ -113,8 +123,10 @@ export default function Settings(){
                 />
             </View>
 
+
           </Pressable>
         </View>  
+
 
         {/* privacy */}
         <Text style={styles.titles}>Privacy</Text>
@@ -132,7 +144,7 @@ export default function Settings(){
               </View>
               <Text style={styles.optionText}>Public</Text>
             </Pressable>
-            
+           
             <Pressable style={styles.optionRow} onPress={() => { setPrivacy("Private"); setShowPrivacyDropdown(false); }} >
               <View style={styles.mcCircle}>
                 {privacy === "Private" && <View style={styles.selected} />}
@@ -152,19 +164,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#181B33",
-    alignItems: "center",
+    alignItems: "flex-start",
+    width: "100%",
   },
   scrollContent: {
     paddingVertical: 40,
-    paddingHorizontal: 10,
-    width: "90%",
-    maxWidth: 1200,
-    marginLeft: 20,
+    paddingLeft: 40,
+    width: "95%",
+    maxWidth: "100%",
   },
   backArrow: {
     width: 20,
     height: 20,
-  }, 
+  },
+
 
   headings: {
     fontSize: 30,
@@ -173,8 +186,9 @@ const styles = StyleSheet.create({
     marginTop:7,
     marginBottom:1,
   //  marginLeft: 5,
-    
+   
   },
+
 
   titles: {
     fontSize: 20,
@@ -183,7 +197,7 @@ const styles = StyleSheet.create({
     marginTop: 3,
     marginBottom: 6,
   //  marginLeft: 5,
-    
+   
   },
   subTitles: {
     fontSize: 14,
@@ -193,6 +207,7 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
   newInput: {
+    width: "100%",
     borderWidth: 1,
     borderColor: "#FFFFFF50",
     borderRadius: 8,
@@ -204,68 +219,87 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   passwordWrapper: {
-  position: "relative",
-  justifyContent: "center",
-  marginBottom: 2,
+    width: "100%",
+    position: "relative",
+    justifyContent: "center",
+    marginBottom: 2,
   },
   eyeInside: {
-  position: "absolute",
-  right: 15,
-  height: "100%",
-  justifyContent: "center",
-  marginBottom:16,
-  
+    position: "absolute",
+    right: 15,
+    height: "100%",
+    justifyContent: "center",
+    marginBottom:16,
   },
   eyes: {
     height: 20,
     width: 20,
   },
   accountBox: {
+    width: "100%",
     backgroundColor: "#cfcfe3",
     borderRadius: 8,
     padding: 14,
     marginVertical: 10,
   },
+
+
   deleteRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 5,
   },
+
+
   deleteContent: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+
+
   deleteText: {
     color: "red",
     fontFamily: "Jost_500Medium",
     fontSize: 16,
     marginRight: 10,
-    
   },
+
+
   delete: {
     width: 20,
     height: 20,
   },
+
+
   logoutRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
+
+
   logoutContent: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+
+
   logoutText: {
     fontFamily: "Jost_500Medium",
     fontSize: 16,
     marginRight: 10,
   },
+
+
   logout: {
     width: 20,
     height: 20,
   },
+
+
   dropdownHeader: {
+    width: "100%",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -276,17 +310,20 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 
+
   dropdownHeaderText: {
     color: "#FFFFFF",
     fontFamily: "Jost_400Regular",
     fontSize: 16,
   },
 
+
   dropdownArrow: {
     color: "#FFFFFF",
     fontSize: 14,
     marginTop: 6,
   },
+
 
   dropdownContainer: {
     backgroundColor: "#1f2245",
@@ -295,6 +332,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
 
+
   optionRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -302,11 +340,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
 
+
   optionText: {
     color: "#FFFFFF",
     fontFamily: "Jost_400Regular",
     fontSize: 15,
   },
+
 
   mcCircle: {
     height: 18,
@@ -329,11 +369,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#cfcfe3",
     paddingVertical: 12,
     paddingHorizontal: 24,
+    minWidth: 120,
     height:35,
     width: "10%",
     borderRadius: 7,
     marginTop: 10,
-    borderWidth: 0,
+  //  borderWidth: 0,
     cursor: "pointer",
     justifyContent: "center",
     alignItems: "center",
@@ -342,7 +383,7 @@ const styles = StyleSheet.create({
     color: "black",
     fontFamily: "Jost_500Medium",
     fontSize: 16,
-    
+   
   },
   errorText: {
     color: "red",
