@@ -26,9 +26,18 @@ def create_review():
     rating = data['rating']
     review_text = data['review_text']
 
-    if not rating or not review_text or (not song_id and not album_id):
+    if not song_id and not album_id:
+        return jsonify({"message": "Invalid request. Must include either song_id or album_id"}), 400
+    
+    if not rating or not review_text:
         return jsonify(
-            {"message": "Invalid request. Missing required fields: song_id, album_id, rating, review_text"}), 400
+            {"message": "Invalid request. Missing either fields: rating, review_text"}), 400
+    
+    if not rating:
+        review_text = ""
+
+    if not review_text:
+        rating = None
 
     existing_review = db.fetch_review(user_id, song_id, album_id)
     if existing_review:
