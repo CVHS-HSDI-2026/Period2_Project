@@ -485,6 +485,19 @@ class Database:
         self.cursor.close()
         self.connection.close()
 
+    def search_user(self, query: str) -> list[dict]:
+        """
+        A basic ILIKE search for users. Note: if this is too slow, we may want to switch to using the MB Solr container
+        """
+        search_term = f"%{query}%"
+        self.cursor.execute("""
+                    SELECT artist.gid AS mbid, artist.name, type.name AS artist_type 
+                    FROM artist 
+                    LEFT JOIN artist_type type ON artist.type = type.id
+                    WHERE artist.name ILIKE %s LIMIT 20
+                """, (search_term,))
+
+        return [dict(row) for row in self.cursor.fetchall()]
 
 
 # Testing
