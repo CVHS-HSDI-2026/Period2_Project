@@ -1,4 +1,4 @@
-import { router } from "expo-router/build/exports";
+import { router } from "expo-router";
 import React, { FC } from "react";
 import {View, Text, Image, StyleSheet, Pressable, ImageSourcePropType, TouchableOpacity,} from "react-native";
 

@@ -37,36 +37,64 @@ class MusicBrainzDatabase:
             print(f"MusicBrainz DB ping failed: {e}")
             raise ConnectionError("Failed to connect to MusicBrainz")
 
-    def search(self, query: str, search_type: str) -> list[dict]:
-        """
-        A basic ILIKE search. Note: if this is too slow, we may want to switch to using the MB Solr container
-        """
+    def search(self, query: str, search_type: str = 'all') -> dict | list:
         search_term = f"%{query}%"
-        if search_type == 'artist':
-            self.cursor.execute("""
-                        SELECT artist.gid AS mbid, artist.name, type.name AS artist_type 
-                        FROM artist 
-                        LEFT JOIN artist_type type ON artist.type = type.id
-                        WHERE artist.name ILIKE %s LIMIT 20
-                    """, (search_term,))
 
+        def search_artists():
+            self.cursor.execute("""
+                SELECT artist.gid AS mbid, artist.name, type.name AS artist_type 
+                FROM artist 
+                LEFT JOIN artist_type type ON artist.type = type.id
+                WHERE artist.name ILIKE %s LIMIT 10
+            """, (search_term,))
+            return [dict(row) for row in self.cursor.fetchall()]
+
+        def search_albums():
+            self.cursor.execute("""
+                SELECT 
+                    gid AS mbid, 
+                    name AS title,
+                    'https://coverartarchive.org/release-group/' || gid || '/front-250' as cover_url
+                FROM release_group 
+                WHERE name ILIKE %s LIMIT 10
+            """, (search_term,))
+            return [dict(row) for row in self.cursor.fetchall()]
+
+        def search_songs():
+            self.cursor.execute("""
+                SELECT 
+                    r.gid AS mbid, 
+                    r.name AS title, 
+                    r.length AS duration,
+                    (
+                        SELECT 'https://coverartarchive.org/release-group/' || rg.gid || '/front-250'
+                        FROM track t
+                        JOIN medium m ON t.medium = m.id
+                        JOIN release rel ON m.release = rel.id
+                        JOIN release_group rg ON rel.release_group = rg.id
+                        WHERE t.recording = r.id
+                        LIMIT 1
+                    ) as cover_url
+                FROM recording r
+                WHERE r.name ILIKE %s LIMIT 10
+            """, (search_term,))
+            return [dict(row) for row in self.cursor.fetchall()]
+
+        if search_type == 'all':
+            return {
+                "artists": search_artists(),
+                "albums": search_albums(),
+                "songs": search_songs()
+            }
+
+        elif search_type == 'artist':
+            return search_artists()
         elif search_type == 'album':
-            self.cursor.execute("""
-                        SELECT gid AS mbid, name AS title 
-                        FROM release_group 
-                        WHERE name ILIKE %s LIMIT 20
-                    """, (search_term,))
-
+            return search_albums()
         elif search_type == 'song':
-            self.cursor.execute("""
-                        SELECT gid AS mbid, name AS title, length AS duration 
-                        FROM recording 
-                        WHERE name ILIKE %s LIMIT 20
-                    """, (search_term,))
+            return search_songs()
         else:
             return []
-
-        return [dict(row) for row in self.cursor.fetchall()]
 
     def get_artist_by_mbid(self, mbid: str) -> dict | None:
         try:
