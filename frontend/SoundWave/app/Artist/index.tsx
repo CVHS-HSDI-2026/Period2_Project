@@ -1,18 +1,57 @@
-import { StyleSheet, Text, View, Pressable,ScrollView } from 'react-native';
-import React, { FC } from 'react';
+import { StyleSheet, Text, View, Pressable, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import HeaderWithSearch from "../../components/HeaderWithSearch";
-import { useRouter } from "expo-router";
-import { useFonts, Jost_400Regular, Jost_500Medium, Jost_700Bold } from '@expo-google-fonts/jost'; 
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { useFonts, Jost_400Regular, Jost_500Medium, Jost_700Bold } from '@expo-google-fonts/jost';
 import SongCard from "../../components/SongCard";
-import ArtistCard from ".,./../components/ArtistCard";
+import ArtistCard from "../../components/ArtistCard";
 
 export default function Artist() {
-    const router = useRouter();
+  const router = useRouter();
+  const [fontsLoaded] = useFonts({Jost_400Regular, Jost_500Medium, Jost_700Bold});
+  
+  const params = useLocalSearchParams();
+  console.log('Username:', params);
+  const rawMbid = params.mbid as string | string[] | undefined;
+  const [artist, setArtist] = useState<any>(null);
+  
+  useEffect(() => {
+    const fetchArtist = async (artistMbid: string) => {
+      const hosts = ['localhost', '10.0.2.2'];
+      for (const host of hosts) {
+        try {
+          console.log(`Attempting artist fetch via ${host}`);
+          const res = await fetch(`http://${host}:5000/api/music/artist/${artistMbid}`);
+          if (!res.ok) {
+            const text = await res.text();
+            console.warn(`Fetch to ${host} failed: ${res.status} ${text}`);
+            continue;
+          }
+          const data = await res.json();
+          console.log(`Artist fetch succeeded via ${host}`);
+          setArtist(data.local_artist);
+          return;
+        } catch (err) {
+          console.warn(`Fetch to ${host} threw:`, err);
+        }
+      }
+      console.error('All artist fetch attempts failed');
+    };
+    const fallbackMbid = 'b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d';
 
-  const [fontsLoaded] = useFonts({ Jost_400Regular, Jost_500Medium, Jost_700Bold });
+    const artistMbid = typeof rawMbid === 'string'
+      ? rawMbid
+      : Array.isArray(rawMbid)
+        ? rawMbid[0]
+        : fallbackMbid;
+
+    if (artistMbid) {
+      fetchArtist(artistMbid);
+    }
+  }, [rawMbid]);
 
   const colone = [
-    { columnName: 'Artist:', value: 'get from database' },
+    { columnName: 'Artist:', value: artist?.name || 'Loading...' },
     { columnName: "# followers" },
     { columnName: '# ratings' },
     { columnName: '# comments' },
@@ -21,7 +60,12 @@ export default function Artist() {
   return (
     <View style={styles.container}>
       <HeaderWithSearch title="SoundWAVE" />
-      <ScrollView style={{ width: '100%' }} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+
+      <ScrollView
+        style={{ width: '100%' }}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
 
         {/* profile stats */}
         <View style={styles.profileSection}>
@@ -38,11 +82,16 @@ export default function Artist() {
                   </Text>
                 ))}
               </View>
-              <View style={styles.column}>
-              </View>
+
+              <View style={styles.column} />
             </View>
+
             <Text style={styles.titleBioText}>Bio:</Text>
-            <Text style={styles.biotext}>this user does not have a bio yet so this is placeholder text. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vel sapien eget nunc efficitur efficitur. Sed at ligula a enim efficitur commodo. Donec in felis ut nisl convallis tincidunt. Nulla facilisi. Donec ac odio a metus efficitur fermentum. In hac habitasse platea dictumst.</Text>
+            <Text style={styles.biotext}>
+              this user does not have a bio yet so this is placeholder text.
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+              Donec vel sapien eget nunc efficitur efficitur.
+            </Text>
           </View>
         </View>
 
@@ -61,6 +110,7 @@ export default function Artist() {
             />
           ))}
         </ScrollView>
+
         {/* top albums */}
         <Text style={styles.sectionTitle}>Top Albums:</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
@@ -76,12 +126,13 @@ export default function Artist() {
             />
           ))}
         </ScrollView>
-        {/* top artists */}
+
+        {/* related artists */}
         <Text style={styles.sectionTitle}>Related Artists:</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
           {Array.from({ length: 10 }).map((_, i) => (
             <ArtistCard
-              key={`song-${i}`}
+              key={`artist-${i}`}
               variant="popular"
               title="Username"
               artist="Artist"
@@ -91,12 +142,13 @@ export default function Artist() {
             />
           ))}
         </ScrollView>
+
         {/* recommended users */}
         <Text style={styles.sectionTitle}>Recommended Users:</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
           {Array.from({ length: 10 }).map((_, i) => (
             <ArtistCard
-              key={`song-${i}`}
+              key={`user-${i}`}
               variant="popular"
               title="Username"
               artist="Artist"
@@ -106,6 +158,7 @@ export default function Artist() {
             />
           ))}
         </ScrollView>
+
       </ScrollView>
     </View>
   );
@@ -141,13 +194,6 @@ const styles = StyleSheet.create({
   },
   profileRight: {
     width: '65%',
-  },
-  edit: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    fontFamily: 'Jost_400Regular',
-    alignSelf: 'flex-end',
-    marginBottom: 10,
   },
   columnsContainer: {
     flexDirection: 'row',

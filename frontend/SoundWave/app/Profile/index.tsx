@@ -230,7 +230,7 @@ export default function Profile() {
               artist="Artist"
               rating={8}
               commentsCount={1278}
-              onPress={() => router.push("./Artist")}
+              onPress={() => router.push({ pathname: "/Artist", params: { mbid: "e370a2f1-678f-4ed4-b31c-3b09224422e6"}})}
             />
           ))}
         </ScrollView>
