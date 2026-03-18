@@ -4,6 +4,7 @@ import uuid
 
 import psycopg2
 import psycopg2.extras
+import requests
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -20,8 +21,9 @@ class MusicBrainzDatabase:
         self.connection = psycopg2.connect(os.getenv("MUSICBRAINZ_POSTGRES_CONNECTION_STRING"))
         self.connection.autocommit = True
         self.cursor = self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
-
         self.cursor.execute("SET search_path TO musicbrainz, public;")
+
+        self.solr_url = "http://localhost:8983/solr"
 
     def ping(self) -> bool:
         """
@@ -38,47 +40,62 @@ class MusicBrainzDatabase:
             raise ConnectionError("Failed to connect to MusicBrainz")
 
     def search(self, query: str, search_type: str = 'all') -> dict | list:
-        search_term = f"%{query}%"
+        if not query:
+            return {"artists": [], "albums": [], "songs": []} if search_type == 'all' else []
+
+        solr_params = {
+            "query": query,
+            "wt": "json",
+            "rows": 10
+        }
 
         def search_artists():
-            self.cursor.execute("""
-                SELECT artist.gid AS mbid, artist.name, type.name AS artist_type 
-                FROM artist 
-                LEFT JOIN artist_type type ON artist.type = type.id
-                WHERE artist.name ILIKE %s LIMIT 10
-            """, (search_term,))
-            return [dict(row) for row in self.cursor.fetchall()]
+            try:
+                # Target the 'artist' Solr core
+                res = requests.get(f"{self.solr_url}/artist/select", params=solr_params)
+                res.raise_for_status()
+                docs = res.json().get("response", {}).get("docs", [])
+
+                # Map Solr response to your frontend's expected format
+                return [{
+                    "mbid": doc.get("mbid"),
+                    "name": doc.get("artist"),  # Solr uses 'artist' for the name
+                    "artist_type": doc.get("type", "Artist")
+                } for doc in docs]
+            except Exception as e:
+                print(f"Solr artist search failed: {e}")
+                return []
 
         def search_albums():
-            self.cursor.execute("""
-                SELECT 
-                    gid AS mbid, 
-                    name AS title,
-                    'https://coverartarchive.org/release-group/' || gid || '/front-250' as cover_url
-                FROM release_group 
-                WHERE name ILIKE %s LIMIT 10
-            """, (search_term,))
-            return [dict(row) for row in self.cursor.fetchall()]
+            try:
+                res = requests.get(f"{self.solr_url}/release-group/select", params=solr_params)
+                res.raise_for_status()
+                docs = res.json().get("response", {}).get("docs", [])
+
+                return [{
+                    "mbid": doc.get("mbid"),
+                    "title": doc.get("releasegroup"),
+                    "cover_url": f"https://coverartarchive.org/release-group/{doc.get('mbid')}/front-250"
+                } for doc in docs]
+            except Exception as e:
+                print(f"Solr album search failed: {e}")
+                return []
 
         def search_songs():
-            self.cursor.execute("""
-                SELECT 
-                    r.gid AS mbid, 
-                    r.name AS title, 
-                    r.length AS duration,
-                    (
-                        SELECT 'https://coverartarchive.org/release-group/' || rg.gid || '/front-250'
-                        FROM track t
-                        JOIN medium m ON t.medium = m.id
-                        JOIN release rel ON m.release = rel.id
-                        JOIN release_group rg ON rel.release_group = rg.id
-                        WHERE t.recording = r.id
-                        LIMIT 1
-                    ) as cover_url
-                FROM recording r
-                WHERE r.name ILIKE %s LIMIT 10
-            """, (search_term,))
-            return [dict(row) for row in self.cursor.fetchall()]
+            try:
+                res = requests.get(f"{self.solr_url}/recording/select", params=solr_params)
+                res.raise_for_status()
+                docs = res.json().get("response", {}).get("docs", [])
+
+                return [{
+                    "mbid": doc.get("mbid"),
+                    "title": doc.get("recording"),
+                    "duration": doc.get("length", 0),
+                    "cover_url": None
+                } for doc in docs]
+            except Exception as e:
+                print(f"Solr song search failed: {e}")
+                return []
 
         if search_type == 'all':
             return {
@@ -86,7 +103,6 @@ class MusicBrainzDatabase:
                 "albums": search_albums(),
                 "songs": search_songs()
             }
-
         elif search_type == 'artist':
             return search_artists()
         elif search_type == 'album':
