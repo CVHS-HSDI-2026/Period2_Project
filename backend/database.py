@@ -218,6 +218,20 @@ class Database:
                     del user_dict[field]
         return user_dict
 
+    def search_user(self, query: str) -> list[dict[Any, Any]] | None:
+        """
+        Search for a user from the database with an ILIKE query.
+        :param query: Query string
+        :type query: str
+        :return: The list of matching user dicitonaries.
+        """
+        search_term = f"%{query}%"
+        self.cursor.execute("SELECT * FROM users WHERE username ILIKE %s LIMIT 20", (search_term,))
+        fetch_user = self.cursor.fetchmany()
+        if not fetch_user:
+            return None
+        return fetch_user
+
     def get_user_activity(self, user_id: int) -> list[dict[str, Any]]:
         """
         Returns the user's most recent review and reply activity.
@@ -485,6 +499,19 @@ class Database:
         self.cursor.close()
         self.connection.close()
 
+    def search_user(self, query: str) -> list[dict]:
+        """
+        A basic ILIKE search for users. Note: if this is too slow, we may want to switch to using the MB Solr container
+        """
+        search_term = f"%{query}%"
+        self.cursor.execute("""
+                    SELECT artist.gid AS mbid, artist.name, type.name AS artist_type 
+                    FROM artist 
+                    LEFT JOIN artist_type type ON artist.type = type.id
+                    WHERE artist.name ILIKE %s LIMIT 20
+                """, (search_term,))
+
+        return [dict(row) for row in self.cursor.fetchall()]
 
 
 # Testing

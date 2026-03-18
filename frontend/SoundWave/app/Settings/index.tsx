@@ -113,7 +113,7 @@ export default function Settings(){
           </Pressable>
 
 
-          <Pressable style={styles.logoutRow}>
+          <Pressable style={styles.logoutRow} onPress={() => router.push('/Login')}>
             <View style={styles.logoutContent}>
                 <Text style={styles.logoutText}>Log Out</Text>
                 <Image
@@ -122,8 +122,6 @@ export default function Settings(){
                   resizeMode="contain"
                 />
             </View>
-
-
           </Pressable>
         </View>  
 

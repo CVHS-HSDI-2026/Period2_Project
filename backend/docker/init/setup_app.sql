@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS Review (
     user_id INT NOT NULL REFERENCES Users(id),
     song_id INT REFERENCES Song(id),
     album_id INT REFERENCES Album(id),
-    rating SMALLINT NOT NULL,
+    rating SMALLINT,
     review_text TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CHECK (song_id IS NOT NULL OR album_id IS NOT NULL)
