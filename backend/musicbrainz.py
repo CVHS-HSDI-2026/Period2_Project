@@ -4,7 +4,6 @@ import uuid
 
 import psycopg2
 import psycopg2.extras
-import requests
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,24 +13,13 @@ class MusicBrainzDatabase:
     def __init__(self):
         """
         Initialize the PostgreSQL client and connect to the database.
-
-        :raises ConnectionError: If unable to connect to PostgreSQL.
         """
-
         self.connection = psycopg2.connect(os.getenv("MUSICBRAINZ_POSTGRES_CONNECTION_STRING"))
         self.connection.autocommit = True
         self.cursor = self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
         self.cursor.execute("SET search_path TO musicbrainz, public;")
 
-        self.solr_url = "http://localhost:8983/solr"
-
     def ping(self) -> bool:
-        """
-        Ping the PostgreSQL server to check if the connection is alive.
-
-        :return: True if the server responds to the ping command, False otherwise.
-        :rtype: bool
-        """
         try:
             self.cursor.execute("SELECT 1")
             return True
@@ -43,59 +31,64 @@ class MusicBrainzDatabase:
         if not query:
             return {"artists": [], "albums": [], "songs": []} if search_type == 'all' else []
 
-        solr_params = {
-            "query": query,
-            "wt": "json",
-            "rows": 10
-        }
+        exact_match = query
+        starts_with_match = f"{query}%"
+        fuzzy_match = f"%{query}%"
 
         def search_artists():
-            try:
-                # Target the 'artist' Solr core
-                res = requests.get(f"{self.solr_url}/artist/select", params=solr_params)
-                res.raise_for_status()
-                docs = res.json().get("response", {}).get("docs", [])
-
-                # Map Solr response to your frontend's expected format
-                return [{
-                    "mbid": doc.get("mbid"),
-                    "name": doc.get("artist"),  # Solr uses 'artist' for the name
-                    "artist_type": doc.get("type", "Artist")
-                } for doc in docs]
-            except Exception as e:
-                print(f"Solr artist search failed: {e}")
-                return []
+            self.cursor.execute("""
+                SELECT artist.gid AS mbid, artist.name, type.name AS artist_type 
+                FROM artist 
+                LEFT JOIN artist_type type ON artist.type = type.id
+                WHERE artist.name ILIKE %s
+                ORDER BY 
+                    (artist.name ILIKE %s) DESC, -- Exact matches first
+                    (artist.name ILIKE %s) DESC, -- Starts with second
+                    artist.name ASC              -- Alphabetical fallback
+                LIMIT 10
+            """, (fuzzy_match, exact_match, starts_with_match))
+            return [dict(row) for row in self.cursor.fetchall()]
 
         def search_albums():
-            try:
-                res = requests.get(f"{self.solr_url}/release-group/select", params=solr_params)
-                res.raise_for_status()
-                docs = res.json().get("response", {}).get("docs", [])
-
-                return [{
-                    "mbid": doc.get("mbid"),
-                    "title": doc.get("releasegroup"),
-                    "cover_url": f"https://coverartarchive.org/release-group/{doc.get('mbid')}/front-250"
-                } for doc in docs]
-            except Exception as e:
-                print(f"Solr album search failed: {e}")
-                return []
+            self.cursor.execute("""
+                SELECT 
+                    gid AS mbid, 
+                    name AS title,
+                    'https://coverartarchive.org/release-group/' || gid || '/front-250' as cover_url
+                FROM release_group 
+                WHERE name ILIKE %s 
+                ORDER BY 
+                    (name ILIKE %s) DESC,
+                    (name ILIKE %s) DESC,
+                    name ASC
+                LIMIT 10
+            """, (fuzzy_match, exact_match, starts_with_match))
+            return [dict(row) for row in self.cursor.fetchall()]
 
         def search_songs():
-            try:
-                res = requests.get(f"{self.solr_url}/recording/select", params=solr_params)
-                res.raise_for_status()
-                docs = res.json().get("response", {}).get("docs", [])
-
-                return [{
-                    "mbid": doc.get("mbid"),
-                    "title": doc.get("recording"),
-                    "duration": doc.get("length", 0),
-                    "cover_url": None
-                } for doc in docs]
-            except Exception as e:
-                print(f"Solr song search failed: {e}")
-                return []
+            self.cursor.execute("""
+                SELECT 
+                    r.gid AS mbid, 
+                    r.name AS title, 
+                    r.length AS duration,
+                    (
+                        SELECT 'https://coverartarchive.org/release-group/' || rg.gid || '/front-250'
+                        FROM track t
+                        JOIN medium m ON t.medium = m.id
+                        JOIN release rel ON m.release = rel.id
+                        JOIN release_group rg ON rel.release_group = rg.id
+                        WHERE t.recording = r.id
+                        LIMIT 1
+                    ) as cover_url
+                FROM recording r
+                WHERE r.name ILIKE %s 
+                ORDER BY 
+                    (r.name ILIKE %s) DESC,
+                    (r.name ILIKE %s) DESC,
+                    r.name ASC
+                LIMIT 10
+            """, (fuzzy_match, exact_match, starts_with_match))
+            return [dict(row) for row in self.cursor.fetchall()]
 
         if search_type == 'all':
             return {
@@ -165,9 +158,6 @@ class MusicBrainzDatabase:
         return dict(row) if row else None
 
     def get_artist_tags(self, mbid: str) -> list[str]:
-        """
-        aka return genres for artist
-        """
         try:
             uuid.UUID(str(mbid))
         except ValueError:
@@ -186,9 +176,6 @@ class MusicBrainzDatabase:
         return [row['name'] for row in self.cursor.fetchall()]
 
     def close(self):
-        """
-        Close the database connection.
-        """
         self.cursor.close()
         self.connection.close()
 
