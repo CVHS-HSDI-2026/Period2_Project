@@ -4,10 +4,11 @@ import { useFonts, Jost_400Regular } from "@expo-google-fonts/jost";
 import CommentBox from "./CommentBox";
 import RecommendedBox from "./RecomendedBox";
 import Commentsonly from "./Commentsonly";
+import {Song} from "@/app/Song";
 
 type Tab = "comments" | "recomended";
 
-export default function SongBox() {
+export default function SongBox({ song }: { song: Song }) {
   const [activeTab, setActiveTab] = useState<Tab>("comments");
   const [fontsLoaded] = useFonts({ Jost_400Regular });
   if (!fontsLoaded) return null;

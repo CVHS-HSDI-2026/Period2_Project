@@ -24,3 +24,14 @@ export const fetchAlbumDetails = async (mbid: string) => {
 		throw error;
 	}
 };
+
+export const fetchSongDetails = async (mbid: string) => {
+	try {
+		const response = await fetch(`${BASE_URL}/api/music/song/${mbid}`);
+		if (!response.ok) throw new Error("Failed to fetch song");
+		return await response.json();
+	} catch (error) {
+		console.error('API Error (fetchSongDetails):', error);
+		throw error;
+	}
+}

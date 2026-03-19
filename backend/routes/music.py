@@ -58,6 +58,9 @@ def get_album(mbid):
     if not mb_album:
         return jsonify({"message": "Album not found"}), 404
 
+    tags = mb_db.get_album_tags(mbid)
+    genre_string = ", ".join(tags) if tags else "Unknown"
+
     artist_mbid = mb_album.get('artist_mbid')
     _ensure_artist_exists(artist_mbid)
 
@@ -75,8 +78,9 @@ def get_album(mbid):
             "artist_mbid": mb_album.get("artist_mbid"),
             "year": mb_album.get("release_year") or "Unknown",
             "cover": mb_album.get("cover_url"),
-            "genre": "N/A", # todo: do tags later
-            "rating": "N/A" # todo: derive rating from our app as a separate task
+            "genre": genre_string,
+            "rating": "N/A", # todo: calculate from reviews later
+            "tracks": mb_album.get("tracks", [])
         },
         "reviews": reviews
     }), 200
@@ -84,22 +88,35 @@ def get_album(mbid):
 
 @music_bp.route('/song/<mbid>', methods=['GET'])
 def get_song(mbid):
+    mb_song = mb_db.get_song_by_mbid(mbid)
+    if not mb_song:
+        return jsonify({"message": "Song not found"}), 404
+
+    tags = mb_db.get_song_tags(mbid)
+    genre_string = ", ".join(tags) if tags else "Unknown"
+
+    artist_mbid = mb_song.get('artist_mbid')
+    _ensure_artist_exists(artist_mbid)
+
     local_song = app_db.get_song_by_mbid(mbid)
-
     if not local_song:
-        mb_song = mb_db.get_song_by_mbid(mbid)
-        if not mb_song:
-            return jsonify({"message": "Song not found"}), 404
-
-        artist_mbid = mb_song.get('artist_mbid')
-        _ensure_artist_exists(artist_mbid)
-
         app_db.create_song(mb_song)
         local_song = app_db.get_song_by_mbid(mbid)
 
-    reviews = app_db.fetch_reviews(song_id=local_song['id'])
+    reviews = app_db.fetch_reviews(song_id=local_song['id']) if local_song else []
 
     return jsonify({
-        "song": local_song,
+        "song": {
+            "title": mb_song.get("title"),
+            "artist": mb_song.get("artist_name"),
+            "artist_mbid": mb_song.get("artist_mbid"),
+            "album": mb_song.get("album_title") or "Unknown Album",
+            "album_mbid": mb_song.get("album_mbid"),
+            "rating": "N/A",
+            "genre": genre_string,
+            "duration": mb_song.get("duration"),
+            "year": mb_song.get("release_year") or "Unknown",
+            "cover": mb_song.get("cover_url")
+        },
         "reviews": reviews
     }), 200

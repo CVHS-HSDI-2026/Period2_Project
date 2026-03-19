@@ -119,12 +119,13 @@ class MusicBrainzDatabase:
         except ValueError:
             return None
 
-        self.cursor.execute("""
-            SELECT gid AS mbid, name, begin_date_year, end_date_year, comment AS disambiguation
-            FROM artist WHERE gid = %s
-        """, (str(mbid),))
-        row = self.cursor.fetchone()
-        return dict(row) if row else None
+        with self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+            cursor.execute("""
+                SELECT gid AS mbid, name, begin_date_year, end_date_year, comment AS disambiguation
+                FROM artist WHERE gid = %s
+            """, (str(mbid),))
+            row = cursor.fetchone()
+            return dict(row) if row else None
 
     def get_album_by_mbid(self, mbid: str) -> dict | None:
         try:
@@ -170,7 +171,7 @@ class MusicBrainzDatabase:
                 AND rel.id = (
                     SELECT id FROM release 
                     WHERE release_group = rg.id 
-                    ORDER BY date_year ASC NULLS LAST 
+                    ORDER BY id ASC 
                     LIMIT 1
                 )
                 ORDER BY m.position ASC, t.position ASC
@@ -186,16 +187,51 @@ class MusicBrainzDatabase:
         except ValueError:
             return None
 
-        self.cursor.execute("""
-            SELECT r.gid AS mbid, r.name AS title, r.length AS duration, a.gid AS artist_mbid
-            FROM recording r
-            JOIN artist_credit ac ON r.artist_credit = ac.id
-            JOIN artist_credit_name acn ON ac.id = acn.artist_credit
-            JOIN artist a ON acn.artist = a.id
-            WHERE r.gid = %s
-        """, (str(mbid),))
-        row = self.cursor.fetchone()
-        return dict(row) if row else None
+        with self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+            cursor.execute("""
+                SELECT 
+                    r.gid AS mbid, 
+                    r.name AS title, 
+                    r.length AS duration, 
+                    a.gid AS artist_mbid,
+                    a.name AS artist_name,
+                    rg.name AS album_title,
+                    rg.gid AS album_mbid,
+                    rgm.first_release_date_year AS release_year,
+                    'https://coverartarchive.org/release-group/' || rg.gid || '/front-250' AS cover_url
+                FROM recording r
+                JOIN artist_credit ac ON r.artist_credit = ac.id
+                JOIN artist_credit_name acn ON ac.id = acn.artist_credit
+                JOIN artist a ON acn.artist = a.id
+                LEFT JOIN track t ON t.recording = r.id
+                LEFT JOIN medium m ON t.medium = m.id
+                LEFT JOIN release rel ON m.release = rel.id
+                LEFT JOIN release_group rg ON rel.release_group = rg.id
+                LEFT JOIN release_group_meta rgm ON rg.id = rgm.id
+                WHERE r.gid = %s
+                ORDER BY rgm.first_release_date_year ASC NULLS LAST
+                LIMIT 1
+            """, (str(mbid),))
+            row = cursor.fetchone()
+            return dict(row) if row else None
+
+    def get_song_tags(self, mbid: str) -> list[str]:
+        try:
+            uuid.UUID(str(mbid))
+        except ValueError:
+            return []
+
+        with self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+            cursor.execute("""
+                SELECT t.name
+                FROM recording r
+                JOIN recording_tag rt ON r.id = rt.recording
+                JOIN tag t ON rt.tag = t.id
+                WHERE r.gid = %s
+                ORDER BY rt.count DESC
+                LIMIT 3
+            """, (str(mbid),))
+            return [row['name'].title() for row in cursor.fetchall()]
 
     def get_artist_tags(self, mbid: str) -> list[str]:
         try:
@@ -203,17 +239,35 @@ class MusicBrainzDatabase:
         except ValueError:
             return []
 
-        self.cursor.execute("""
-            SELECT t.name
-            FROM artist a
-            JOIN artist_tag at ON a.id = at.artist
-            JOIN tag t ON at.tag = t.id
-            WHERE a.gid = %s
-            ORDER BY at.count DESC
-            LIMIT 5
-        """, (str(mbid),))
+        with self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+            cursor.execute("""
+                SELECT t.name
+                FROM artist a
+                JOIN artist_tag at ON a.id = at.artist
+                JOIN tag t ON at.tag = t.id
+                WHERE a.gid = %s
+                ORDER BY at.count DESC
+                LIMIT 5
+            """, (str(mbid),))
+            return [row['name'] for row in cursor.fetchall()]
 
-        return [row['name'] for row in self.cursor.fetchall()]
+    def get_album_tags(self, mbid: str) -> list[str]:
+        try:
+            uuid.UUID(str(mbid))
+        except ValueError:
+            return []
+
+        with self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+            cursor.execute("""
+                SELECT t.name
+                FROM release_group rg
+                JOIN release_group_tag rgt ON rg.id = rgt.release_group
+                JOIN tag t ON rgt.tag = t.id
+                WHERE rg.gid = %s
+                ORDER BY rgt.count DESC
+                LIMIT 5
+            """, (str(mbid),))
+            return [row['name'].title() for row in cursor.fetchall()]
 
     def close(self):
         self.cursor.close()
