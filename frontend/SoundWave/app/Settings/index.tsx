@@ -114,19 +114,17 @@ export default function Settings() {
 					</Pressable>
 
 
-					<Pressable style={styles.logoutRow}>
-						<View style={styles.logoutContent}>
-							<Text style={styles.logoutText}>Log Out</Text>
-							<Image
-								source={require('../../assets/logout.png')}
-								style={styles.logout}
-								resizeMode="contain"
-							/>
-						</View>
-
-
-					</Pressable>
-				</View>
+          <Pressable style={styles.logoutRow} onPress={() => router.push('/Login')}>
+            <View style={styles.logoutContent}>
+                <Text style={styles.logoutText}>Log Out</Text>
+                <Image
+                  source= {require('../../assets/logout.png')}
+                  style={styles.logout}
+                  resizeMode="contain"
+                />
+            </View>
+          </Pressable>
+        </View>  
 
 
 				{/* privacy */}
