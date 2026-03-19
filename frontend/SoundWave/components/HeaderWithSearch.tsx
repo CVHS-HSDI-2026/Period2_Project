@@ -4,6 +4,7 @@ import React, {FC, useState} from 'react';
 import {View, Text, TextInput, TouchableOpacity, StyleSheet, TouchableWithoutFeedback} from 'react-native';
 import {Image} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { fetchSearchResults } from '@/services/api';
 
 interface HeaderProps {
     title: string;
@@ -22,6 +23,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({title}) => {
         if (searchText.trim()) {
             router.push({pathname: "/Search", params: {q: searchText}});
         }
+        fetchSearchResults(searchText)
     };
 
     const handleProfilePress = () => {
