@@ -1,10 +1,10 @@
-import { Stack } from 'expo-router';
+import {Stack} from 'expo-router';
 
 export default function Layout() {
-  return (
-    <Stack screenOptions={{ headerShown: false }}>
-      {/* Root page: app/page.tsx */}
-      <Stack.Screen name="index" options={{ title: 'Home' }} />
+	return (
+		<Stack screenOptions={{headerShown: false}}>
+			{/* Root page: app/page.tsx */}
+			<Stack.Screen name="index" options={{title: 'Home'}}/>
 
       {/* Folder routes */}
       <Stack.Screen name="Song" options={{ title: 'Song' }} />

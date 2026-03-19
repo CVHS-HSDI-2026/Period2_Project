@@ -1,6 +1,7 @@
-import { router } from "expo-router";
-import React, { FC , useState} from "react";
-import {View, Text, Image, StyleSheet, Pressable, ImageSourcePropType, TouchableOpacity, } from "react-native";
+import {router} from "expo-router";
+import React, {FC, useState} from "react";
+import {View, Text, StyleSheet, Pressable, ImageSourcePropType, TouchableOpacity,} from "react-native";
+import { Image } from 'expo-image';
 
 const chatbubble = require("../assets/speech-bubble.png");
 /* ---------- Helpers ---------- */
@@ -49,6 +50,7 @@ const SongCard: FC<SongCardProps> = ({
 				<Image
 					source={image}
 					style={styles.image}
+					cachePolicy="memory-disk"
 					onError={() => setImageFailed(true)}
 				/>
 			) : (

@@ -1,102 +1,84 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Image } from 'expo-image';
+import { Song } from "@/app/Song";
 
-interface Song {
-  title: string;
-  artist: string;
-  album: string;
-  rating: string;
-  genre: string;
-  duration: string;
-  date: string;
-  cover: string;
-}
+const formatTime = (ms: number | string) => {
+	const numMs = Number(ms);
+	if (!numMs) return "Unknown";
+	const minutes = Math.floor(numMs / 60000);
+	const seconds = ((numMs % 60000) / 1000).toFixed(0);
+	return minutes + ":" + (parseInt(seconds) < 10 ? "0" : "") + seconds;
+};
 
-const SongDetails: React.FC = () => {
-    const router = useRouter();
-  const song: Song = {
-    title: "IRIS OUT",
-    artist: "Kenshi Yonezu",
-    album: "IRIS OUT",
-    rating: "8.5/10",
-    genre: "J-pop",
-    duration: "2:31",
-    date: "9/15/25",
-    cover: "https://picsum.photos/300" 
-    
-  };
+const SongDetails: React.FC<{ song: Song }> = ({ song }) => {
+	const router = useRouter();
+	const [imageFailed, setImageFailed] = useState(false);
 
-  return (
-    
-    <View style={styles.outerContainer}>
-      <View style={styles.contentRow}>
-        {/* Left Side: Album Cover */}
-        <Image source={{ uri: song.cover }} style={styles.cover} />
+	if (!song) return null;
 
-        {/* Right Side: Two-Column Data Grid */}
-        <View style={styles.gridContainer}>
-          <View style={styles.column}>
-            <Text style={styles.text}><Text style={styles.label}>Title: </Text>{song.title}</Text>
-            <Text style={styles.text}>
-            <Text style={styles.label}>Artist: </Text>
-            <TouchableOpacity onPress={() => router.push("Artist")}>
-            <Text style={styles.text}>{song.artist}</Text>
-            </TouchableOpacity>
-          </Text>
+	return (
+		<View style={styles.outerContainer}>
+			<View style={styles.contentRow}>
 
-            <TouchableOpacity onPress={() => router.push("Album")}>
-            <Text style={styles.text}><Text style={styles.label}>Album: </Text>{song.album}</Text>
-            </TouchableOpacity>
-            <Text style={styles.text}><Text style={styles.label}>Date: </Text>{song.date}</Text>
-          </View>
+				{song.cover && !imageFailed ? (
+					<Image
+						source={{ uri: song.cover }}
+						style={styles.cover}
+						cachePolicy="memory-disk"
+						onError={() => setImageFailed(true)}
+					/>
+				) : (
+					<View style={[styles.cover, styles.coverFallback]} />
+				)}
 
-          <View style={styles.column}>
-            <Text style={styles.text}><Text style={styles.label}>Rating: </Text>{song.rating}</Text>
-            <Text style={styles.text}><Text style={styles.label}>Min streamed: </Text>unknown</Text>
-            <Text style={styles.text}><Text style={styles.label}>Genre: </Text>{song.genre}</Text>
-            <Text style={styles.text}><Text style={styles.label}>Duration: </Text>{song.duration}</Text>
-          </View>
-        </View>
-      </View>
-    </View>
-  );
+				<View style={styles.gridContainer}>
+					<View style={styles.column}>
+						<Text style={styles.text}><Text style={styles.label}>Title: </Text>{song.title}</Text>
+
+						<Text style={styles.text}>
+							<Text style={styles.label}>Artist: </Text>
+							<TouchableOpacity onPress={() => router.push({ pathname: "/Artist", params: { mbid: song.artist_mbid }})}>
+								<Text style={[styles.text, styles.linkText]}>{song.artist}</Text>
+							</TouchableOpacity>
+						</Text>
+
+						<Text style={styles.text}>
+							<Text style={styles.label}>Album: </Text>
+							{song.album_mbid ? (
+								<TouchableOpacity onPress={() => router.push({ pathname: "/Album", params: { mbid: song.album_mbid }})}>
+									<Text style={[styles.text, styles.linkText]}>{song.album}</Text>
+								</TouchableOpacity>
+							) : (
+								<Text style={styles.text}>{song.album}</Text>
+							)}
+						</Text>
+
+						<Text style={styles.text}><Text style={styles.label}>Year: </Text>{song.year}</Text>
+					</View>
+
+					<View style={styles.column}>
+						<Text style={styles.text}><Text style={styles.label}>Rating: </Text>{song.rating}</Text>
+						<Text style={styles.text}><Text style={styles.label}>Genre: </Text>{song.genre}</Text>
+						<Text style={styles.text}><Text style={styles.label}>Duration: </Text>{formatTime(song.duration)}</Text>
+					</View>
+				</View>
+			</View>
+		</View>
+	);
 };
 
 const styles = StyleSheet.create({
-  outerContainer: {
-    width: "90%",
-    alignSelf: "center",
-    marginTop: 20,
-  },
-  contentRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  cover: {
-    width: 180,
-    height: 180,
-    borderRadius: 4, // More square like the mockup
-    marginRight: 25,
-  },
-  gridContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    marginTop: 10,
-  },
-  column: {
-    flex: 1,
-    gap: 12, // Consistent spacing between rows
-  },
-  label: {
-    fontWeight: '400',
-    color: '#FFF',
-  },
-  text: {
-    fontSize: 20,
-    color: '#FFF',
-    fontFamily: 'Jost_400Regular',
-  },
+	outerContainer: { width: "90%", alignSelf: "center", marginTop: 20 },
+	contentRow: { flexDirection: 'row', alignItems: 'flex-start' },
+	cover: { width: 180, height: 180, borderRadius: 4, marginRight: 25 },
+	coverFallback: { backgroundColor: '#2A2D43' },
+	gridContainer: { flex: 1, flexDirection: 'row', marginTop: 10 },
+	column: { flex: 1, gap: 12 },
+	label: { fontWeight: '400', color: '#FFF' },
+	text: { fontSize: 20, color: '#FFF', fontFamily: 'Jost_400Regular' },
+	linkText: { textDecorationLine: 'underline' }
 });
 
 export default SongDetails;
