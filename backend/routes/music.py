@@ -27,12 +27,13 @@ def _ensure_artist_exists(artist_mbid: str) -> bool:
 @music_bp.route('/search', methods=['GET'])
 def search_music():
     query = request.args.get('query')
-    search_type = request.args.get('type', 'song')
+    search_type = request.args.get('type', 'all')
+    limit = int(request.args.get('limit', 10))
 
     if not query:
         return jsonify({"message": "Missing search query"}), 400
 
-    results = mb_db.search(query, search_type)
+    results = mb_db.search(query, search_type, limit)
     return jsonify(results=results), 200
 
 
@@ -53,27 +54,32 @@ def get_artist(mbid):
 
 @music_bp.route('/album/<mbid>', methods=['GET'])
 def get_album(mbid):
+    mb_album = mb_db.get_album_by_mbid(mbid)
+    if not mb_album:
+        return jsonify({"message": "Album not found"}), 404
+
+    artist_mbid = mb_album.get('artist_mbid')
+    _ensure_artist_exists(artist_mbid)
+
     local_album = app_db.get_album_by_mbid(mbid)
-
     if not local_album:
-        mb_album = mb_db.get_album_by_mbid(mbid)
-        if not mb_album:
-            return jsonify({"message": "Album not found"}), 404
-
-        artist_mbid = mb_album.get('artist_mbid')
-        _ensure_artist_exists(artist_mbid)
-
-        cover_art_url = None
-        caa_response = requests.get(f"http://coverartarchive.org/release-group/{mbid}")
-        if caa_response.status_code == 200:
-            images = caa_response.json().get('images', [])
-            if images:
-                cover_art_url = images[0].get('image')
-
-        app_db.create_album(mb_album, cover_art_url)
+        app_db.create_album(mb_album, mb_album.get('cover_url'))
         local_album = app_db.get_album_by_mbid(mbid)
 
-    return jsonify(local_album=local_album), 200
+    reviews = app_db.fetch_reviews(album_id=local_album['id']) if local_album else []
+
+    return jsonify({
+        "album": {
+            "title": mb_album.get("title"),
+            "artist": mb_album.get("artist_name"),
+            "artist_mbid": mb_album.get("artist_mbid"),
+            "year": mb_album.get("release_year") or "Unknown",
+            "cover": mb_album.get("cover_url"),
+            "genre": "N/A", # todo: do tags later
+            "rating": "N/A" # todo: derive rating from our app as a separate task
+        },
+        "reviews": reviews
+    }), 200
 
 
 @music_bp.route('/song/<mbid>', methods=['GET'])
