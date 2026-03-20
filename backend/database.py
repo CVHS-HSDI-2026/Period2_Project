@@ -48,6 +48,15 @@ class Database:
         row = self.cursor.fetchone()
         return dict(row) if row else None
 
+    def get_artist_by_id(self, artist_id: int) -> dict | None:
+        """
+        Fetches an artist from the local database using their internal ID.
+        """
+        with self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+            cursor.execute("SELECT * FROM Artist WHERE id = %s", (artist_id,))
+            row = cursor.fetchone()
+            return dict(row) if row else None
+
     def create_artist(self, data: dict) -> int | None:
         """
         Inserts a new artist into the local database from MusicBrainz data.

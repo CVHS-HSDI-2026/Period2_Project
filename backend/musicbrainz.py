@@ -127,6 +127,43 @@ class MusicBrainzDatabase:
             row = cursor.fetchone()
             return dict(row) if row else None
 
+    def get_artist_discography(self, mbid: str) -> dict | None:
+        try:
+            uuid.UUID(str(mbid))
+        except ValueError:
+            return None
+
+        with self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+            cursor.execute("""
+                SELECT gid AS mbid, name, begin_date_year, end_date_year, comment AS disambiguation
+                FROM artist WHERE gid = %s
+            """, (str(mbid),))
+
+            artist_row = cursor.fetchone()
+            if not artist_row:
+                return None
+
+            artist_data = dict(artist_row)
+
+            cursor.execute("""
+                SELECT 
+                    rg.gid AS mbid, 
+                    rg.name AS title,
+                    rgm.first_release_date_year AS release_year,
+                    'https://coverartarchive.org/release-group/' || rg.gid || '/front-250' as cover_url
+                FROM release_group rg
+                JOIN artist_credit ac ON rg.artist_credit = ac.id
+                JOIN artist_credit_name acn ON ac.id = acn.artist_credit
+                JOIN artist a ON acn.artist = a.id
+                LEFT JOIN release_group_meta rgm ON rg.id = rgm.id
+                WHERE a.gid = %s AND rg.type = 1
+                ORDER BY rgm.first_release_date_year DESC NULLS LAST
+                LIMIT 10
+            """, (str(mbid),))
+
+            artist_data['albums'] = [dict(row) for row in cursor.fetchall()]
+            return artist_data
+
     def get_album_by_mbid(self, mbid: str) -> dict | None:
         try:
             uuid.UUID(str(mbid))
