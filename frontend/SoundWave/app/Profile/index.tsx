@@ -1,59 +1,109 @@
-import {StyleSheet, Text, View, Pressable, ScrollView, TextInput} from 'react-native';
-import React, {useState} from 'react';
+import {StyleSheet, Text, View, Pressable, ScrollView, TextInput, ActivityIndicator} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import HeaderWithSearch from "../../components/HeaderWithSearch";
 import {useRouter, useLocalSearchParams} from "expo-router";
 import {useFonts, Jost_400Regular, Jost_500Medium, Jost_700Bold} from '@expo-google-fonts/jost';
 import SongCard from "../../components/SongCard";
 import ArtistCard from "../../components/ArtistCard";
+import {fetchProfile, updateProfileBio} from "@/services/api";
 
 export default function Profile() {
 	const router = useRouter();
-	const {isOwner} = useLocalSearchParams();
+	const {isOwner, username} = useLocalSearchParams<{ isOwner: string, username: string }>();
 	const isProfileOwner = isOwner === "true";
-
 	const [fontsLoaded] = useFonts({Jost_400Regular, Jost_500Medium, Jost_700Bold});
 
 	const [isEditing, setIsEditing] = useState(false);
 	const [isFollowing, setIsFollowing] = useState(false);
+	const [loading, setLoading] = useState(true);
 
-	const [displayName, setDisplayName] = useState('get from database');
-	const [bio, setBio] = useState('this user does not have a bio yet so this is placeholder text.');
+	const [bio, setBio] = useState('');
+	const [profileData, setProfileData] = useState<any>(null);
 
-	const handleSave = () => {
-		setIsEditing(false);
+	useEffect(() => {
+		const loadProfile = async () => {
+			if (!username) return;
+			try {
+				const data = await fetchProfile(username);
+				setProfileData(data);
+				setBio(data.user.bio || 'This user does not have a bio yet.');
+			} catch (error) {
+				console.error(error);
+			} finally {
+				setLoading(false);
+			}
+		};
+		loadProfile();
+	}, [username]);
+
+	const handleSave = async () => {
+		try {
+			await updateProfileBio(username, bio);
+			setIsEditing(false);
+			setProfileData((prev: any) => ({...prev, user: {...prev.user, bio}}));
+		} catch (e) {
+			alert("Failed to save bio");
+		}
 	};
 
 	const handleCancel = () => {
+		setBio(profileData?.user?.bio || 'This user does not have a bio yet.');
 		setIsEditing(false);
 	};
 
 	const toggleFollow = () => {
+		// todo: make api handlers for follow/unfollow and wire to backend
 		setIsFollowing(!isFollowing);
 	};
 
-	const colone = isProfileOwner
-		? [
-			{columnName: 'Username:', value: 'get from database'},
-			{columnName: '# followers'},
-			{columnName: '# ratings'},
-		]
-		: [
-			{columnName: 'Display Name:', value: displayName},
-			{columnName: '# followers'},
-			{columnName: '# ratings'},
-		];
+	if (!fontsLoaded) return null;
+	if (loading) {
+		return (
+			<View style={[styles.container, {justifyContent: 'center'}]}>
+				<ActivityIndicator size="large" color="#C6B3E8"/>
+			</View>
+		);
+	}
+	if (!profileData) {
+		return <View style={styles.container}><Text style={styles.columnText}>Profile not found</Text></View>;
+	}
 
-	const coltwo = isProfileOwner
-		? [
-			{columnName: 'Display Name:', value: displayName},
-			{columnName: '# following'},
-			{columnName: '# comments'},
-		]
-		: [
-			{columnName: ' ', value: ' '},
-			{columnName: '# following'},
-			{columnName: '# comments'},
-		];
+	const colOne = [
+		{columnName: 'Username:', value: profileData.user.username},
+		{columnName: 'Followers:', value: profileData.followers},
+	];
+
+	const colTwo = [
+		{columnName: 'Following:', value: profileData.following},
+		{columnName: 'Joined:', value: new Date(profileData.user.created_at).toLocaleDateString()},
+	];
+
+	// const colone = isProfileOwner
+	// 	? [
+	// 		{columnName: 'Username:', value: profileData.username},
+	// 		{columnName: '# followers' }, // todo: figure out how to add
+	// 		{columnName: '# ratings'}, // todo: figure out how to add
+	// 	]
+	// 	: [
+	// 		{columnName: 'Display Name:', value: displayName},
+	// why the fuck are we renaming username to display name? why are we allowing the user to change their username?
+	// renaming the username opens up a whole can of worms with regard to checking if the db complains (since username
+	// is a UNIQUE column for our Users table). I don't think we should mess with it
+	// 		{columnName: '# followers'},
+	// 		{columnName: '# ratings'},
+	// 	];
+	//
+	// const coltwo = isProfileOwner
+	// 	? [
+	// 		{columnName: 'Display Name:', value: displayName},
+	// 		{columnName: '# following'},
+	// 		{columnName: '# comments'},
+	// 	]
+	// 	: [
+	// 		{columnName: ' ', value: ' '}, // ???
+	// 		{columnName: '# following'},
+	// 		{columnName: '# comments'},
+	// 	];
 
 	return (
 		<View style={styles.container}>
@@ -68,7 +118,11 @@ export default function Profile() {
 				<View style={styles.profileSection}>
 
 					<View style={styles.profileLeft}>
-						<View style={styles.avatarPlaceholder}/>
+						<View style={styles.avatarPlaceholder}>
+							<Text style={styles.initialsText}>
+								{profileData.user.username.substring(0, 2).toUpperCase()}
+							</Text>
+						</View>
 					</View>
 
 					<View style={styles.profileRight}>
@@ -103,39 +157,24 @@ export default function Profile() {
 						<View style={styles.columnsContainer}>
 
 							<View style={styles.column}>
-								{colone.map((item, idx) => (
+								{colOne.map((item, idx) => (
 									<Text style={styles.columnText} key={`col1-${idx}`}>
-										{item.columnName}{item.value ? ` ${item.value}` : ''}
+										{item.columnName}{item.value !== undefined ? ` ${item.value}` : ''}
 									</Text>
 								))}
 							</View>
 
 							<View style={styles.column}>
-								{coltwo.map((item, idx) => (
-									item.columnName === 'Display Name:' && isEditing && isProfileOwner ? (
-										<View key={`col2-${idx}`} style={styles.inlineEditRow}>
-											<Text style={styles.columnText}>{item.columnName} </Text>
-											<TextInput
-												style={[styles.inputInline, {flex: 1}]}
-												value={displayName}
-												onChangeText={setDisplayName}
-												placeholder="Enter display name"
-												placeholderTextColor="#aaa"
-											/>
-										</View>
-									) : (
-										<Text style={styles.columnText} key={`col2-${idx}`}>
-											{item.columnName}{item.value ? ` ${item.value}` : ''}
-										</Text>
-									)
+								{colTwo.map((item, idx) => (
+									<Text style={styles.columnText} key={`col2-${idx}`}>
+										{item.columnName}{item.value !== undefined ? ` ${item.value}` : ''}
+									</Text>
 								))}
 							</View>
 
 						</View>
 
-						{/* Bio */}
 						<Text style={styles.titleBioText}>Bio:</Text>
-
 						{isEditing && isProfileOwner ? (
 							<TextInput
 								style={[styles.biotext, styles.input, {height: 100}]}
@@ -154,23 +193,24 @@ export default function Profile() {
 
 				<ScrollView horizontal showsHorizontalScrollIndicator={false}
 							contentContainerStyle={styles.horizontalContent}>
-					{Array.from({length: 10}).map((_, i) => (
+					{profileData.favorites.length > 0 ? profileData.favorites.map((fav: any, i: number) => (
 						<SongCard
-							key={`song-${i}`}
+							key={`fav-${i}`}
 							variant="popular"
-							title="Title"
-							artist="Artist"
+							title={`Song ${fav.song_id}`}
+							artist="Various"
 							rating={8}
-							commentsCount={12}
+							commentsCount={0}
 							onPress={() => router.push("./Song")}
 						/>
-					))}
+					)) : <Text style={styles.biotext}>No favorites yet.</Text>}
 				</ScrollView>
 
 				<Text style={styles.sectionTitle}>Top Albums:</Text>
 
 				<ScrollView horizontal showsHorizontalScrollIndicator={false}
 							contentContainerStyle={styles.horizontalContent}>
+					{/* todo: fix when we have favorite albums */}
 					{Array.from({length: 10}).map((_, i) => (
 						<SongCard
 							key={`album-${i}`}
@@ -188,6 +228,7 @@ export default function Profile() {
 
 				<ScrollView horizontal showsHorizontalScrollIndicator={false}
 							contentContainerStyle={styles.horizontalContent}>
+					{/* todo: fix when we have favorite artists */}
 					{Array.from({length: 10}).map((_, i) => (
 						<ArtistCard
 							key={`artist-${i}`}
@@ -205,6 +246,7 @@ export default function Profile() {
 
 				<ScrollView horizontal showsHorizontalScrollIndicator={false}
 							contentContainerStyle={styles.horizontalContent}>
+					{/* i forgot how this worked...will check back on this */}
 					{Array.from({length: 10}).map((_, i) => (
 						<ArtistCard
 							key={`rec-${i}`}
@@ -251,6 +293,11 @@ const styles = StyleSheet.create({
 		height: 200,
 		borderRadius: 100,
 		backgroundColor: '#ffffff20',
+	},
+	initialsText: {
+		color: '#FFF',
+		fontSize: 48,
+		fontFamily: 'Jost_700Bold'
 	},
 	profileRight: {
 		width: '65%',

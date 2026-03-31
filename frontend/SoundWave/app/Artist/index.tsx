@@ -1,21 +1,61 @@
-import {StyleSheet, Text, View, Pressable, ScrollView} from 'react-native';
-import React, {FC} from 'react';
+import { StyleSheet, Text, View, ActivityIndicator, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import HeaderWithSearch from "../../components/HeaderWithSearch";
-import {useRouter} from "expo-router";
-import {useFonts, Jost_400Regular, Jost_500Medium, Jost_700Bold} from '@expo-google-fonts/jost';
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { useFonts, Jost_400Regular, Jost_500Medium, Jost_700Bold } from '@expo-google-fonts/jost';
 import SongCard from "../../components/SongCard";
-import ArtistCard from ".,./../components/ArtistCard";
+import {fetchArtistDetails} from "@/services/api";
+import ArtistCard from "@components/ArtistCard";
 
 export default function Artist() {
 	const router = useRouter();
+	const { mbid } = useLocalSearchParams<{ mbid: string }>();
 
 	const [fontsLoaded] = useFonts({Jost_400Regular, Jost_500Medium, Jost_700Bold});
+	const [artistData, setArtistData] = useState<any>(null);
+	const [loading, setLoading] = useState(true);
 
+	useEffect(() => {
+		const loadArtist = async () => {
+			if (!mbid) return;
+			try {
+				const data = await fetchArtistDetails(mbid);
+				setArtistData(data);
+			} catch (error) {
+				console.error(error);
+			} finally {
+				setLoading(false);
+			}
+		};
+		loadArtist();
+	}, [mbid]);
+
+	if (!fontsLoaded) return null;
+
+	if (loading) {
+		return (
+			<View style={[styles.container, { justifyContent: 'center' }]}>
+				<ActivityIndicator size="large" color="#C6B3E8" />
+			</View>
+		);
+	}
+
+	if (!artistData || !artistData.artist) {
+		return (
+			<View style={[styles.container, { justifyContent: 'center' }]}>
+				<Text style={styles.columnText}>Artist not found.</Text>
+			</View>
+		);
+	}
+
+	const { artist, albums } = artistData;
+
+	// idk what colone is supposed to mean but i'll keep it
 	const colone = [
-		{columnName: 'Artist:', value: 'get from database'},
-		{columnName: "# followers"},
-		{columnName: '# ratings'},
-		{columnName: '# comments'},
+		{ columnName: 'Artist:', value: artist.name },
+		{ columnName: 'Born/Formed:', value: artist.born ? new Date(artist.born).getFullYear() : 'Unknown' },
+		{ columnName: 'Type:', value: artist.disambiguation || 'Musician' },
+		{ columnName: '# Followers:', value: '0' }, // todo: wire to user db
 	];
 
 	return (
@@ -26,7 +66,11 @@ export default function Artist() {
 				{/* profile stats */}
 				<View style={styles.profileSection}>
 					<View style={styles.profileLeft}>
-						<View style={styles.avatarPlaceholder}/>
+						<View style={styles.avatarPlaceholder}>
+							<Text style={styles.initialsText}>
+								{artist.name.substring(0, 2).toUpperCase()}
+							</Text>
+						</View>
 					</View>
 
 					<View style={styles.profileRight}>
@@ -42,11 +86,10 @@ export default function Artist() {
 							</View>
 						</View>
 						<Text style={styles.titleBioText}>Bio:</Text>
-						<Text style={styles.biotext}>this user does not have a bio yet so this is placeholder text.
-							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vel sapien eget nunc
-							efficitur efficitur. Sed at ligula a enim efficitur commodo. Donec in felis ut nisl
-							convallis tincidunt. Nulla facilisi. Donec ac odio a metus efficitur fermentum. In hac
-							habitasse platea dictumst.</Text>
+						<Text style={styles.biotext}>
+							{artist.disambiguation ? `Known for: ${artist.disambiguation}. ` : ''}
+							For more info, check out their profile on MusicBrainz: {artist.mbid}.
+						</Text>
 					</View>
 				</View>
 
@@ -54,17 +97,22 @@ export default function Artist() {
 				<Text style={styles.sectionTitle}>Top Songs:</Text>
 				<ScrollView horizontal showsHorizontalScrollIndicator={false}
 							contentContainerStyle={styles.horizontalContent}>
-					{Array.from({length: 10}).map((_, i) => (
-						<SongCard
-							key={`song-${i}`}
-							variant="popular"
-							title="Title"
-							artist="Artist"
-							rating={8}
-							commentsCount={12}
-							onPress={() => router.push("./Song")}
-						/>
-					))}
+					{albums && albums.length > 0 ? (
+						albums.map((album: any, i: number) => (
+							<SongCard
+								key={`album-${i}`}
+								variant="popular"
+								title={album.title}
+								artist={artist.name}
+								image={{ uri: album.cover_url }}
+								rating={10} // todo: replace once we figure out how to grab reviews
+								commentsCount={0}
+								onPress={() => router.push({ pathname: "/Album", params: { mbid: album.mbid } })}
+							/>
+						))
+					) : (
+						<Text style={styles.biotext}>No albums found.</Text>
+					)}
 				</ScrollView>
 				{/* top albums */}
 				<Text style={styles.sectionTitle}>Top Albums:</Text>
@@ -146,6 +194,11 @@ const styles = StyleSheet.create({
 		borderRadius: 100,
 		backgroundColor: '#ffffff20',
 		marginLeft: 150,
+	},
+	initialsText: {
+		color: '#FFF',
+		fontSize: 48,
+		fontFamily: 'Jost_700Bold'
 	},
 	profileRight: {
 		width: '65%',

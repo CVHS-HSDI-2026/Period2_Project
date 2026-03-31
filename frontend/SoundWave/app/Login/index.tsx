@@ -10,9 +10,13 @@ import {Ionicons} from "@expo/vector-icons";
 import CustomTypeBox from "../../components/CustomTypeBox";
 import {useRouter} from "expo-router";
 import {Image} from 'react-native';
+import {LoginRecord} from "@/services/records";
+import {login} from "@/services/api";
+import { useAuth } from "@/context/context";
 
 export default function Login() {
 	const router = useRouter();
+	const { setUser } = useAuth();
 
 	const [emailOrUsername, setEmailOrUsername] = useState("");
 	const [password, setPassword] = useState("");
@@ -36,25 +40,20 @@ export default function Login() {
 		try {
 			setLoading(true);
 
-			const response = await fetch("http://backendurl/login", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					emailOrUsername,
-					password,
-				}),
-			});
-
-			const data = await response.json();
-
-			if (!response.ok) {
-				setError(data.message || "Login failed");
-				return;
+			let login_attempt: LoginRecord = {
+				username: emailOrUsername,
+				password: password
 			}
 
-			router.replace("/");
+			login(login_attempt).then(r => {
+				if (r) {
+					setUser(r);
+					router.push("/");
+				} else {
+					setError("Login failed");
+					return;
+				}
+			});
 		} catch (err) {
 			setError("Network error. Please try again");
 		} finally {
@@ -80,18 +79,19 @@ export default function Login() {
 					</View>
 
 					{/* Google Login */}
-					<TouchableOpacity
-						style={styles.googleButton}
-						onPress={handleGoogleLogin}
-					>
-						<View style={styles.googleLogoContainer}>
-							<Image source={require("../../assets/google-logo.png")}
-								   style={styles.logoForGoogle}
-								   resizeMode="contain"
-							/>
-						</View>
-						<Text style={styles.googleText}> Log in with Google</Text>
-					</TouchableOpacity>
+					{/* ts is not implemented and we don't have the time to 💀 */}
+					{/*<TouchableOpacity*/}
+					{/*	style={styles.googleButton}*/}
+					{/*	onPress={handleGoogleLogin}*/}
+					{/*>*/}
+					{/*	<View style={styles.googleLogoContainer}>*/}
+					{/*		<Image source={require("../../assets/google-logo.png")}*/}
+					{/*			   style={styles.logoForGoogle}*/}
+					{/*			   resizeMode="contain"*/}
+					{/*		/>*/}
+					{/*	</View>*/}
+					{/*	<Text style={styles.googleText}> Log in with Google</Text>*/}
+					{/*</TouchableOpacity>*/}
 
 					{/* Email */}
 					<Text style={styles.label}>Email/Username</Text>

@@ -5,23 +5,11 @@ import SongBox from '../../components/SongBox';
 import HeaderWithSearch from "../../components/HeaderWithSearch";
 import {useLocalSearchParams} from "expo-router";
 import {fetchSongDetails} from "@/services/api";
-
-export interface Song {
-	title: string;
-	artist: string;
-	artist_mbid: string;
-	album: string;
-	album_mbid: string;
-	rating: string;
-	genre: string;
-	duration: string | number;
-	year: string | number;
-	cover: string;
-}
+import {SongRecord} from "@/services/records";
 
 export default function Song() {
 	const {mbid} = useLocalSearchParams<{ mbid: string }>();
-	const [song, setSong] = useState<Song | null>(null);
+	const [song, setSong] = useState<SongRecord | null>(null);
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {

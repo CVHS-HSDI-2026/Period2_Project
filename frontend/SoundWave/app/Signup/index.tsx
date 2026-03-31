@@ -13,6 +13,8 @@ import {
 import {Ionicons} from "@expo/vector-icons";
 import CustomTypeBox from "../../components/CustomTypeBox";
 import {useRouter} from "expo-router";
+import {signUp} from "@/services/api";
+import {SignupRecord} from "@/services/records";
 
 export default function SignUp() {
 	const router = useRouter();
@@ -27,8 +29,22 @@ export default function SignUp() {
 	};
 
 	const handleSignup = () => {
-		console.log("Signup pressed");
-		router.push("/"); // change later to your home route
+		if (confirmPassword !== password) {
+			throw new Error("Passwords don't match");
+		// 	todo: handle in less explosive way
+		}
+
+		let signup: SignupRecord = {
+			username: username,
+			password: password,
+			email: email
+		}
+
+		signUp(signup).then(r => {
+			if (r) {
+				router.push("/");
+			}
+		});
 	};
 
 	return (
@@ -50,18 +66,19 @@ export default function SignUp() {
 					</View>
 
 					{/* Google Signup */}
-					<TouchableOpacity
-						style={styles.googleButton}
-						onPress={handleGoogleSignup}
-					>
-						<View style={styles.googleLogoContainer}>
-							<Image source={require("../../assets/google-logo.png")}
-								   style={styles.logoForGoogle}
-								   resizeMode="contain"
-							/>
-						</View>
-						<Text style={styles.googleText}> Sign up with Google</Text>
-					</TouchableOpacity>
+					{/* ts is not implemented and we don't have the time to 💀 */}
+					{/*<TouchableOpacity*/}
+					{/*	style={styles.googleButton}*/}
+					{/*	onPress={handleGoogleSignup}*/}
+					{/*>*/}
+					{/*	<View style={styles.googleLogoContainer}>*/}
+					{/*		<Image source={require("../../assets/google-logo.png")}*/}
+					{/*			   style={styles.logoForGoogle}*/}
+					{/*			   resizeMode="contain"*/}
+					{/*		/>*/}
+					{/*	</View>*/}
+					{/*	<Text style={styles.googleText}> Sign up with Google</Text>*/}
+					{/*</TouchableOpacity>*/}
 
 					{/* Username */}
 					<Text style={styles.label}>Username</Text>

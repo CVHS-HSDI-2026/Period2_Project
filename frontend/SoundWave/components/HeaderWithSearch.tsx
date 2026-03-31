@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import {MaterialIcons} from '@expo/vector-icons';
 import {fetchSearchResults} from '@/services/api';
+import { useAuth } from '@/context/context';
 
 interface HeaderProps {
 	title: string;
@@ -25,6 +26,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({title}) => {
 	const [liveResults, setLiveResults] = useState({artists: [], albums: [], songs: []});
 
 	const debounceTimer = React.useRef<NodeJS.Timeout | null>(null);
+	const { user, logout } = useAuth();
 
 	useEffect(() => {
 		if (searchText.trim().length < 2) {
@@ -81,8 +83,11 @@ const HeaderWithSearch: FC<HeaderProps> = ({title}) => {
 	};
 
 	const handleProfileMenuPress = () => {
-		console.log('Profile menu item pressed');
-		router.push("/Profile");
+		if (user) {
+			router.push({ pathname: "/Profile", params: { username: user.username, isOwner: "true" }});
+		} else {
+			router.push("/Login");
+		}
 		setIsDropdownVisible(false);
 	};
 
@@ -92,11 +97,10 @@ const HeaderWithSearch: FC<HeaderProps> = ({title}) => {
 		setIsDropdownVisible(false);
 	};
 
-	const handleLogoutPress = () => {
-		console.log('Logout pressed');
+	const handleLogoutPress = async () => {
+		await logout();
 		router.push("/Login");
 		setIsDropdownVisible(false);
-
 	};
 
 	return (
@@ -225,17 +229,26 @@ const HeaderWithSearch: FC<HeaderProps> = ({title}) => {
 					{isDropdownVisible && (
 						<View style={styles.dropdown}>
 							{/* User info section */}
-							<View style={styles.userInfo}>
-								<View style={styles.userAvatar}>
-									<Text style={styles.userAvatarText}>
-										<MaterialIcons name="person" size={24} color="#1f1f1f"/>
-									</Text>
+							{user ? (
+								<>
+									<View style={styles.userInfo}>
+										<View style={styles.userAvatar}>
+											<Text style={styles.userAvatarText}>
+												{user.username.charAt(0).toUpperCase()}
+											</Text>
+										</View>
+										<View>
+											<Text style={styles.username}>{user.username}</Text>
+											<Text style={styles.userEmail}>{user.email}</Text>
+										</View>
+									</View>
+									<View style={styles.divider}/>
+								</>
+							) : (
+								<View style={{ padding: 12 }}>
+									<Text style={styles.username}>Not logged in</Text>
 								</View>
-								<View>
-									<Text style={styles.username}>Username</Text>
-									<Text style={styles.userEmail}>dummy@yy.zxed</Text>
-								</View>
-							</View>
+							)}
 
 							{/* Divider */}
 							<View style={styles.divider}/>

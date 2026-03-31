@@ -13,14 +13,16 @@ def get_user_profile(username):
     Fetches a specific user's public profile.
     """
 
-    user = db.get_user(username, filter=["email", "password_hash", "created_at", "updated_at"])
-    user_id = user["id"]
-    if not user_id:
-        return jsonify("User does not exist"), 404
+    user = db.get_user(username, filter=["email", "password_hash"])
+    if not user:
+        return jsonify({"message": "User does not exist"}), 404
 
+    user_id = user["id"]
     followed_by = db.get_followed_count(user_id)
     following_count = db.get_following_count(user_id)
-    activity = db.get_user_activity(user_id)
+
+    activity = db.get_user_activity(user_id) or []
+    favorites = db.get_user_favorites(user_id) or []
 
     if not followed_by:
         return jsonify("Failed to fetch followed users"), 500
@@ -31,7 +33,16 @@ def get_user_profile(username):
     if not activity:
         return jsonify("Failed to fetch activity"), 500
 
-    return jsonify(user=user, followed=followed_by, following=following_count, activity=activity), 200
+    if not favorites:
+        return jsonify("Failed to fetch user favorites"), 500
+
+    return jsonify({
+        "user": user,
+        "followers": followed_by,
+        "following": following_count,
+        "activity": activity,
+        "favorites": favorites
+    }), 200
 
 @users_bp.route('/<username>', methods=['DELETE'])
 @jwt_required()
@@ -109,20 +120,27 @@ def unfollow_user():
     return jsonify({"message": "Successfully unfollowed user"}), 200
 
 
-@users_bp.route('/<username>/favorites', methods=['GET'])
-def get_user_favorites(username):
+@users_bp.route('/<username>', methods=['PUT'])
+@jwt_required()
+def update_profile(username):
     """
-    Gets a user's favorite songs.
+
+    Update user profile. We'll just let them update bio because updating usernames opens up a whole can of worms
+
     """
-    user_id = db.get_user(username)["user_id"]
-    if not user_id:
-        return jsonify({"message": "Provided user does not exist"}), 401
+    current_user_identity = get_jwt_identity()
 
-    favorites = db.get_user_favorites(user_id)
-    if not favorites:
-        return jsonify({"message": "Failed to fetch favorites for user"}), 500
+    if current_user_identity != username:
+        return jsonify({"message": "Unauthorized"}), 403
 
-    return jsonify(username=username, favorites=favorites), 200
+    data = request.get_json()
+    user = db.get_user(username)
+
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+
+    db.update_user_bio(user["id"], data.get("bio", ""))
+    return jsonify({"message": "Profile updated successfully"}), 200
 
 @users_bp.route('/favorite/song', methods=['POST'])
 @jwt_required()

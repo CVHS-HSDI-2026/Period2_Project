@@ -48,7 +48,7 @@ def get_artist(mbid):
         app_db.create_artist(mb_artist)
         local_artist = app_db.get_artist_by_mbid(mbid)
 
-    artist_discography = mb_db.get_artist_by_mbid(mbid)
+    artist_discography = mb_db.get_artist_discography(mbid)
     albums = artist_discography.get('albums', []) if artist_discography else []
 
     return jsonify({

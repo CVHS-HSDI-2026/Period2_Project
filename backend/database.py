@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 # Todo: We should make a separate database class for the MusicBrainz DB to prevent confusion about which DB we're
 #  calling in the code.
 
@@ -152,8 +153,7 @@ class Database:
         except Exception as e:
             print(f"Failed to create song locally: {e}")
             return None
-    
-   
+
     # High-level validation should be done before calling this method
     # Make sure to calculate hash of password before passing user_data
     # Music data should be empty
@@ -174,11 +174,12 @@ class Database:
         :return: The id of the created user.
         :rtype: int
         """
-        self.cursor.execute("SELECT id FROM users WHERE username = %s OR email = %s", (user_data["username"], user_data["email"]))
+        self.cursor.execute("SELECT id FROM users WHERE username = %s OR email = %s",
+                            (user_data["username"], user_data["email"]))
         existing_user = self.cursor.fetchone()
         if existing_user:
             raise ValueError("Username or email already exists.")
-        
+
         self.cursor.execute(
             "INSERT INTO users (username, email, password_hash, bio, profile_pic_url) VALUES (%s, %s, %s, %s, %s) RETURNING id",
             (
@@ -191,7 +192,7 @@ class Database:
         )
 
         return self.cursor.fetchone()[0]
-    
+
     def delete_user(self, username: str) -> bool:
         """
         Delete a user from the database.
@@ -219,7 +220,8 @@ class Database:
         fetch_user = self.cursor.fetchone()
         if not fetch_user:
             return None
-        user_dict = dict(zip([desc[0] for desc in self.cursor.description], fetch_user)) # for those who dont understand, this turns the data into a dictionary
+        user_dict = dict(zip([desc[0] for desc in self.cursor.description],
+                             fetch_user))  # for those who dont understand, this turns the data into a dictionary
 
         if filter:
             for field in filter:
@@ -264,8 +266,6 @@ class Database:
         for reply in replies:
             list_replies.append(reply)
 
-
-
     def get_user_favorites(self, user_id: int) -> list[dict[str, Any]]:
         """
         Returns the favorite songs + the rank of the favorites for a given user.
@@ -285,18 +285,23 @@ class Database:
         return list_favorites
 
     def get_followed_count(self, followed_user_id: int) -> int:
-        self.cursor.execute("SELECT * FROM User_Follow WHERE followed_id = %s", (followed_user_id,))
-        count_followed = self.cursor.rowcount()
-        if not count_followed:
-            return -1
-        return count_followed
+        self.cursor.execute("SELECT COUNT(*) FROM User_Follow WHERE followed_id = %s", (followed_user_id,))
+        return self.cursor.fetchone()[0]
 
     def get_following_count(self, following_user_id: int) -> int:
-        self.cursor.execute("SELECT * FROM User_Follow WHERE following_id = %s", (following_user_id,))
-        count_following = self.cursor.rowcount()
-        if not count_following:
-            return -1
-        return count_following
+        self.cursor.execute("SELECT COUNT(*) FROM User_Follow WHERE following_id = %s", (following_user_id,))
+        return self.cursor.fetchone()[0]
+
+    def update_user_bio(self, user_id: int, bio: str) -> bool:
+        try:
+            self.cursor.execute(
+                "UPDATE Users SET bio = %s, updated_at = CURRENT_TIMESTAMP WHERE id = %s",
+                (bio, user_id)
+            )
+            return True
+        except Exception as e:
+            print(f"Failed to update bio: {e}")
+            return False
 
     def follow_user(self, follower_id: int, followed_id: int) -> bool:
         """
@@ -318,7 +323,7 @@ class Database:
         except Exception as e:
             print(f"Failed to follow user: {e}")
             return False
-    
+
     def unfollow_user(self, follower_id: int, followed_id: int) -> bool:
         """
         Make one user unfollow another user.
@@ -339,7 +344,7 @@ class Database:
         except Exception as e:
             print(f"Failed to unfollow user: {e}")
             return False
-        
+
     def favorite_song(self, user_id: int, song_id: int, rank: int) -> bool:
         """
         Add a song to the user's favorites.
@@ -362,7 +367,7 @@ class Database:
         except Exception as e:
             print(f"Failed to favorite song: {e}")
             return False
-    
+
     def unfavorite_song(self, user_id: int, song_id: int) -> bool:
         """
         Remove a song from the user's favorites.
@@ -383,7 +388,7 @@ class Database:
         except Exception as e:
             print(f"Failed to unfavorite song: {e}")
             return False
-        
+
     def create_review(self, user_id: int, song_id: int, album_id: int, rating: int, review_text: str) -> bool:
         """
         Create a review for a song or album.
@@ -446,23 +451,52 @@ class Database:
 
     def fetch_reviews(self, song_id: int = None, album_id: int = None) -> list[dict]:
         """
-        Fetches all reviews for a song or album.
+        Fetches all reviews for a song or album, including their nested replies.
         """
+        reviews = []
+
         if song_id:
             self.cursor.execute(
-                "SELECT * FROM Review INNER JOIN Users ON Review.user_id = Users.id WHERE song_id = %s",
+                """SELECT r.id, r.user_id, r.rating, r.review_text, r.created_at, u.username 
+                   FROM Review r 
+                   INNER JOIN Users u ON r.user_id = u.id 
+                   WHERE r.song_id = %s 
+                   ORDER BY r.created_at DESC""",
                 (song_id,)
             )
-            return [dict(row) for row in self.cursor.fetchall()]
-
+            reviews = [dict(row) for row in self.cursor.fetchall()]
         elif album_id:
             self.cursor.execute(
-                "SELECT * FROM Review INNER JOIN Users ON Review.user_id = Users.id WHERE album_id = %s",
+                """SELECT r.id, r.user_id, r.rating, r.review_text, r.created_at, u.username 
+                   FROM Review r 
+                   INNER JOIN Users u ON r.user_id = u.id 
+                   WHERE r.album_id = %s 
+                   ORDER BY r.created_at DESC""",
                 (album_id,)
             )
-            return [dict(row) for row in self.cursor.fetchall()]
+            reviews = [dict(row) for row in self.cursor.fetchall()]
+        else:
+            raise Exception("Invalid request: Must provide either song_id or album_id")
 
-        raise Exception("Invalid request: Must provide either song_id or album_id")
+        if not reviews:
+            return []
+
+        review_ids = tuple(r['id'] for r in reviews)
+
+        self.cursor.execute(
+            """SELECT rep.id, rep.review_id, rep.content AS text, u.username, rep.created_at 
+               FROM Reply rep 
+               INNER JOIN Users u ON rep.user_id = u.id 
+               WHERE rep.review_id IN %s 
+               ORDER BY rep.created_at ASC""",
+            (review_ids,)
+        )
+        replies = [dict(row) for row in self.cursor.fetchall()]
+
+        for review in reviews:
+            review['replies'] = [rep for rep in replies if rep['review_id'] == review['id']]
+
+        return reviews
 
     def delete_review(self, review_id: int) -> bool:
         """
@@ -479,7 +513,7 @@ class Database:
         except Exception as e:
             print(f"Failed to delete review: {e}")
             return False
-        
+
     def reply(self, review_id: int, user_id: int, content: str) -> bool:
         """
         Reply to a review.
@@ -500,7 +534,7 @@ class Database:
         except Exception as e:
             print(f"Failed to reply to review: {e}")
             return False
-        
+
     def close(self):
         """
         Close the database connection.
@@ -549,11 +583,11 @@ if __name__ == "__main__":
         print(f"User created with id: {user_id}")
     except ValueError as e:
         print(f"Error creating user: {e}")
-    
+
     print("Getting user")
     user = db.get_user("testuser", filter=[])
     print(user)
-    user = db.get_user("testuser", filter=["email","username"])
+    user = db.get_user("testuser", filter=["email", "username"])
     print(user)
     user_input = input("Press Enter to delete the test user... Type n to skip")
     if user_input.lower() != 'n':
