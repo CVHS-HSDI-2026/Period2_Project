@@ -9,7 +9,7 @@ export type LoginRecord = {
 	password: string;
 }
 
-export interface Song {
+export interface SongRecord {
 	id: number;
 	title: string;
 	artist: string;

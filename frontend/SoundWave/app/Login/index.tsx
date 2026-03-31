@@ -12,9 +12,11 @@ import {useRouter} from "expo-router";
 import {Image} from 'react-native';
 import {LoginRecord} from "@/services/records";
 import {login} from "@/services/api";
+import { useAuth } from "@/context/context";
 
 export default function Login() {
 	const router = useRouter();
+	const { setUser } = useAuth();
 
 	const [emailOrUsername, setEmailOrUsername] = useState("");
 	const [password, setPassword] = useState("");
@@ -45,6 +47,7 @@ export default function Login() {
 
 			login(login_attempt).then(r => {
 				if (r) {
+					setUser(r);
 					router.push("/");
 				} else {
 					setError("Login failed");

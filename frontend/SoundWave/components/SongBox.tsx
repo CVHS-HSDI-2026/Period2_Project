@@ -3,11 +3,11 @@ import {View, Text, StyleSheet, TouchableOpacity, ScrollView} from "react-native
 import {useFonts, Jost_400Regular} from "@expo-google-fonts/jost";
 import RecommendedBox from "./RecomendedBox";
 import CommentsOnly from "./CommentsOnly";
-import {Song} from "@/services/records";
+import {SongRecord} from "@/services/records";
 
 type Tab = "comments" | "recomended";
 
-export default function SongBox({song}: { song: Song }) {
+export default function SongBox({song}: { song: SongRecord }) {
 	const [activeTab, setActiveTab] = useState<Tab>("comments");
 	const [fontsLoaded] = useFonts({Jost_400Regular});
 	if (!fontsLoaded) return null;
