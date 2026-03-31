@@ -6,77 +6,68 @@ import bcrypt
 auth_bp = Blueprint('auth', __name__)
 db = Database()
 
+
 @auth_bp.route('/register', methods=['POST'])
 def register():
-    """
-    Registers a new user.
-
-    User form data:
-    {
-        "username": "string",
-        "email": "string",
-        "password": "string",
-        "bio": "string",
-        "profile_pic_url": "string"
-    }
-    """
     data = request.get_json()
-    user_data = {}
-    if not data["username"]:
-        return jsonify({"message": "Missing username"}), 400
-    else:
-        user_data["username"] = data["username"]
 
-    if not data["email"]:
-        return jsonify({"message": "Missing email"}), 400
-    else:
-        user_data['email'] = data['email']
+    username = data.get("username")
+    email = data.get("email")
+    password = data.get("password")
 
-    if not data["password"]:
-        return jsonify({"message": "Missing password"}), 400
-    else:
-        user_data['password_hash'] = hash_password(data["password"].encode('utf-8'), bcrypt.gensalt(rounds=12))
+    if not username or not email or not password:
+        return jsonify({"message": "Missing required fields"}), 400
 
-    if not data["bio"]:
-        user_data["bio"] = ""
-    else:
-        user_data["bio"] = data["bio"]
+    hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(rounds=12)).decode('utf-8')
 
-    if not data["profile_pic_url"]:
-        user_data["profile_pic_url"] = ""
-    else:
-        user_data["profile_pic_url"] = data["profile_pic_url"]
+    user_data = {
+        "username": username,
+        "email": email,
+        "password_hash": hashed_pw,
+        "bio": data.get("bio", ""),
+        "profile_pic_url": data.get("profile_pic_url", "")
+    }
 
     try:
         db.create_user(user_data)
+        return jsonify({"message": "User created successfully"}), 201
     except ValueError:
-        return jsonify({"message": "Current username/email already exists"}), 400
+        return jsonify({"message": "Username or email already exists"}), 400
     except Exception as e:
-        return jsonify({"message": "Gateway internal error"}), 500
-    return jsonify({"message": "User created successfully"}), 201
+        print(f"Register Error: {e}")
+        return jsonify({"message": "Internal server error"}), 500
+
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
-    """
-    Logs in an existing user.
-    """
     data = request.get_json()
-    username = data["username"]
-    password = data["password"]
+    login_id = data.get("username")
+    password = data.get("password")
 
-    user = db.get_user(username, filter=[])
+    if not login_id or not password:
+        return jsonify({"message": "Missing credentials"}), 400
+
+    user = db.get_user(login_id, filter=[])
     if not user:
-        return jsonify({"message": "Invalid user credentials"}), 401
-    password_hash = bytes.fromhex(user["password_hash"].replace("\\x",""))
+        # dumb check by email if we can't find the user by username
+        db.cursor.execute("SELECT * FROM users WHERE email = %s", (login_id,))
+        row = db.cursor.fetchone()
+        if not row:
+            return jsonify({"message": "Invalid credentials"}), 401
+        user = dict(zip([desc[0] for desc in db.cursor.description], row))
 
-    if not bcrypt.checkpw(password.encode('utf-8'), password_hash):
+    stored_hash = user["password_hash"].encode('utf-8')
+    if not bcrypt.checkpw(password.encode('utf-8'), stored_hash):
         return jsonify({"message": "Invalid credentials"}), 401
 
-    sanitized_user = db.get_user(username, filter=["password_hash"])
-    response = jsonify({"message": "Login Successful", "user": sanitized_user})
-    access_token = create_access_token(identity=username)
-    set_access_cookies(response, access_token)
-    return response, 200
+    access_token = create_access_token(identity=user["username"])
+    sanitized_user = db.get_user(user["username"], filter=["password_hash"])
+
+    return jsonify({
+        "message": "Login Successful",
+        "user": sanitized_user,
+        "token": access_token
+    }), 200
 
 
 @auth_bp.route('/logout', methods=['POST'])

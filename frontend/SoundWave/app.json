@@ -26,6 +26,9 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "scheme": "soundwave"
+    "scheme": "soundwave",
+    "plugins": [
+      "expo-secure-store"
+    ]
   }
 }

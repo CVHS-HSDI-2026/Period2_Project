@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
-import { Song } from "@/app/Song";
+import { Song } from "@/services/records";
+import { FontAwesome } from "@expo/vector-icons";
+import { favoriteSong } from "@/services/api";
 
 const formatTime = (ms: number | string) => {
 	const numMs = Number(ms);
@@ -15,8 +17,19 @@ const formatTime = (ms: number | string) => {
 const SongDetails: React.FC<{ song: Song }> = ({ song }) => {
 	const router = useRouter();
 	const [imageFailed, setImageFailed] = useState(false);
+	const [isFavorited, setIsFavorited] = useState(false);
 
 	if (!song) return null;
+
+	const handleFavorite = async () => {
+		try {
+			await favoriteSong(song.id, 1); // todo: implement queue so we pushback old songs
+			setIsFavorited(true);
+			alert("Added to favorites!");
+		} catch (e) {
+			alert("Please log in to favorite songs.");
+		}
+	};
 
 	return (
 		<View style={styles.outerContainer}>
@@ -56,6 +69,13 @@ const SongDetails: React.FC<{ song: Song }> = ({ song }) => {
 						</Text>
 
 						<Text style={styles.text}><Text style={styles.label}>Year: </Text>{song.year}</Text>
+
+						<View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+							<Text style={styles.text}><Text style={styles.label}>Title: </Text>{song.title}</Text>
+							<TouchableOpacity onPress={handleFavorite}>
+								<FontAwesome name={isFavorited ? "heart" : "heart-o"} size={22} color={isFavorited ? "#ff3b3b" : "#FFFFFF"} />
+							</TouchableOpacity>
+						</View>
 					</View>
 
 					<View style={styles.column}>

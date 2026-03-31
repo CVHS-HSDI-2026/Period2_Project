@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {View, Text, StyleSheet, TouchableOpacity, ScrollView} from "react-native";
 import {useFonts, Jost_400Regular} from "@expo-google-fonts/jost";
-import Commentsonly from "./Commentsonly";
+import CommentsOnly from "./CommentsOnly";
 import RecommendedBox from "./RecomendedBox";
 import TracksBox from "./TracksBox";
 import {Album} from "@/app/Album";
@@ -31,7 +31,7 @@ export default function AlbumBox({album}: { album: Album }) {
 
 			<View style={styles.contentBox}>
 				<ScrollView showsVerticalScrollIndicator={false}>
-					{activeTab === "comments" && <Commentsonly/>}
+					{activeTab === "comments" && <CommentsOnly/>}
 					{activeTab === "recomended" && <RecommendedBox/>}
 					{activeTab === "tracks" && <TracksBox album={album}/>}
 				</ScrollView>
