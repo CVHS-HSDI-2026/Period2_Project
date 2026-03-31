@@ -23,17 +23,9 @@ export default function App() {
 
 				<ScrollView horizontal showsHorizontalScrollIndicator={false}
 							contentContainerStyle={styles.horizontalContent}>
-					{Array.from({length: 10}).map((_, i) => (
-						<SongCard
-							key={`popular-${i}`}
-							//variant="popular"
-							title="Title"
-							artist="Artist"
-							rating={7}
-							commentsCount={1284}
-							onPress={() => router.push("Song")}
-						/>
-					))}
+					<View style={styles.horizontalContent}>
+						<Text style={{ color: "#A0A0B0", fontSize: 16 }}>Trending music will appear here soon.</Text>
+					</View>
 				</ScrollView>
 
 				{/* ================= New Releases ================= */}
@@ -44,17 +36,9 @@ export default function App() {
 					showsHorizontalScrollIndicator={false}
 					contentContainerStyle={styles.horizontalContent}
 				>
-					{Array.from({length: 10}).map((_, i) => (
-						<SongCard
-							key={`new-${i}`}
-							//variant="new"
-							title="Title"
-							artist="Artist"
-							rating={9}
-							releaseDate="02/06"
-							onPress={() => router.push("Song")}
-						/>
-					))}
+					<View style={styles.horizontalContent}>
+						<Text style={{ color: "#A0A0B0", fontSize: 16 }}>New releases will appear here soon.</Text>
+					</View>
 				</ScrollView>
 			</ScrollView>
 		</View>

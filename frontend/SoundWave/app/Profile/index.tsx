@@ -211,17 +211,9 @@ export default function Profile() {
 				<ScrollView horizontal showsHorizontalScrollIndicator={false}
 							contentContainerStyle={styles.horizontalContent}>
 					{/* todo: fix when we have favorite albums */}
-					{Array.from({length: 10}).map((_, i) => (
-						<SongCard
-							key={`album-${i}`}
-							variant="popular"
-							title="Title"
-							artist="Artist"
-							rating={8}
-							commentsCount={12}
-							onPress={() => router.push("./Song")}
-						/>
-					))}
+					<View style={styles.horizontalContent}>
+						<Text style={styles.biotext}>Feature coming soon.</Text>
+					</View>
 				</ScrollView>
 
 				<Text style={styles.sectionTitle}>Top Artists:</Text>
@@ -229,17 +221,9 @@ export default function Profile() {
 				<ScrollView horizontal showsHorizontalScrollIndicator={false}
 							contentContainerStyle={styles.horizontalContent}>
 					{/* todo: fix when we have favorite artists */}
-					{Array.from({length: 10}).map((_, i) => (
-						<ArtistCard
-							key={`artist-${i}`}
-							variant="popular"
-							title="Username"
-							artist="Artist"
-							rating={8}
-							commentsCount={1278}
-							onPress={() => router.push("./Artist")}
-						/>
-					))}
+					<View style={styles.horizontalContent}>
+						<Text style={styles.biotext}>Feature coming soon.</Text>
+					</View>
 				</ScrollView>
 
 				<Text style={styles.sectionTitle}>Recommended Users:</Text>
@@ -247,22 +231,9 @@ export default function Profile() {
 				<ScrollView horizontal showsHorizontalScrollIndicator={false}
 							contentContainerStyle={styles.horizontalContent}>
 					{/* i forgot how this worked...will check back on this */}
-					{Array.from({length: 10}).map((_, i) => (
-						<ArtistCard
-							key={`rec-${i}`}
-							variant="popular"
-							title="Username"
-							artist="Artist"
-							rating={8}
-							commentsCount={12}
-							onPress={() =>
-								router.push({
-									pathname: "./Profile",
-									params: {isOwner: "false"}
-								})
-							}
-						/>
-					))}
+					<View style={styles.horizontalContent}>
+						<Text style={styles.biotext}>Feature coming soon.</Text>
+					</View>
 				</ScrollView>
 
 			</ScrollView>
@@ -293,11 +264,13 @@ const styles = StyleSheet.create({
 		height: 200,
 		borderRadius: 100,
 		backgroundColor: '#ffffff20',
+		justifyContent: "center",
+		alignItems: "center",
 	},
 	initialsText: {
 		color: '#FFF',
 		fontSize: 48,
-		fontFamily: 'Jost_700Bold'
+		fontFamily: 'Jost_700Bold',
 	},
 	profileRight: {
 		width: '65%',

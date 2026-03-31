@@ -24,18 +24,6 @@ def get_user_profile(username):
     activity = db.get_user_activity(user_id) or []
     favorites = db.get_user_favorites(user_id) or []
 
-    if not followed_by:
-        return jsonify("Failed to fetch followed users"), 500
-
-    if not following_count:
-        return jsonify("Failed to fetch following users"), 500
-
-    if not activity:
-        return jsonify("Failed to fetch activity"), 500
-
-    if not favorites:
-        return jsonify("Failed to fetch user favorites"), 500
-
     return jsonify({
         "user": user,
         "followers": followed_by,

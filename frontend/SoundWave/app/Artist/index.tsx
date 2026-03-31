@@ -5,7 +5,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { useFonts, Jost_400Regular, Jost_500Medium, Jost_700Bold } from '@expo-google-fonts/jost';
 import SongCard from "../../components/SongCard";
 import {fetchArtistDetails} from "@/services/api";
-import ArtistCard from "@components/ArtistCard";
+import ArtistCard, {stringToColor} from "@components/ArtistCard";
 
 export default function Artist() {
 	const router = useRouter();
@@ -66,7 +66,7 @@ export default function Artist() {
 				{/* profile stats */}
 				<View style={styles.profileSection}>
 					<View style={styles.profileLeft}>
-						<View style={styles.avatarPlaceholder}>
+						<View style={[styles.avatarPlaceholder, { backgroundColor: stringToColor(artist.name) }]}>
 							<Text style={styles.initialsText}>
 								{artist.name.substring(0, 2).toUpperCase()}
 							</Text>
@@ -97,6 +97,14 @@ export default function Artist() {
 				<Text style={styles.sectionTitle}>Top Songs:</Text>
 				<ScrollView horizontal showsHorizontalScrollIndicator={false}
 							contentContainerStyle={styles.horizontalContent}>
+					<View style={styles.horizontalContent}>
+						<Text style={styles.biotext}>Feature coming soon.</Text>
+					</View>
+				</ScrollView>
+				{/* top albums */}
+				<Text style={styles.sectionTitle}>Top Albums:</Text>
+				<ScrollView horizontal showsHorizontalScrollIndicator={false}
+							contentContainerStyle={styles.horizontalContent}>
 					{albums && albums.length > 0 ? (
 						albums.map((album: any, i: number) => (
 							<SongCard
@@ -114,53 +122,21 @@ export default function Artist() {
 						<Text style={styles.biotext}>No albums found.</Text>
 					)}
 				</ScrollView>
-				{/* top albums */}
-				<Text style={styles.sectionTitle}>Top Albums:</Text>
-				<ScrollView horizontal showsHorizontalScrollIndicator={false}
-							contentContainerStyle={styles.horizontalContent}>
-					{Array.from({length: 10}).map((_, i) => (
-						<SongCard
-							key={`song-${i}`}
-							variant="popular"
-							title="Title"
-							artist="Artist"
-							rating={8}
-							commentsCount={12}
-							onPress={() => router.push("./Song")}
-						/>
-					))}
-				</ScrollView>
 				{/* top artists */}
 				<Text style={styles.sectionTitle}>Related Artists:</Text>
 				<ScrollView horizontal showsHorizontalScrollIndicator={false}
 							contentContainerStyle={styles.horizontalContent}>
-					{Array.from({length: 10}).map((_, i) => (
-						<ArtistCard
-							key={`song-${i}`}
-							variant="popular"
-							title="Username"
-							artist="Artist"
-							rating={8}
-							commentsCount={1278}
-							onPress={() => router.push("./Song")}
-						/>
-					))}
+					<View style={styles.horizontalContent}>
+						<Text style={styles.biotext}>Feature coming soon.</Text>
+					</View>
 				</ScrollView>
 				{/* recommended users */}
 				<Text style={styles.sectionTitle}>Recommended Users:</Text>
 				<ScrollView horizontal showsHorizontalScrollIndicator={false}
 							contentContainerStyle={styles.horizontalContent}>
-					{Array.from({length: 10}).map((_, i) => (
-						<ArtistCard
-							key={`song-${i}`}
-							variant="popular"
-							title="Username"
-							artist="Artist"
-							rating={8}
-							commentsCount={12}
-							onPress={() => router.push("./Song")}
-						/>
-					))}
+					<View style={styles.horizontalContent}>
+						<Text style={styles.biotext}>Feature coming soon.</Text>
+					</View>
 				</ScrollView>
 			</ScrollView>
 		</View>
@@ -194,11 +170,13 @@ const styles = StyleSheet.create({
 		borderRadius: 100,
 		backgroundColor: '#ffffff20',
 		marginLeft: 150,
+		justifyContent: "center",
+		alignItems: "center",
 	},
 	initialsText: {
 		color: '#FFF',
 		fontSize: 48,
-		fontFamily: 'Jost_700Bold'
+		fontFamily: 'Jost_700Bold',
 	},
 	profileRight: {
 		width: '65%',

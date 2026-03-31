@@ -289,7 +289,7 @@ class Database:
         return self.cursor.fetchone()[0]
 
     def get_following_count(self, following_user_id: int) -> int:
-        self.cursor.execute("SELECT COUNT(*) FROM User_Follow WHERE following_id = %s", (following_user_id,))
+        self.cursor.execute("SELECT COUNT(*) FROM User_Follow WHERE follower_id = %s", (following_user_id,))
         return self.cursor.fetchone()[0]
 
     def update_user_bio(self, user_id: int, bio: str) -> bool:

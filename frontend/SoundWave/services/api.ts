@@ -34,14 +34,16 @@ export const login = async (loginData: LoginRecord) => {
 		});
 
 		const data = await response.json();
-		if (!response.ok) throw new Error(data.message || "Login failed");
+		if (!response.ok) {
+			throw new Error(data.message || "Login failed");
+		}
 
 		if (data.token) {
 			await setStorageItemAsync('userToken', data.token);
 			await setStorageItemAsync('userData', JSON.stringify(data.user));
 		}
 
-		return true;
+		return data.user;
 	} catch (error) {
 		console.error('API Error (logging in):', error);
 		throw error;
