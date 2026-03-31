@@ -22,10 +22,18 @@ export default function CommentsOnly({songId}: { songId: number }) {
 
 	useEffect(() => {
 		const loadReviews = async () => {
-			if (!songId) return;
-			const data = await fetchSongReviews(songId);
-			setComments(data);
-			setLoading(false);
+			if (!songId) {
+				setLoading(false);
+				return;
+			}
+			try {
+				const data = await fetchSongReviews(songId);
+				setComments(data || []);
+			} catch (error) {
+				console.error("Error loading reviews:", error);
+			} finally {
+				setLoading(false);
+			}
 		};
 		loadReviews();
 	}, [songId]);

@@ -1,10 +1,10 @@
-import * as SecureStore from 'expo-secure-store';
+import { getStorageItemAsync, setStorageItemAsync } from '@/context/storage';
 import { LoginRecord, SignupRecord } from "@/services/records";
 // todo: use Expo's env vars for this in production; smth like process.env.EXPO_PUBLIC_API_URL
 const BASE_URL = 'http://localhost:5000';
 
 export const getAuthToken = async () => {
-	return await SecureStore.getItemAsync('userToken');
+	return await getStorageItemAsync('userToken');
 }
 
 export const signUp = async (signup: SignupRecord) => {
@@ -37,8 +37,8 @@ export const login = async (loginData: LoginRecord) => {
 		if (!response.ok) throw new Error(data.message || "Login failed");
 
 		if (data.token) {
-			await SecureStore.setItemAsync('userToken', data.token);
-			await SecureStore.setItemAsync('userData', JSON.stringify(data.user));
+			await setStorageItemAsync('userToken', data.token);
+			await setStorageItemAsync('userData', JSON.stringify(data.user));
 		}
 
 		return true;
