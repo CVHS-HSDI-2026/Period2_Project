@@ -101,14 +101,10 @@ export default function Artist() {
 							<View style={styles.column}>
 							</View>
 						</View>
-						<Text style={styles.titleBioText}>Bio:</Text>
-						<Text style={styles.biotext}>
-							{artist.disambiguation ? `Known for: ${artist.disambiguation}. ` : ''}
-							For more info, check out their profile on MusicBrainz: {artist.mbid}.
-						</Text>
 						<View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
 							<Text style={[styles.titleBioText, {flex: 1, marginRight: 10}]} numberOfLines={2}>
 								<Text style={styles.titleBioText}>Bio:</Text>
+								<br/>
 								<Text style={styles.biotext}>
 									{artist.disambiguation ? `Known for: ${artist.disambiguation}. ` : ''}
 									For more info, check out their profile on MusicBrainz: {artist.mbid}.

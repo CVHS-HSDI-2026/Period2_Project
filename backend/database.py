@@ -8,7 +8,7 @@ import os
 from typing import Any
 from dotenv import load_dotenv
 
-from backend.musicbrainz import MusicBrainzDatabase
+from musicbrainz import MusicBrainzDatabase
 
 load_dotenv()
 mb_db = MusicBrainzDatabase()
