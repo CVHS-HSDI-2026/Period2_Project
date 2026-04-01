@@ -1,50 +1,50 @@
 import React from "react";
-import { StyleSheet, Text, View, ScrollView } from "react-native";
-import { useRouter } from "expo-router";
+import {StyleSheet, Text, View, ScrollView} from "react-native";
+import {useRouter} from "expo-router";
 
 import HeaderWithSearch from "../components/HeaderWithSearch";
 import SongCard from "../components/SongCard";
 
 // homepage
 export default function App() {
-  const router = useRouter();
-  
-  React.useEffect(() => {
-    console.log("HOME PAGE LOADED");
-  }, []);
+	const router = useRouter();
 
-  return (
-    <View style={styles.container}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.horizontalContent}
-        >
-          {Array.from({ length: 10 }).map((_, i) => (
-            <SongCard
-              key={`popular-${i}`}
-              title="Title"
-              artist="Artist"
-              rating={7}
-              commentsCount={1284}
-              onPress={() => router.push("Song")}
-            />
-          ))}
-        </ScrollView>
-    </View>
-  );
+	React.useEffect(() => {
+		console.log("HOME PAGE LOADED");
+	}, []);
+
+	return (
+		<View style={styles.container}>
+			<ScrollView
+				horizontal
+				showsHorizontalScrollIndicator={false}
+				contentContainerStyle={styles.horizontalContent}
+			>
+				{Array.from({length: 10}).map((_, i) => (
+					<SongCard
+						key={`popular-${i}`}
+						title="Title"
+						artist="Artist"
+						rating={7}
+						commentsCount={1284}
+						onPress={() => router.push("Song")}
+					/>
+				))}
+			</ScrollView>
+		</View>
+	);
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#14172B",
-  },
+	container: {
+		flex: 1,
+		backgroundColor: "#14172B",
+	},
 
-  horizontalContent: {
-    flexDirection: "row",
-    gap: 24,
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-  },
+	horizontalContent: {
+		flexDirection: "row",
+		gap: 24,
+		paddingVertical: 20,
+		paddingHorizontal: 20,
+	},
 });

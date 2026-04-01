@@ -7,6 +7,7 @@ from routes import auth
 users_bp = Blueprint('users', __name__)
 db = Database()
 
+
 @users_bp.route('/<username>', methods=['GET'])
 def get_user_profile(username):
     """
@@ -36,6 +37,7 @@ def get_user_profile(username):
         "favorite_artists": favorite_artists,
     }), 200
 
+
 @users_bp.route('/<username>', methods=['DELETE'])
 @jwt_required()
 def delete_user(username):
@@ -57,6 +59,7 @@ def delete_user(username):
         auth.logout()
 
     return jsonify({"message": "Successfully deleted user"}), 200
+
 
 @users_bp.route('/follow', methods=['POST'])
 @jwt_required()
@@ -84,6 +87,7 @@ def follow_user():
 
     db.follow_user(follower_id, followed_id)
     return jsonify({"message": "Successfully followed user"}), 200
+
 
 @users_bp.route('/unfollow', methods=['POST'])
 @jwt_required()
@@ -134,6 +138,7 @@ def update_profile(username):
     db.update_user_bio(user["id"], data.get("bio", ""))
     return jsonify({"message": "Profile updated successfully"}), 200
 
+
 @users_bp.route('/favorite/song', methods=['POST'])
 @jwt_required()
 def add_favorite_song():
@@ -172,6 +177,7 @@ def add_favorite_song():
         return jsonify({"message": "Failed to favorite song"}), 500
     else:
         return jsonify({"message": "Successfully favorite song"}, song_id=song_id), 200
+
 
 @users_bp.route('/favorite/song', methods=['DELETE'])
 @jwt_required()
@@ -212,6 +218,7 @@ def remove_favorite_song():
     else:
         return jsonify({"message": "Successfully unfavorited song"}, song_id=song_id), 200
 
+
 @users_bp.route('/favorite/album', methods=['POST'])
 @jwt_required()
 def add_favorite_album():
@@ -227,6 +234,7 @@ def add_favorite_album():
     if not success:
         return jsonify({"message": "Failed to favorite album"}), 500
     return jsonify({"message": "Successfully favorited album"}), 200
+
 
 @users_bp.route('/favorite/album', methods=['DELETE'])
 @jwt_required()
@@ -244,6 +252,7 @@ def remove_favorite_album():
         return jsonify({"message": "Failed to unfavorite album"}), 500
     return jsonify({"message": "Successfully unfavorited album"}), 200
 
+
 @users_bp.route('/favorite/artist', methods=['POST'])
 @jwt_required()
 def add_favorite_artist():
@@ -259,6 +268,7 @@ def add_favorite_artist():
     if not success:
         return jsonify({"message": "Failed to favorite artist"}), 500
     return jsonify({"message": "Successfully favorited artist"}), 200
+
 
 @users_bp.route('/favorite/artist', methods=['DELETE'])
 @jwt_required()

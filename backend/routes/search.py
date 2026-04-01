@@ -5,6 +5,7 @@ from musicbrainz import MusicBrainzDatabase
 search_bp = Blueprint('search', __name__)
 db = Database()
 
+
 @search_bp.route('/users', methods=['GET'])
 def search_users():
     """

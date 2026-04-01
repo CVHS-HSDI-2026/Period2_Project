@@ -70,7 +70,6 @@ class MusicBrainzDatabase:
 
         def search_albums():
             try:
-                # We search 'release-group' which represents an Album in MusicBrainz
                 res = requests.get(f"{SOLR_BASE_URL}/release-group/select",
                                    params={"q": query, "rows": limit, "wt": "json"})
                 docs = res.json().get("response", {}).get("docs", [])
@@ -120,7 +119,7 @@ class MusicBrainzDatabase:
                             "title": title.text if title is not None else "Unknown Song",
                             "duration": int(length.text) if length is not None and length.text else None,
                             "artist_name": artist.text if artist is not None else "Unknown Artist",
-                            "cover_url": None  # Let your React Native UI fall back to the initials box
+                            "cover_url": None
                         })
                 return results
             except Exception as e:

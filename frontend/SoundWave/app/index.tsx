@@ -4,7 +4,7 @@ import {useRouter} from "expo-router";
 
 import HeaderWithSearch from "../components/HeaderWithSearch";
 import SongCard from "../components/SongCard";
-import { fetchPopular, fetchNewReleases } from "@/services/api";
+import {fetchPopular, fetchNewReleases} from "@/services/api";
 
 // homepage
 export default function App() {
@@ -53,7 +53,7 @@ export default function App() {
 								artist={music.artist || "Unknown Artist"} // Mapped from SQL query
 								rating={music.rating} // Dynamically calculated average rating!
 								commentsCount={music.review_count} // Total number of reviews!
-								onPress={() => router.push({ pathname: "/Song", params: { mbid: music.mbid } })}
+								onPress={() => router.push({pathname: "/Song", params: {mbid: music.mbid}})}
 							/>
 						))
 					) : (
@@ -78,7 +78,7 @@ export default function App() {
 								artist={music.artist || "Unknown Artist"}
 								rating={music.rating}
 								commentsCount={music.review_count}
-								onPress={() => router.push({ pathname: "/Song", params: { mbid: music.mbid } })}
+								onPress={() => router.push({pathname: "/Song", params: {mbid: music.mbid}})}
 							/>
 						))
 					) : (

@@ -1,7 +1,7 @@
 import {router} from "expo-router";
 import React, {FC, useState} from "react";
 import {View, Text, StyleSheet, Pressable, ImageSourcePropType, TouchableOpacity,} from "react-native";
-import { Image } from 'expo-image';
+import {Image} from 'expo-image';
 
 const chatbubble = require("../assets/speech-bubble.png");
 /* ---------- Helpers ---------- */

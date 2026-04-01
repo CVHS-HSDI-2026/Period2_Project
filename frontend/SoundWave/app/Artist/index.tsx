@@ -1,8 +1,8 @@
 import {StyleSheet, Text, View, ActivityIndicator, ScrollView, TouchableOpacity} from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import HeaderWithSearch from "../../components/HeaderWithSearch";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import { useFonts, Jost_400Regular, Jost_500Medium, Jost_700Bold } from '@expo-google-fonts/jost';
+import {useRouter, useLocalSearchParams} from "expo-router";
+import {useFonts, Jost_400Regular, Jost_500Medium, Jost_700Bold} from '@expo-google-fonts/jost';
 import SongCard from "../../components/SongCard";
 import {favoriteArtist, fetchArtistDetails, unfavoriteArtist} from "@/services/api";
 import ArtistCard, {stringToColor} from "@components/ArtistCard";
@@ -10,7 +10,7 @@ import {FontAwesome} from "@expo/vector-icons";
 
 export default function Artist() {
 	const router = useRouter();
-	const { mbid } = useLocalSearchParams<{ mbid: string }>();
+	const {mbid} = useLocalSearchParams<{ mbid: string }>();
 	const [isFavorited, setIsFavorited] = useState(false);
 
 	const [fontsLoaded] = useFonts({Jost_400Regular, Jost_500Medium, Jost_700Bold});
@@ -50,28 +50,28 @@ export default function Artist() {
 
 	if (loading) {
 		return (
-			<View style={[styles.container, { justifyContent: 'center' }]}>
-				<ActivityIndicator size="large" color="#C6B3E8" />
+			<View style={[styles.container, {justifyContent: 'center'}]}>
+				<ActivityIndicator size="large" color="#C6B3E8"/>
 			</View>
 		);
 	}
 
 	if (!artistData || !artistData.artist) {
 		return (
-			<View style={[styles.container, { justifyContent: 'center' }]}>
+			<View style={[styles.container, {justifyContent: 'center'}]}>
 				<Text style={styles.columnText}>Artist not found.</Text>
 			</View>
 		);
 	}
 
-	const { artist, albums } = artistData;
+	const {artist, albums} = artistData;
 
 	// idk what colone is supposed to mean but i'll keep it
 	const colone = [
-		{ columnName: 'Artist:', value: artist.name },
-		{ columnName: 'Born/Formed:', value: artist.born ? new Date(artist.born).getFullYear() : 'Unknown' },
-		{ columnName: 'Type:', value: artist.disambiguation || 'Musician' },
-		{ columnName: '# Followers:', value: '0' }, // todo: wire to user db
+		{columnName: 'Artist:', value: artist.name},
+		{columnName: 'Born/Formed:', value: artist.born ? new Date(artist.born).getFullYear() : 'Unknown'},
+		{columnName: 'Type:', value: artist.disambiguation || 'Musician'},
+		{columnName: '# Followers:', value: '0'}, // todo: wire to user db
 	];
 
 	return (
@@ -82,7 +82,7 @@ export default function Artist() {
 				{/* profile stats */}
 				<View style={styles.profileSection}>
 					<View style={styles.profileLeft}>
-						<View style={[styles.avatarPlaceholder, { backgroundColor: stringToColor(artist.name) }]}>
+						<View style={[styles.avatarPlaceholder, {backgroundColor: stringToColor(artist.name)}]}>
 							<Text style={styles.initialsText}>
 								{artist.name.substring(0, 2).toUpperCase()}
 							</Text>
@@ -106,8 +106,8 @@ export default function Artist() {
 							{artist.disambiguation ? `Known for: ${artist.disambiguation}. ` : ''}
 							For more info, check out their profile on MusicBrainz: {artist.mbid}.
 						</Text>
-						<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-							<Text style={[styles.titleBioText, { flex: 1, marginRight: 10 }]} numberOfLines={2}>
+						<View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+							<Text style={[styles.titleBioText, {flex: 1, marginRight: 10}]} numberOfLines={2}>
 								<Text style={styles.titleBioText}>Bio:</Text>
 								<Text style={styles.biotext}>
 									{artist.disambiguation ? `Known for: ${artist.disambiguation}. ` : ''}
@@ -115,7 +115,7 @@ export default function Artist() {
 								</Text>
 							</Text>
 
-							<TouchableOpacity onPress={handleToggleFavorite} style={{ padding: 4 }}>
+							<TouchableOpacity onPress={handleToggleFavorite} style={{padding: 4}}>
 								<FontAwesome
 									name={isFavorited ? "heart" : "heart-o"}
 									size={24}
@@ -145,10 +145,10 @@ export default function Artist() {
 								variant="popular"
 								title={album.title}
 								artist={artist.name}
-								image={{ uri: album.cover_url }}
+								image={{uri: album.cover_url}}
 								rating={album.rating}
 								commentsCount={0}
-								onPress={() => router.push({ pathname: "/Album", params: { mbid: album.mbid } })}
+								onPress={() => router.push({pathname: "/Album", params: {mbid: album.mbid}})}
 							/>
 						))
 					) : (

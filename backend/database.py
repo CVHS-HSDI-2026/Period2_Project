@@ -13,6 +13,7 @@ from backend.musicbrainz import MusicBrainzDatabase
 load_dotenv()
 mb_db = MusicBrainzDatabase()
 
+
 # Todo: We should make a separate database class for the MusicBrainz DB to prevent confusion about which DB we're
 #  calling in the code.
 
@@ -681,6 +682,7 @@ class Database:
         """
         self.cursor.close()
         self.connection.close()
+
 
 # Testing
 if __name__ == "__main__":

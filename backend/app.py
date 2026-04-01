@@ -29,6 +29,7 @@ app.register_blueprint(music_bp, url_prefix='/api/music')
 app.register_blueprint(reviews_bp, url_prefix='/api/reviews')
 app.register_blueprint(search_bp, url_prefix='/api/search')
 
+
 @app.route('/health')
 def health_check():
     db_true = db.ping()

@@ -31,7 +31,7 @@ export default function SignUp() {
 	const handleSignup = () => {
 		if (confirmPassword !== password) {
 			throw new Error("Passwords don't match");
-		// 	todo: handle in less explosive way
+			// 	todo: handle in less explosive way
 		}
 
 		let signup: SignupRecord = {

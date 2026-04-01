@@ -85,12 +85,13 @@ export default function CommentsOnly({songId}: { songId: number }) {
 
 				{showCommentBox && (
 					<View style={{marginTop: 8}}>
-						<View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
-							<Text style={{ color: '#FFF' }}>Rating: {rating}/10</Text>
-							<View style={{ flexDirection: 'row', gap: 5 }}>
+						<View style={{flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10}}>
+							<Text style={{color: '#FFF'}}>Rating: {rating}/10</Text>
+							<View style={{flexDirection: 'row', gap: 5}}>
 								{[...Array(10)].map((_, i) => (
 									<TouchableOpacity key={i} onPress={() => setRating(i + 1)}>
-										<FontAwesome name={rating >= i + 1 ? "star" : "star-o"} size={20} color="#ff3b3b" />
+										<FontAwesome name={rating >= i + 1 ? "star" : "star-o"} size={20}
+													 color="#ff3b3b"/>
 									</TouchableOpacity>
 								))}
 							</View>

@@ -8,6 +8,7 @@ reviews_bp = Blueprint('reviews', __name__)
 db = Database()
 mbdb = MusicBrainzDatabase()
 
+
 @reviews_bp.route('/', methods=['POST'])
 @jwt_required()
 def create_review():
@@ -28,11 +29,11 @@ def create_review():
 
     if not song_id and not album_id:
         return jsonify({"message": "Invalid request. Must include either song_id or album_id"}), 400
-    
+
     if not rating or not review_text:
         return jsonify(
             {"message": "Invalid request. Missing either fields: rating, review_text"}), 400
-    
+
     if not rating:
         review_text = ""
 
@@ -48,6 +49,7 @@ def create_review():
         return jsonify({"message": "Review created"}), 201
     else:
         return jsonify({"message": "Failed to create review"}), 500
+
 
 @reviews_bp.route('/<int:review_id>', methods=['DELETE'])
 @jwt_required()
@@ -70,6 +72,7 @@ def delete_review(review_id):
         return jsonify({"message": "Review deleted"}), 200
     else:
         return jsonify({"message": "Failed to delete review"}), 500
+
 
 @reviews_bp.route('/<int:review_id>/reply', methods=['POST'])
 @jwt_required()
@@ -98,6 +101,7 @@ def reply_to_review(review_id):
     else:
         return jsonify({"message": "Failed to create reply"}), 500
 
+
 @reviews_bp.route('/song/<int:song_id>', methods=['GET'])
 def get_reviews(song_id):
     """
@@ -116,6 +120,7 @@ def get_reviews(song_id):
         return jsonify({"message": "No reviews found for this song"}), 200
 
     return jsonify(reviews), 200
+
 
 @reviews_bp.route('/album/<int:album_id>', methods=['GET'])
 def get_album_reviews(album_id):

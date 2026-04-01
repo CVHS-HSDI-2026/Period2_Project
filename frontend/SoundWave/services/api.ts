@@ -1,5 +1,5 @@
-import { getStorageItemAsync, setStorageItemAsync } from '@/context/storage';
-import { LoginRecord, SignupRecord } from "@/services/records";
+import {getStorageItemAsync, setStorageItemAsync} from '@/context/storage';
+import {LoginRecord, SignupRecord} from "@/services/records";
 // todo: use Expo's env vars for this in production; smth like process.env.EXPO_PUBLIC_API_URL
 const BASE_URL = 'http://localhost:5000';
 
@@ -11,7 +11,7 @@ export const signUp = async (signup: SignupRecord) => {
 	try {
 		const response = await fetch(`${BASE_URL}/api/auth/register`, {
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
+			headers: {'Content-Type': 'application/json'},
 			body: JSON.stringify(signup)
 		});
 
@@ -29,7 +29,7 @@ export const login = async (loginData: LoginRecord) => {
 	try {
 		const response = await fetch(`${BASE_URL}/api/auth/login`, {
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
+			headers: {'Content-Type': 'application/json'},
 			body: JSON.stringify(loginData)
 		});
 
@@ -120,7 +120,7 @@ export const postReply = async (reviewId: number, text: string) => {
 				'Content-Type': 'application/json',
 				'Authorization': `Bearer ${token}`
 			},
-			body: JSON.stringify({ content: text })
+			body: JSON.stringify({content: text})
 		});
 		if (!response.ok) throw new Error("Failed to post reply");
 		return true;
@@ -139,7 +139,7 @@ export const favoriteSong = async (songId: number, rank: number = 1) => {
 				'Content-Type': 'application/json',
 				'Authorization': `Bearer ${token}`
 			},
-			body: JSON.stringify({ song_id: songId, rank: rank })
+			body: JSON.stringify({song_id: songId, rank: rank})
 		});
 		if (!response.ok) throw new Error("Failed to favorite song");
 		return true;
@@ -158,7 +158,7 @@ export const favoriteAlbum = async (albumId: number, rank: number = 1) => {
 				'Content-Type': 'application/json',
 				'Authorization': `Bearer ${token}`
 			},
-			body: JSON.stringify({ album_id: albumId, rank: rank })
+			body: JSON.stringify({album_id: albumId, rank: rank})
 		});
 		if (!response.ok) throw new Error("Failed to favorite album");
 		return true;
@@ -177,7 +177,7 @@ export const favoriteArtist = async (artistId: number, rank: number = 1) => {
 				'Content-Type': 'application/json',
 				'Authorization': `Bearer ${token}`
 			},
-			body: JSON.stringify({ artist_id: artistId, rank: rank })
+			body: JSON.stringify({artist_id: artistId, rank: rank})
 		});
 		if (!response.ok) throw new Error("Failed to favorite artist");
 		return true;
@@ -191,8 +191,8 @@ export const unfavoriteSong = async (songId: number, rank: number = 1) => {
 	const token = await getAuthToken();
 	const response = await fetch(`${BASE_URL}/api/users/favorite/song`, {
 		method: 'DELETE',
-		headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-		body: JSON.stringify({ song_id: songId, rank })
+		headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+		body: JSON.stringify({song_id: songId, rank})
 	});
 	if (!response.ok) throw new Error("Failed to unfavorite song");
 	return true;
@@ -202,8 +202,8 @@ export const unfavoriteAlbum = async (albumId: number, rank: number = 1) => {
 	const token = await getAuthToken();
 	const response = await fetch(`${BASE_URL}/api/users/favorite/album`, {
 		method: 'DELETE',
-		headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-		body: JSON.stringify({ album_id: albumId, rank })
+		headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+		body: JSON.stringify({album_id: albumId, rank})
 	});
 	if (!response.ok) throw new Error("Failed to unfavorite album");
 	return true;
@@ -213,8 +213,8 @@ export const unfavoriteArtist = async (artistId: number, rank: number = 1) => {
 	const token = await getAuthToken();
 	const response = await fetch(`${BASE_URL}/api/users/favorite/artist`, {
 		method: 'DELETE',
-		headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-		body: JSON.stringify({ artist_id: artistId, rank })
+		headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+		body: JSON.stringify({artist_id: artistId, rank})
 	});
 	if (!response.ok) throw new Error("Failed to unfavorite artist");
 	return true;
@@ -282,7 +282,7 @@ export const updateProfileBio = async (username: string, bio: string) => {
 				'Content-Type': 'application/json',
 				'Authorization': `Bearer ${token}`
 			},
-			body: JSON.stringify({ bio })
+			body: JSON.stringify({bio})
 		});
 
 		if (!response.ok) throw new Error("Failed to update profile");

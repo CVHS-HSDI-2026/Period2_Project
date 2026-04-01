@@ -35,15 +35,18 @@ def search_music():
     results = mb_db.search(query, search_type, limit)
     return jsonify(results=results), 200
 
+
 @music_bp.route('/popular', methods=['GET'])
 def get_popular_music():
     results = app_db.get_popular()
     return jsonify(results=results), 200
 
+
 @music_bp.route('/new_releases', methods=['GET'])
 def new_releases():
     results = app_db.get_new_releases()
     return jsonify(results=results), 200
+
 
 @music_bp.route('/artist/<mbid>', methods=['GET'])
 def get_artist(mbid):

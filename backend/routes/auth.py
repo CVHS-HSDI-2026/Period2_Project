@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, session
-from flask_jwt_extended import create_access_token, set_access_cookies, unset_jwt_cookies, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, set_access_cookies, unset_jwt_cookies, jwt_required, \
+    get_jwt_identity
 from database import Database
 import bcrypt
 
@@ -79,6 +80,7 @@ def logout():
     unset_jwt_cookies(response)
     return response, 200
 
+
 @auth_bp.route('/me', methods=['GET'])
 @jwt_required()
 def get_current_user():
@@ -97,5 +99,6 @@ def get_current_user():
 
     return jsonify({"message": "Fetched successfully", "user": sanitized_user}), 200
 
+
 def hash_password(password, salt):
-        return bcrypt.hashpw(password, salt)
+    return bcrypt.hashpw(password, salt)

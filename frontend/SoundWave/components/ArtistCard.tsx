@@ -58,7 +58,7 @@ const ArtistCard: FC<ArtistCardProps> = ({
 			{image ? (
 				<Image source={image} style={styles.image}/>
 			) : (
-				<View style={[styles.image, styles.imageFallback, { backgroundColor: stringToColor(title) }]}>
+				<View style={[styles.image, styles.imageFallback, {backgroundColor: stringToColor(title)}]}>
 					<Text style={styles.initialsText}>{getInitials(title)}</Text>
 				</View>
 			)}

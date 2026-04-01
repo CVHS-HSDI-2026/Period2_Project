@@ -193,43 +193,46 @@ export default function Profile() {
 
 				<Text style={styles.sectionTitle}>Favorite Songs:</Text>
 
-				<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
+				<ScrollView horizontal showsHorizontalScrollIndicator={false}
+							contentContainerStyle={styles.horizontalContent}>
 					{profileData.favorite_songs?.length > 0 ? profileData.favorite_songs.map((fav: any, i: number) => (
 						<SongCard
 							key={`fav-song-${i}`}
 							variant="popular"
 							title={fav.title}
 							artist={fav.artist_name || "Unknown"}
-							onPress={() => router.push({ pathname: "/Song", params: { mbid: fav.mbid } })}
+							onPress={() => router.push({pathname: "/Song", params: {mbid: fav.mbid}})}
 						/>
 					)) : <Text style={styles.biotext}>No favorites yet.</Text>}
 				</ScrollView>
 
 				<Text style={styles.sectionTitle}>Favorite Albums:</Text>
 
-				<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
+				<ScrollView horizontal showsHorizontalScrollIndicator={false}
+							contentContainerStyle={styles.horizontalContent}>
 					{profileData.favorite_albums?.length > 0 ? profileData.favorite_albums.map((fav: any, i: number) => (
 						<SongCard
 							key={`fav-alb-${i}`}
 							variant="popular"
 							title={fav.title}
 							artist={fav.artist_name || "Unknown"}
-							image={fav.cover_url ? { uri: fav.cover_url } : undefined}
-							onPress={() => router.push({ pathname: "/Album", params: { mbid: fav.mbid } })}
+							image={fav.cover_url ? {uri: fav.cover_url} : undefined}
+							onPress={() => router.push({pathname: "/Album", params: {mbid: fav.mbid}})}
 						/>
 					)) : <Text style={styles.biotext}>No favorites yet.</Text>}
 				</ScrollView>
 
 				<Text style={styles.sectionTitle}>Favorite Artists:</Text>
 
-				<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
+				<ScrollView horizontal showsHorizontalScrollIndicator={false}
+							contentContainerStyle={styles.horizontalContent}>
 					{profileData.favorite_artists?.length > 0 ? profileData.favorite_artists.map((fav: any, i: number) => (
 						<ArtistCard
 							key={`fav-art-${i}`}
 							variant="popular"
 							title={fav.name}
 							artist="Artist"
-							onPress={() => router.push({ pathname: "/Artist", params: { mbid: fav.mbid } })}
+							onPress={() => router.push({pathname: "/Artist", params: {mbid: fav.mbid}})}
 						/>
 					)) : <Text style={styles.biotext}>No favorites yet.</Text>}
 				</ScrollView>

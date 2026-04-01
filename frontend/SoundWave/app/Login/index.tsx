@@ -12,11 +12,11 @@ import {useRouter} from "expo-router";
 import {Image} from 'react-native';
 import {LoginRecord} from "@/services/records";
 import {login} from "@/services/api";
-import { useAuth } from "@/context/context";
+import {useAuth} from "@/context/context";
 
 export default function Login() {
 	const router = useRouter();
-	const { setUser } = useAuth();
+	const {setUser} = useAuth();
 
 	const [emailOrUsername, setEmailOrUsername] = useState("");
 	const [password, setPassword] = useState("");
@@ -146,13 +146,13 @@ export default function Login() {
 						<Text style={styles.link}>Click here to sign up</Text>
 					</TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.push("/ForgotPass")}>
-          <Text style={styles.link}>Forgot password?</Text>
-        </TouchableOpacity>
-      </View>
-      </ScrollView>
-    </View>
-  );
+					<TouchableOpacity onPress={() => router.push("/ForgotPass")}>
+						<Text style={styles.link}>Forgot password?</Text>
+					</TouchableOpacity>
+				</View>
+			</ScrollView>
+		</View>
+	);
 }
 
 const styles = StyleSheet.create({
