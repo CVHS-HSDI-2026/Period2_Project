@@ -17,6 +17,7 @@ export default function CommentsOnly({songId}: { songId: number }) {
 	const [fontsLoaded] = useFonts({Jost_400Regular});
 	const [comments, setComments] = useState<any[]>([]);
 	const [newComment, setNewComment] = useState("");
+	const [rating, setRating] = useState<number>(10);
 	const [showCommentBox, setShowCommentBox] = useState(false);
 	const [loading, setLoading] = useState(true);
 
@@ -41,12 +42,14 @@ export default function CommentsOnly({songId}: { songId: number }) {
 	const handlePostComment = async () => {
 		if (!newComment.trim()) return;
 		try {
-			await postReview(songId, newComment);
+			await postReview(songId, newComment, rating);
+
 			setComments((prev) => [
 				...prev,
-				{id: Date.now(), review_text: newComment, username: "You", replies: []},
+				{id: Date.now(), review_text: newComment, username: "You", rating: rating, replies: []},
 			]);
 			setNewComment("");
+			setRating(10);
 			setShowCommentBox(false);
 		} catch (e) {
 			alert("You must be logged in to post a comment!");
@@ -82,6 +85,17 @@ export default function CommentsOnly({songId}: { songId: number }) {
 
 				{showCommentBox && (
 					<View style={{marginTop: 8}}>
+						<View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
+							<Text style={{ color: '#FFF' }}>Rating: {rating}/10</Text>
+							<View style={{ flexDirection: 'row', gap: 5 }}>
+								{[...Array(10)].map((_, i) => (
+									<TouchableOpacity key={i} onPress={() => setRating(i + 1)}>
+										<FontAwesome name={rating >= i + 1 ? "star" : "star-o"} size={20} color="#ff3b3b" />
+									</TouchableOpacity>
+								))}
+							</View>
+						</View>
+
 						<View style={styles.inputWrapper}>
 							<TextInput
 								value={newComment}

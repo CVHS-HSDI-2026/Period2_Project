@@ -1,15 +1,17 @@
-import { StyleSheet, Text, View, ActivityIndicator, ScrollView } from 'react-native';
+import {StyleSheet, Text, View, ActivityIndicator, ScrollView, TouchableOpacity} from 'react-native';
 import React, { useEffect, useState } from 'react';
 import HeaderWithSearch from "../../components/HeaderWithSearch";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useFonts, Jost_400Regular, Jost_500Medium, Jost_700Bold } from '@expo-google-fonts/jost';
 import SongCard from "../../components/SongCard";
-import {fetchArtistDetails} from "@/services/api";
+import {favoriteArtist, fetchArtistDetails, unfavoriteArtist} from "@/services/api";
 import ArtistCard, {stringToColor} from "@components/ArtistCard";
+import {FontAwesome} from "@expo/vector-icons";
 
 export default function Artist() {
 	const router = useRouter();
 	const { mbid } = useLocalSearchParams<{ mbid: string }>();
+	const [isFavorited, setIsFavorited] = useState(false);
 
 	const [fontsLoaded] = useFonts({Jost_400Regular, Jost_500Medium, Jost_700Bold});
 	const [artistData, setArtistData] = useState<any>(null);
@@ -31,6 +33,20 @@ export default function Artist() {
 	}, [mbid]);
 
 	if (!fontsLoaded) return null;
+
+	const handleToggleFavorite = async () => {
+		try {
+			if (isFavorited) {
+				await unfavoriteArtist(artist.id, 1);
+				setIsFavorited(false);
+			} else {
+				await favoriteArtist(artist.id, 1);
+				setIsFavorited(true);
+			}
+		} catch (e) {
+			alert("Please log in to manage favorites.");
+		}
+	};
 
 	if (loading) {
 		return (
@@ -60,7 +76,7 @@ export default function Artist() {
 
 	return (
 		<View style={styles.container}>
-			<HeaderWithSearch title="SoundWAVE"/>
+			<HeaderWithSearch title="SoundWave"/>
 			<ScrollView style={{width: '100%'}} contentContainerStyle={styles.scrollContent}>
 
 				{/* profile stats */}
@@ -90,6 +106,23 @@ export default function Artist() {
 							{artist.disambiguation ? `Known for: ${artist.disambiguation}. ` : ''}
 							For more info, check out their profile on MusicBrainz: {artist.mbid}.
 						</Text>
+						<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+							<Text style={[styles.titleBioText, { flex: 1, marginRight: 10 }]} numberOfLines={2}>
+								<Text style={styles.titleBioText}>Bio:</Text>
+								<Text style={styles.biotext}>
+									{artist.disambiguation ? `Known for: ${artist.disambiguation}. ` : ''}
+									For more info, check out their profile on MusicBrainz: {artist.mbid}.
+								</Text>
+							</Text>
+
+							<TouchableOpacity onPress={handleToggleFavorite} style={{ padding: 4 }}>
+								<FontAwesome
+									name={isFavorited ? "heart" : "heart-o"}
+									size={24}
+									color={isFavorited ? "#ff3b3b" : "#FFFFFF"}
+								/>
+							</TouchableOpacity>
+						</View>
 					</View>
 				</View>
 
@@ -113,7 +146,7 @@ export default function Artist() {
 								title={album.title}
 								artist={artist.name}
 								image={{ uri: album.cover_url }}
-								rating={10} // todo: replace once we figure out how to grab reviews
+								rating={album.rating}
 								commentsCount={0}
 								onPress={() => router.push({ pathname: "/Album", params: { mbid: album.mbid } })}
 							/>

@@ -2,11 +2,28 @@ import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {useRouter} from 'expo-router';
 import {Image} from 'expo-image';
-import {Album} from "@/app/Album";
+import {Album} from "@/services/records";
+import { FontAwesome } from "@expo/vector-icons";
+import {favoriteAlbum, unfavoriteAlbum} from "@/services/api";
 
 const AlbumDetails: React.FC<{ album: Album }> = ({album}) => {
 	const router = useRouter();
 	const [imageFailed, setImageFailed] = useState(false);
+	const [isFavorited, setIsFavorited] = useState(false);
+
+	const handleToggleFavorite = async () => {
+		try {
+			if (isFavorited) {
+				await unfavoriteAlbum(album.id, 1);
+				setIsFavorited(false);
+			} else {
+				await favoriteAlbum(album.id, 1);
+				setIsFavorited(true);
+			}
+		} catch (e) {
+			alert("Please log in to manage favorites.");
+		}
+	};
 
 	if (!album) return null;
 
@@ -26,7 +43,19 @@ const AlbumDetails: React.FC<{ album: Album }> = ({album}) => {
 
 				<View style={styles.gridContainer}>
 					<View style={styles.column}>
-						<Text style={styles.text}><Text style={styles.label}>Title: </Text>{album.title}</Text>
+						<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+							<Text style={[styles.text, { flex: 1, marginRight: 10 }]} numberOfLines={2}>
+								<Text style={styles.label}>Title: </Text>{album.title}
+							</Text>
+
+							<TouchableOpacity onPress={handleToggleFavorite} style={{ padding: 4 }}>
+								<FontAwesome
+									name={isFavorited ? "heart" : "heart-o"}
+									size={24}
+									color={isFavorited ? "#ff3b3b" : "#FFFFFF"}
+								/>
+							</TouchableOpacity>
+						</View>
 						<Text style={styles.text}>
 							<Text style={styles.label}>Artist: </Text>
 							<TouchableOpacity

@@ -6,24 +6,7 @@ import AlbumDetails from '@/components/AlbumDetails';
 import {useLocalSearchParams} from "expo-router";
 import {fetchAlbumDetails} from "@/services/api";
 import HeaderWithSearch from "@/components/HeaderWithSearch";
-
-export interface Track {
-	mbid: string;
-	title: string;
-	duration: number;
-	number: string;
-}
-
-export interface Album {
-	title: string;
-	artist: string;
-	artist_mbid: string;
-	rating: string;
-	genre: string;
-	year: string | number;
-	cover: string;
-	tracks: Track[];
-}
+import {Album} from "@/services/records";
 
 export default function AlbumPage() {
 	const {mbid} = useLocalSearchParams<{ mbid: string }>();

@@ -4,7 +4,7 @@ import {useFonts, Jost_400Regular} from "@expo-google-fonts/jost";
 import CommentsOnly from "./CommentsOnly";
 import RecommendedBox from "./RecomendedBox";
 import TracksBox from "./TracksBox";
-import {Album} from "@/app/Album";
+import {Album} from "@/services/records";
 
 type Tab = "comments" | "recomended" | "tracks";
 
@@ -31,7 +31,7 @@ export default function AlbumBox({album}: { album: Album }) {
 
 			<View style={styles.contentBox}>
 				<ScrollView showsVerticalScrollIndicator={false}>
-					{activeTab === "comments" && <CommentsOnly/>}
+					{activeTab === "comments" && <CommentsOnly songId={album.id} />}
 					{activeTab === "recomended" && <RecommendedBox/>}
 					{activeTab === "tracks" && <TracksBox album={album}/>}
 				</ScrollView>

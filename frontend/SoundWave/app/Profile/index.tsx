@@ -174,56 +174,64 @@ export default function Profile() {
 
 						</View>
 
-						<Text style={styles.titleBioText}>Bio:</Text>
-						{isEditing && isProfileOwner ? (
-							<TextInput
-								style={[styles.biotext, styles.input, {height: 100}]}
-								multiline
-								value={bio}
-								onChangeText={setBio}
-							/>
-						) : (
-							<Text style={styles.biotext}>{bio}</Text>
-						)}
+						<View style={styles.bioContainer}>
+							<Text style={styles.titleBioText}>Bio:</Text>
+							{isEditing && isProfileOwner ? (
+								<TextInput
+									style={[styles.biotext, styles.input, {height: 80}]}
+									multiline
+									value={bio}
+									onChangeText={setBio}
+								/>
+							) : (
+								<Text style={styles.biotext}>{bio}</Text>
+							)}
+						</View>
 
 					</View>
 				</View>
 
-				<Text style={styles.sectionTitle}>Top Songs:</Text>
+				<Text style={styles.sectionTitle}>Favorite Songs:</Text>
 
-				<ScrollView horizontal showsHorizontalScrollIndicator={false}
-							contentContainerStyle={styles.horizontalContent}>
-					{profileData.favorites.length > 0 ? profileData.favorites.map((fav: any, i: number) => (
+				<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
+					{profileData.favorite_songs?.length > 0 ? profileData.favorite_songs.map((fav: any, i: number) => (
 						<SongCard
-							key={`fav-${i}`}
+							key={`fav-song-${i}`}
 							variant="popular"
-							title={`Song ${fav.song_id}`}
-							artist="Various"
-							rating={8}
-							commentsCount={0}
-							onPress={() => router.push("./Song")}
+							title={fav.title}
+							artist={fav.artist_name || "Unknown"}
+							onPress={() => router.push({ pathname: "/Song", params: { mbid: fav.mbid } })}
 						/>
 					)) : <Text style={styles.biotext}>No favorites yet.</Text>}
 				</ScrollView>
 
-				<Text style={styles.sectionTitle}>Top Albums:</Text>
+				<Text style={styles.sectionTitle}>Favorite Albums:</Text>
 
-				<ScrollView horizontal showsHorizontalScrollIndicator={false}
-							contentContainerStyle={styles.horizontalContent}>
-					{/* todo: fix when we have favorite albums */}
-					<View style={styles.horizontalContent}>
-						<Text style={styles.biotext}>Feature coming soon.</Text>
-					</View>
+				<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
+					{profileData.favorite_albums?.length > 0 ? profileData.favorite_albums.map((fav: any, i: number) => (
+						<SongCard
+							key={`fav-alb-${i}`}
+							variant="popular"
+							title={fav.title}
+							artist={fav.artist_name || "Unknown"}
+							image={fav.cover_url ? { uri: fav.cover_url } : undefined}
+							onPress={() => router.push({ pathname: "/Album", params: { mbid: fav.mbid } })}
+						/>
+					)) : <Text style={styles.biotext}>No favorites yet.</Text>}
 				</ScrollView>
 
-				<Text style={styles.sectionTitle}>Top Artists:</Text>
+				<Text style={styles.sectionTitle}>Favorite Artists:</Text>
 
-				<ScrollView horizontal showsHorizontalScrollIndicator={false}
-							contentContainerStyle={styles.horizontalContent}>
-					{/* todo: fix when we have favorite artists */}
-					<View style={styles.horizontalContent}>
-						<Text style={styles.biotext}>Feature coming soon.</Text>
-					</View>
+				<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
+					{profileData.favorite_artists?.length > 0 ? profileData.favorite_artists.map((fav: any, i: number) => (
+						<ArtistCard
+							key={`fav-art-${i}`}
+							variant="popular"
+							title={fav.name}
+							artist="Artist"
+							onPress={() => router.push({ pathname: "/Artist", params: { mbid: fav.mbid } })}
+						/>
+					)) : <Text style={styles.biotext}>No favorites yet.</Text>}
 				</ScrollView>
 
 				<Text style={styles.sectionTitle}>Recommended Users:</Text>
@@ -246,6 +254,13 @@ const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: '#14172B',
 		alignItems: 'center',
+	},
+	bioContainer: {
+		borderWidth: 1,
+		borderColor: '#FFFFFF',
+		borderRadius: 12,
+		padding: 16,
+		marginTop: 10
 	},
 	profileSection: {
 		flexDirection: 'row',

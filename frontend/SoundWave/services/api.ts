@@ -149,6 +149,77 @@ export const favoriteSong = async (songId: number, rank: number = 1) => {
 	}
 };
 
+export const favoriteAlbum = async (albumId: number, rank: number = 1) => {
+	try {
+		const token = await getAuthToken();
+		const response = await fetch(`${BASE_URL}/api/users/favorite/album`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${token}`
+			},
+			body: JSON.stringify({ album_id: albumId, rank: rank })
+		});
+		if (!response.ok) throw new Error("Failed to favorite album");
+		return true;
+	} catch (error) {
+		console.error('API Error (favoriteAlbum):', error);
+		throw error;
+	}
+};
+
+export const favoriteArtist = async (artistId: number, rank: number = 1) => {
+	try {
+		const token = await getAuthToken();
+		const response = await fetch(`${BASE_URL}/api/users/favorite/artist`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${token}`
+			},
+			body: JSON.stringify({ artist_id: artistId, rank: rank })
+		});
+		if (!response.ok) throw new Error("Failed to favorite artist");
+		return true;
+	} catch (error) {
+		console.error('API Error (favoriteArtist):', error);
+		throw error;
+	}
+};
+
+export const unfavoriteSong = async (songId: number, rank: number = 1) => {
+	const token = await getAuthToken();
+	const response = await fetch(`${BASE_URL}/api/users/favorite/song`, {
+		method: 'DELETE',
+		headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+		body: JSON.stringify({ song_id: songId, rank })
+	});
+	if (!response.ok) throw new Error("Failed to unfavorite song");
+	return true;
+};
+
+export const unfavoriteAlbum = async (albumId: number, rank: number = 1) => {
+	const token = await getAuthToken();
+	const response = await fetch(`${BASE_URL}/api/users/favorite/album`, {
+		method: 'DELETE',
+		headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+		body: JSON.stringify({ album_id: albumId, rank })
+	});
+	if (!response.ok) throw new Error("Failed to unfavorite album");
+	return true;
+};
+
+export const unfavoriteArtist = async (artistId: number, rank: number = 1) => {
+	const token = await getAuthToken();
+	const response = await fetch(`${BASE_URL}/api/users/favorite/artist`, {
+		method: 'DELETE',
+		headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+		body: JSON.stringify({ artist_id: artistId, rank })
+	});
+	if (!response.ok) throw new Error("Failed to unfavorite artist");
+	return true;
+};
+
 export const fetchAlbumDetails = async (mbid: string) => {
 	try {
 		const response = await fetch(`${BASE_URL}/api/music/album/${mbid}`);
@@ -179,6 +250,26 @@ export const fetchProfile = async (username: string) => {
 	} catch (error) {
 		console.error('API Error (fetchProfile):', error);
 		throw error;
+	}
+}
+
+export const fetchPopular = async () => {
+	try {
+		const response = await fetch(`${BASE_URL}/api/music/popular`);
+		if (!response.ok) throw new Error(`Failed to fetch popular: ${await response.json()}`);
+		return await response.json();
+	} catch (error) {
+		console.error('API Error (fetchPopular):', error);
+	}
+}
+
+export const fetchNewReleases = async () => {
+	try {
+		const response = await fetch(`${BASE_URL}/api/music/new_releases`);
+		if (!response.ok) throw new Error(`Failed to fetch new_releases`);
+		return await response.json();
+	} catch (error) {
+		console.error('API Error (fetchNewReleases:', error);
 	}
 }
 

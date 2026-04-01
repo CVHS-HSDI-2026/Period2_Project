@@ -1,7 +1,7 @@
 import React from "react";
 import {View, Text, StyleSheet, TouchableOpacity} from "react-native";
 import {useRouter} from "expo-router";
-import {Album, Track} from "@/app/Album";
+import {Album, Track} from "@/services/records";
 
 const formatTime = (ms: number) => {
 	if (!ms) return "--:--";
