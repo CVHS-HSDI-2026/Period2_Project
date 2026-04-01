@@ -25,6 +25,21 @@ const getInitials = (name: string) => {
 		.substring(0, 3);
 };
 
+export const stringToColor = (str: string) => {
+	if (!str) return "#3A3F6B";
+	let hash = 0;
+	for (let i = 0; i < str.length; i++) {
+		hash = str.charCodeAt(i) + ((hash << 5) - hash);
+	}
+	let color = '#';
+	for (let i = 0; i < 3; i++) {
+		const value = (hash >> (i * 8)) & 0xFF;
+		const mutedValue = Math.floor(value * 0.7);
+		color += ('00' + mutedValue.toString(16)).substring(-2);
+	}
+	return color;
+};
+
 /* ---------- Component ---------- */
 const ArtistCard: FC<ArtistCardProps> = ({
 											 title,
@@ -43,7 +58,7 @@ const ArtistCard: FC<ArtistCardProps> = ({
 			{image ? (
 				<Image source={image} style={styles.image}/>
 			) : (
-				<View style={[styles.image, styles.imageFallback]}>
+				<View style={[styles.image, styles.imageFallback, { backgroundColor: stringToColor(title) }]}>
 					<Text style={styles.initialsText}>{getInitials(title)}</Text>
 				</View>
 			)}
@@ -80,10 +95,11 @@ const styles = StyleSheet.create({
 	},
 
 	imageFallback: {
-		backgroundColor: "#E0E0E0",
 		width: 200,
 		height: 200,
 		borderRadius: 100,
+		justifyContent: "center",
+		alignItems: "center",
 	},
 
 	infoRow: {

@@ -66,6 +66,20 @@ CREATE TABLE IF NOT EXISTS User_Favorite_Song (
     UNIQUE(user_id, rank)
 );
 
+CREATE TABLE IF NOT EXISTS User_Favorite_Album (
+    user_id INT NOT NULL REFERENCES Users(id),
+    album_id INT NOT NULL REFERENCES Album(id),
+    rank SMALLINT NOT NULL,
+    UNIQUE(user_id, rank)
+);
+
+CREATE TABLE IF NOT EXISTS User_Favorite_Artist (
+    user_id INT NOT NULL REFERENCES Users(id),
+    artist_id INT NOT NULL REFERENCES Artist(id),
+    rank SMALLINT NOT NULL,
+    UNIQUE(user_id, rank)
+);
+
 CREATE TABLE IF NOT EXISTS Review (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL REFERENCES Users(id),

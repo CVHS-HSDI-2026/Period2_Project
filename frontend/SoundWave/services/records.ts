@@ -34,3 +34,23 @@ export type CommentType = {
 	text: string;
 	replies: Reply[]
 };
+
+export interface Track {
+	mbid: string;
+	title: string;
+	duration: number;
+	number: string;
+}
+
+export interface Album {
+	id: number;
+	mbid: string;
+	title: string;
+	artist: string;
+	artist_mbid: string;
+	rating: string;
+	genre: string;
+	year: string | number;
+	cover: string;
+	tracks: Track[];
+}

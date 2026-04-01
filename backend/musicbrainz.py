@@ -2,8 +2,10 @@ import os
 import sys
 import uuid
 
+import requests
 import psycopg2
 import psycopg2.extras
+import xml.etree.ElementTree as ET
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -34,69 +36,96 @@ class MusicBrainzDatabase:
         exact_match = query
         starts_with_match = f"{query}%"
         fuzzy_match = f"%{query}%"
+        SOLR_BASE_URL = os.getenv("SOLR_URL", "http://10.1.10.236:8983/solr")
+
+        def parse_solr_xml(xml_string, ns):
+            root = ET.fromstring(xml_string)
+            return {
+                "mbid": root.attrib.get('id'),
+                "type": root.attrib.get('type'),
+                "name": root.find(f".//ns0:{ns}",
+                                  namespaces={"ns0": "http://musicbrainz.org/ns/mmd-2.0#"}).text if root.find(
+                    f".//ns0:{ns}", namespaces={"ns0": "http://musicbrainz.org/ns/mmd-2.0#"}) is not None else "Unknown"
+            }
 
         def search_artists():
-            with self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
-                cursor.execute("""
-                    SELECT artist.gid AS mbid, artist.name, type.name AS artist_type 
-                    FROM artist 
-                    LEFT JOIN artist_type type ON artist.type = type.id
-                    WHERE artist.name ILIKE %s
-                    ORDER BY 
-                        (artist.name LIKE %s) DESC,  -- 1. Exact case match (Case-sensitive)
-                        (artist.name ILIKE %s) DESC, -- 2. Exact match (Case-insensitive)
-                        (artist.name ILIKE %s) DESC, -- 3. Starts with
-                        artist.name ASC
-                    LIMIT %s
-                """, (fuzzy_match, exact_match, exact_match, starts_with_match, limit))
-                return [dict(row) for row in cursor.fetchall()]
+            try:
+                res = requests.get(f"{SOLR_BASE_URL}/artist/select", params={"q": query, "rows": limit, "wt": "json"})
+                docs = res.json().get("response", {}).get("docs", [])
+
+                results = []
+                for doc in docs:
+                    store_xml = doc.get("_store")
+                    if store_xml:
+                        parsed = parse_solr_xml(store_xml, "name")
+                        results.append({
+                            "mbid": parsed.get("mbid"),
+                            "name": parsed.get("name"),
+                            "artist_type": parsed.get("type", "Artist")
+                        })
+                return results
+            except Exception as e:
+                print(f"Solr artist search failed: {e}")
+                return []
 
         def search_albums():
-            with self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
-                cursor.execute("""
-                    SELECT 
-                        rg.gid AS mbid, 
-                        rg.name AS title,
-                        a.name AS artist_name, -- Added Artist Name!
-                        'https://coverartarchive.org/release-group/' || rg.gid || '/front-250' as cover_url
-                    FROM release_group rg
-                    JOIN artist_credit ac ON rg.artist_credit = ac.id
-                    JOIN artist_credit_name acn ON ac.id = acn.artist_credit
-                    JOIN artist a ON acn.artist = a.id
-                    WHERE rg.name ILIKE %s 
-                    ORDER BY 
-                        (rg.name LIKE %s) DESC,
-                        (rg.name ILIKE %s) DESC,
-                        rg.name ASC
-                    LIMIT %s
-                """, (fuzzy_match, exact_match, starts_with_match, limit))
-                return [dict(row) for row in cursor.fetchall()]
+            try:
+                # We search 'release-group' which represents an Album in MusicBrainz
+                res = requests.get(f"{SOLR_BASE_URL}/release-group/select",
+                                   params={"q": query, "rows": limit, "wt": "json"})
+                docs = res.json().get("response", {}).get("docs", [])
+
+                results = []
+                for doc in docs:
+                    store_xml = doc.get("_store")
+                    if store_xml:
+                        root = ET.fromstring(store_xml)
+                        ns = {"ns0": "http://musicbrainz.org/ns/mmd-2.0#"}
+
+                        mbid = root.attrib.get('id')
+                        title = root.find(".//ns0:title", namespaces=ns)
+                        artist = root.find(".//ns0:artist-credit/ns0:name-credit/ns0:artist/ns0:name", namespaces=ns)
+
+                        results.append({
+                            "mbid": mbid,
+                            "title": title.text if title is not None else "Unknown Album",
+                            "artist_name": artist.text if artist is not None else "Unknown Artist",
+                            "cover_url": f"https://coverartarchive.org/release-group/{mbid}/front-250"
+                        })
+                return results
+            except Exception as e:
+                print(f"Solr album search failed: {e}")
+                return []
 
         def search_songs():
-            with self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
-                cursor.execute("""
-                    SELECT 
-                        r.gid AS mbid, 
-                        r.name AS title, 
-                        r.length AS duration,
-                        (
-                            SELECT 'https://coverartarchive.org/release-group/' || rg.gid || '/front-250'
-                            FROM track t
-                            JOIN medium m ON t.medium = m.id
-                            JOIN release rel ON m.release = rel.id
-                            JOIN release_group rg ON rel.release_group = rg.id
-                            WHERE t.recording = r.id
-                            LIMIT 1
-                        ) as cover_url
-                    FROM recording r
-                    WHERE r.name ILIKE %s 
-                    ORDER BY 
-                        (r.name LIKE %s) DESC,
-                        (r.name ILIKE %s) DESC,
-                        r.name ASC
-                    LIMIT %s
-                """, (fuzzy_match, exact_match, starts_with_match, limit))
-                return [dict(row) for row in cursor.fetchall()]
+            try:
+                res = requests.get(f"{SOLR_BASE_URL}/recording/select",
+                                   params={"q": query, "rows": limit, "wt": "json"})
+                docs = res.json().get("response", {}).get("docs", [])
+
+                results = []
+                for doc in docs:
+                    store_xml = doc.get("_store")
+                    if store_xml:
+                        root = ET.fromstring(store_xml)
+                        ns = {"ns0": "http://musicbrainz.org/ns/mmd-2.0#"}
+
+                        mbid = root.attrib.get('id')
+                        title = root.find(".//ns0:title", namespaces=ns)
+                        artist = root.find(".//ns0:artist-credit/ns0:name-credit/ns0:artist/ns0:name", namespaces=ns)
+                        length = root.find(".//ns0:length", namespaces=ns)
+
+                        results.append({
+                            "mbid": mbid,
+                            "title": title.text if title is not None else "Unknown Song",
+                            "duration": int(length.text) if length is not None and length.text else None,
+                            "artist_name": artist.text if artist is not None else "Unknown Artist",
+                            "cover_url": None  # Let your React Native UI fall back to the initials box
+                        })
+                return results
+            except Exception as e:
+                print(f"Solr song search failed: {e}")
+                return []
 
         if search_type == 'all':
             return {

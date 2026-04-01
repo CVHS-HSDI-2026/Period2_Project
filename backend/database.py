@@ -8,8 +8,10 @@ import os
 from typing import Any
 from dotenv import load_dotenv
 
-load_dotenv()
+from backend.musicbrainz import MusicBrainzDatabase
 
+load_dotenv()
+mb_db = MusicBrainzDatabase()
 
 # Todo: We should make a separate database class for the MusicBrainz DB to prevent confusion about which DB we're
 #  calling in the code.
@@ -266,30 +268,42 @@ class Database:
         for reply in replies:
             list_replies.append(reply)
 
-    def get_user_favorites(self, user_id: int) -> list[dict[str, Any]]:
-        """
-        Returns the favorite songs + the rank of the favorites for a given user.
+    def get_user_favorite_songs(self, user_id: int) -> list[dict[str, Any]]:
+        self.cursor.execute("""
+            SELECT f.rank, s.id as song_id, s.mbid, s.title, a.name as artist_name 
+            FROM User_Favorite_Song f
+            JOIN Song s ON f.song_id = s.id
+            LEFT JOIN Artist a ON s.artist_id = a.id
+            WHERE f.user_id = %s ORDER BY f.rank
+        """, (user_id,))
+        return [dict(row) for row in self.cursor.fetchall()]
 
-        :param user_id:
-        :type user_id: int
-        :return: The list of dictionaries describing the favorite songs.
-        :rtype: list
-        """
-        self.cursor.execute("SELECT * FROM User_Favorite_Song WHERE user_id = %s ORDER BY rank", (user_id,))
-        favorites = self.cursor.fetchall()
-        list_favorites = []
+    def get_user_favorite_albums(self, user_id: int) -> list[dict[str, Any]]:
+        self.cursor.execute("""
+            SELECT f.rank, al.id as album_id, al.mbid, al.title, c.url as cover_url, a.name as artist_name
+            FROM User_Favorite_Album f
+            JOIN Album al ON f.album_id = al.id
+            LEFT JOIN Cover_Art c ON al.cover_art_id = c.id
+            LEFT JOIN Artist a ON al.artist_id = a.id
+            WHERE f.user_id = %s ORDER BY f.rank
+        """, (user_id,))
+        return [dict(row) for row in self.cursor.fetchall()]
 
-        for favorite in favorites:
-            list_favorites.append(favorite)
-
-        return list_favorites
+    def get_user_favorite_artists(self, user_id: int) -> list[dict[str, Any]]:
+        self.cursor.execute("""
+            SELECT f.rank, a.id as artist_id, a.mbid, a.name 
+            FROM User_Favorite_Artist f
+            JOIN Artist a ON f.artist_id = a.id
+            WHERE f.user_id = %s ORDER BY f.rank
+        """, (user_id,))
+        return [dict(row) for row in self.cursor.fetchall()]
 
     def get_followed_count(self, followed_user_id: int) -> int:
         self.cursor.execute("SELECT COUNT(*) FROM User_Follow WHERE followed_id = %s", (followed_user_id,))
         return self.cursor.fetchone()[0]
 
     def get_following_count(self, following_user_id: int) -> int:
-        self.cursor.execute("SELECT COUNT(*) FROM User_Follow WHERE following_id = %s", (following_user_id,))
+        self.cursor.execute("SELECT COUNT(*) FROM User_Follow WHERE follower_id = %s", (following_user_id,))
         return self.cursor.fetchone()[0]
 
     def update_user_bio(self, user_id: int, bio: str) -> bool:
@@ -387,6 +401,94 @@ class Database:
             return True
         except Exception as e:
             print(f"Failed to unfavorite song: {e}")
+            return False
+
+    def favorite_album(self, user_id: int, album_id: int, rank: int) -> bool:
+        """
+        Add an album to the user's favorites.
+
+        :param user_id: The id of the user.
+        :type user_id: int
+        :param album_id: The id of the album to favorite.
+        :type album_id: int
+        :param rank: The rank of the favorite album.
+        :type rank: int
+        :return: True if the operation was successful, False otherwise.
+        :rtype: bool
+        """
+        try:
+            self.cursor.execute(
+                "INSERT INTO User_Favorite_Album (user_id, album_id, rank) VALUES (%s, %s, %s)",
+                (user_id, album_id, rank)
+            )
+            return True
+        except Exception as e:
+            print(f"Failed to favorite album: {e}")
+            return False
+
+    def unfavorite_album(self, user_id: int, album_id: int) -> bool:
+        """
+        Remove an album from the user's favorites.
+
+        :param user_id: The id of the user.
+        :type user_id: int
+        :param album_id: The id of the album to unfavorite.
+        :type album_id: int
+        :return: True if the operation was successful, False otherwise.
+        :rtype: bool
+        """
+        try:
+            self.cursor.execute(
+                "DELETE FROM User_Favorite_Album WHERE user_id = %s AND album_id = %s",
+                (user_id, album_id)
+            )
+            return True
+        except Exception as e:
+            print(f"Failed to unfavorite album: {e}")
+            return False
+
+    def favorite_artist(self, user_id: int, artist_id: int, rank: int) -> bool:
+        """
+        Add an artist to the user's favorites.
+
+        :param user_id: The id of the user.
+        :type user_id: int
+        :param artist_id: The id of the artist to favorite.
+        :type artist_id: int
+        :param rank: The rank of the favorite artist.
+        :type rank: int
+        :return: True if the operation was successful, False otherwise.
+        :rtype: bool
+        """
+        try:
+            self.cursor.execute(
+                "INSERT INTO User_Favorite_Artist (user_id, artist_id, rank) VALUES (%s, %s, %s)",
+                (user_id, artist_id, rank)
+            )
+            return True
+        except Exception as e:
+            print(f"Failed to favorite artist: {e}")
+            return False
+
+    def unfavorite_artist(self, user_id: int, artist_id: int) -> bool:
+        """
+        Remove an artist from the user's favorites.
+
+        :param user_id: The id of the user.
+        :type user_id: int
+        :param artist_id: The id of the artist to unfavorite.
+        :type artist_id: int
+        :return: True if the operation was successful, False otherwise.
+        :rtype: bool
+        """
+        try:
+            self.cursor.execute(
+                "DELETE FROM User_Favorite_Artist WHERE user_id = %s AND artist_id = %s",
+                (user_id, artist_id)
+            )
+            return True
+        except Exception as e:
+            print(f"Failed to unfavorite artist: {e}")
             return False
 
     def create_review(self, user_id: int, song_id: int, album_id: int, rating: int, review_text: str) -> bool:
@@ -535,27 +637,50 @@ class Database:
             print(f"Failed to reply to review: {e}")
             return False
 
+    def get_popular(self) -> list[dict]:
+        """Gets top 10 songs based on the number of reviews and average rating."""
+        try:
+            self.cursor.execute("""
+                SELECT s.mbid, s.title, a.name as artist, 
+                       COUNT(r.id) as review_count, 
+                       ROUND(COALESCE(AVG(r.rating), 0), 1) as rating
+                FROM Song s
+                JOIN Review r ON s.id = r.song_id
+                LEFT JOIN Artist a ON s.artist_id = a.id
+                GROUP BY s.id, a.name
+                ORDER BY review_count DESC, rating DESC 
+                LIMIT 10
+            """)
+            return [dict(row) for row in self.cursor.fetchall()]
+        except Exception as e:
+            print(f"Failed to get popular music: {e}")
+            return []
+
+    def get_new_releases(self) -> list[dict]:
+        """Gets 10 most recently reviewed songs."""
+        try:
+            self.cursor.execute("""
+                SELECT s.mbid, s.title, a.name as artist, 
+                       COUNT(r.id) as review_count, 
+                       ROUND(COALESCE(AVG(r.rating), 0), 1) as rating
+                FROM Song s
+                JOIN Review r ON s.id = r.song_id
+                LEFT JOIN Artist a ON s.artist_id = a.id
+                GROUP BY s.id, a.name, r.created_at
+                ORDER BY r.created_at DESC
+                LIMIT 10
+            """)
+            return [dict(row) for row in self.cursor.fetchall()]
+        except Exception as e:
+            print(f"Failed to get new releases: {e}")
+            return []
+
     def close(self):
         """
         Close the database connection.
         """
         self.cursor.close()
         self.connection.close()
-
-    def search_user(self, query: str) -> list[dict]:
-        """
-        A basic ILIKE search for users. Note: if this is too slow, we may want to switch to using the MB Solr container
-        """
-        search_term = f"%{query}%"
-        self.cursor.execute("""
-                    SELECT artist.gid AS mbid, artist.name, type.name AS artist_type 
-                    FROM artist 
-                    LEFT JOIN artist_type type ON artist.type = type.id
-                    WHERE artist.name ILIKE %s LIMIT 20
-                """, (search_term,))
-
-        return [dict(row) for row in self.cursor.fetchall()]
-
 
 # Testing
 if __name__ == "__main__":

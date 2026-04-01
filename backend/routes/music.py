@@ -35,6 +35,15 @@ def search_music():
     results = mb_db.search(query, search_type, limit)
     return jsonify(results=results), 200
 
+@music_bp.route('/popular', methods=['GET'])
+def get_popular_music():
+    results = app_db.get_popular()
+    return jsonify(results=results), 200
+
+@music_bp.route('/new_releases', methods=['GET'])
+def new_releases():
+    results = app_db.get_new_releases()
+    return jsonify(results=results), 200
 
 @music_bp.route('/artist/<mbid>', methods=['GET'])
 def get_artist(mbid):
@@ -51,8 +60,30 @@ def get_artist(mbid):
     artist_discography = mb_db.get_artist_discography(mbid)
     albums = artist_discography.get('albums', []) if artist_discography else []
 
+    if albums:
+        album_mbids = tuple(album['mbid'] for album in albums)
+
+        # todo: should probably turn this review_count into its own function in the db handler...too bad!
+        app_db.cursor.execute("""
+                SELECT al.mbid, 
+                       COUNT(r.id) as review_count, 
+                       ROUND(COALESCE(AVG(r.rating), 0), 1) as rating
+                FROM Album al
+                LEFT JOIN Review r ON al.id = r.album_id
+                WHERE al.mbid IN %s
+                GROUP BY al.mbid
+            """, (album_mbids,))
+
+        local_stats = {row['mbid']: dict(row) for row in app_db.cursor.fetchall()}
+
+        for album in albums:
+            stats = local_stats.get(album['mbid'], {})
+            album['rating'] = stats.get('rating', 5)
+            album['commentsCount'] = stats.get('review_count', 0)
+
     return jsonify({
         "artist": {
+            "id": local_artist.get("id"),
             "name": local_artist.get("name"),
             "mbid": local_artist.get("mbid"),
             "disambiguation": local_artist.get("disambiguation"),
@@ -93,15 +124,23 @@ def get_album(mbid):
 
     reviews = app_db.fetch_reviews(album_id=local_album['id']) if local_album else []
 
+    avg_rating = 5
+    if reviews:
+        valid_ratings = [r['rating'] for r in reviews if r.get('rating') is not None]
+        if valid_ratings:
+            avg_rating = round(sum(valid_ratings) / len(valid_ratings), 1)
+
     return jsonify({
         "album": {
+            "id": local_album.get("id"),
             "title": local_album.get("title") if local_album else mb_album.get("title"),
+            "mbid": mbid,
             "artist": local_artist.get("name"),
             "artist_mbid": local_artist.get("mbid"),
             "year": mb_album.get("release_year") if mb_album else "Unknown",
             "cover": cover_url,
             "genre": genre_string,
-            "rating": local_album.get("average_rating") or "N/A",
+            "rating": avg_rating,
             "tracks": mb_album.get("tracks", []) if mb_album else []
         },
         "reviews": reviews
@@ -135,14 +174,22 @@ def get_song(mbid):
 
     reviews = app_db.fetch_reviews(song_id=local_song['id']) if local_song else []
 
+    avg_rating = 5
+    if reviews:
+        valid_ratings = [r['rating'] for r in reviews if r.get('rating') is not None]
+        if valid_ratings:
+            avg_rating = round(sum(valid_ratings) / len(valid_ratings), 1)
+
     return jsonify({
         "song": {
+            "id": local_song.get("id"),
             "title": local_song.get("title") if local_song else mb_song.get("title"),
+            "mbid": mbid,
             "artist": local_artist.get("name"),
             "artist_mbid": local_artist.get("mbid"),
             "album": mb_song.get("album_title") if mb_song else "Unknown Album",
             "album_mbid": mb_song.get("album_mbid") if mb_song else None,
-            "rating": local_song.get("average_rating") or "N/A",
+            "rating": avg_rating,
             "genre": genre_string,
             "duration": local_song.get("duration") if local_song else mb_song.get("duration"),
             "year": mb_song.get("release_year") if mb_song else "Unknown",

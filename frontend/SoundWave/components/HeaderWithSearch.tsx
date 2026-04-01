@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import {MaterialIcons} from '@expo/vector-icons';
 import {fetchSearchResults} from '@/services/api';
-import { useAuth } from '@/context/context';
+import {useAuth} from '@/context/context';
 
 interface HeaderProps {
 	title: string;
@@ -26,7 +26,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({title}) => {
 	const [liveResults, setLiveResults] = useState({artists: [], albums: [], songs: []});
 
 	const debounceTimer = React.useRef<NodeJS.Timeout | null>(null);
-	const { user, logout } = useAuth();
+	const {user, logout} = useAuth();
 
 	useEffect(() => {
 		if (searchText.trim().length < 2) {
@@ -84,7 +84,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({title}) => {
 
 	const handleProfileMenuPress = () => {
 		if (user) {
-			router.push({ pathname: "/Profile", params: { username: user.username, isOwner: "true" }});
+			router.push({pathname: "/Profile", params: {username: user.username, isOwner: "true"}});
 		} else {
 			router.push("/Login");
 		}
@@ -245,7 +245,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({title}) => {
 									<View style={styles.divider}/>
 								</>
 							) : (
-								<View style={{ padding: 12 }}>
+								<View style={{padding: 12}}>
 									<Text style={styles.username}>Not logged in</Text>
 								</View>
 							)}
@@ -253,7 +253,6 @@ const HeaderWithSearch: FC<HeaderProps> = ({title}) => {
 							{/* Divider */}
 							<View style={styles.divider}/>
 
-							{/* Menu items */}
 							<TouchableOpacity
 								style={styles.menuItem}
 								onPress={handleProfileMenuPress}
@@ -276,12 +275,15 @@ const HeaderWithSearch: FC<HeaderProps> = ({title}) => {
 
 							<TouchableOpacity
 								style={styles.menuItem}
-								onPress={handleLogoutPress}
+								onPress={user ? handleLogoutPress : () => {
+									router.push("/Login");
+									setIsDropdownVisible(false);
+								}}
 							>
 								<Text style={styles.menuIcon}>
-									<MaterialIcons name="logout" size={24} color="#1f1f1f"/>
+									<MaterialIcons name={user ? "logout" : "login"} size={24} color="#1f1f1f"/>
 								</Text>
-								<Text style={styles.menuText}>Logout</Text>
+								<Text style={styles.menuText}>{user ? "Logout" : "Log In"}</Text>
 							</TouchableOpacity>
 						</View>
 					)}

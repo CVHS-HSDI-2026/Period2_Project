@@ -22,26 +22,18 @@ def get_user_profile(username):
     following_count = db.get_following_count(user_id)
 
     activity = db.get_user_activity(user_id) or []
-    favorites = db.get_user_favorites(user_id) or []
-
-    if not followed_by:
-        return jsonify("Failed to fetch followed users"), 500
-
-    if not following_count:
-        return jsonify("Failed to fetch following users"), 500
-
-    if not activity:
-        return jsonify("Failed to fetch activity"), 500
-
-    if not favorites:
-        return jsonify("Failed to fetch user favorites"), 500
+    favorite_songs = db.get_user_favorite_songs(user_id) or []
+    favorite_albums = db.get_user_favorite_albums(user_id) or []
+    favorite_artists = db.get_user_favorite_artists(user_id) or []
 
     return jsonify({
         "user": user,
         "followers": followed_by,
         "following": following_count,
         "activity": activity,
-        "favorites": favorites
+        "favorite_songs": favorite_songs,
+        "favorite_albums": favorite_albums,
+        "favorite_artists": favorite_artists,
     }), 200
 
 @users_bp.route('/<username>', methods=['DELETE'])
@@ -180,3 +172,106 @@ def add_favorite_song():
         return jsonify({"message": "Failed to favorite song"}), 500
     else:
         return jsonify({"message": "Successfully favorite song"}, song_id=song_id), 200
+
+@users_bp.route('/favorite/song', methods=['DELETE'])
+@jwt_required()
+def remove_favorite_song():
+    """
+    Removes a song from the user's favorites.
+
+    DTO:
+    {
+      "song_id": int,
+      "rank": int,
+    }
+    """
+
+    data = request.get_json()
+    current_user_identity = get_jwt_identity()
+
+    if not current_user_identity:
+        return jsonify({"message": "User not logged in"}), 401
+
+    if not data["song_id"]:
+        return jsonify({"message": "Song not found"}), 401
+
+    if not data["rank"]:
+        return jsonify({"message": "Rank not found"}), 401
+
+    user_id = db.get_user(username=current_user_identity)["user_id"]
+    song_id = data["song_id"]
+    rank = data["rank"]
+
+    if not user_id:
+        return jsonify({"message": "User not logged in"}), 401
+
+    success = db.unfavorite_song(user_id, song_id, rank)
+
+    if not success:
+        return jsonify({"message": "Failed to unfavorite song"}), 500
+    else:
+        return jsonify({"message": "Successfully unfavorited song"}, song_id=song_id), 200
+
+@users_bp.route('/favorite/album', methods=['POST'])
+@jwt_required()
+def add_favorite_album():
+    data = request.get_json()
+    current_user_identity = get_jwt_identity()
+
+    if not data.get("album_id") or not data.get("rank"):
+        return jsonify({"message": "Missing album_id or rank"}), 400
+
+    user_id = db.get_user(username=current_user_identity)["user_id"]
+    success = db.favorite_album(user_id, data["album_id"], data["rank"])
+
+    if not success:
+        return jsonify({"message": "Failed to favorite album"}), 500
+    return jsonify({"message": "Successfully favorited album"}), 200
+
+@users_bp.route('/favorite/album', methods=['DELETE'])
+@jwt_required()
+def remove_favorite_album():
+    data = request.get_json()
+    current_user_identity = get_jwt_identity()
+
+    if not data.get("album_id") or not data.get("rank"):
+        return jsonify({"message": "Missing album_id or rank"}), 400
+
+    user_id = db.get_user(username=current_user_identity)["user_id"]
+    success = db.unfavorite_album(user_id, data["album_id"], data["rank"])
+
+    if not success:
+        return jsonify({"message": "Failed to unfavorite album"}), 500
+    return jsonify({"message": "Successfully unfavorited album"}), 200
+
+@users_bp.route('/favorite/artist', methods=['POST'])
+@jwt_required()
+def add_favorite_artist():
+    data = request.get_json()
+    current_user_identity = get_jwt_identity()
+
+    if not data.get("artist_id") or not data.get("rank"):
+        return jsonify({"message": "Missing artist_id or rank"}), 400
+
+    user_id = db.get_user(username=current_user_identity)["user_id"]
+    success = db.favorite_artist(user_id, data["artist_id"], data["rank"])
+
+    if not success:
+        return jsonify({"message": "Failed to favorite artist"}), 500
+    return jsonify({"message": "Successfully favorited artist"}), 200
+
+@users_bp.route('/favorite/artist', methods=['DELETE'])
+@jwt_required()
+def remove_favorite_artist():
+    data = request.get_json()
+    current_user_identity = get_jwt_identity()
+
+    if not data.get("artist_id") or not data.get("rank"):
+        return jsonify({"message": "Missing artist_id or rank"}), 400
+
+    user_id = db.get_user(username=current_user_identity)["user_id"]
+    success = db.unfavorite_artist(user_id, data["artist_id"], data["rank"])
+
+    if not success:
+        return jsonify({"message": "Failed to unfavorite artist"}), 500
+    return jsonify({"message": "Successfully unfavorited artist"}), 200

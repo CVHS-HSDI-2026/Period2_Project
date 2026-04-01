@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
-import { Song } from "@/services/records";
+import { SongRecord } from "@/services/records";
 import { FontAwesome } from "@expo/vector-icons";
-import { favoriteSong } from "@/services/api";
+import {favoriteSong, unfavoriteSong} from "@/services/api";
 
 const formatTime = (ms: number | string) => {
 	const numMs = Number(ms);
@@ -14,20 +14,24 @@ const formatTime = (ms: number | string) => {
 	return minutes + ":" + (parseInt(seconds) < 10 ? "0" : "") + seconds;
 };
 
-const SongDetails: React.FC<{ song: Song }> = ({ song }) => {
+const SongDetails: React.FC<{ song: SongRecord }> = ({ song }) => {
 	const router = useRouter();
 	const [imageFailed, setImageFailed] = useState(false);
 	const [isFavorited, setIsFavorited] = useState(false);
 
 	if (!song) return null;
 
-	const handleFavorite = async () => {
+	const handleToggleFavorite = async () => {
 		try {
-			await favoriteSong(song.id, 1); // todo: implement queue so we pushback old songs
-			setIsFavorited(true);
-			alert("Added to favorites!");
+			if (isFavorited) {
+				await unfavoriteSong(song.id, 1);
+				setIsFavorited(false);
+			} else {
+				await favoriteSong(song.id, 1);
+				setIsFavorited(true);
+			}
 		} catch (e) {
-			alert("Please log in to favorite songs.");
+			alert("Please log in to manage favorites.");
 		}
 	};
 
@@ -70,10 +74,17 @@ const SongDetails: React.FC<{ song: Song }> = ({ song }) => {
 
 						<Text style={styles.text}><Text style={styles.label}>Year: </Text>{song.year}</Text>
 
-						<View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-							<Text style={styles.text}><Text style={styles.label}>Title: </Text>{song.title}</Text>
-							<TouchableOpacity onPress={handleFavorite}>
-								<FontAwesome name={isFavorited ? "heart" : "heart-o"} size={22} color={isFavorited ? "#ff3b3b" : "#FFFFFF"} />
+						<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+							<Text style={[styles.text, { flex: 1, marginRight: 10 }]} numberOfLines={2}>
+								<Text style={styles.label}>Title: </Text>{song.title}
+							</Text>
+
+							<TouchableOpacity onPress={handleToggleFavorite} style={{ padding: 4 }}>
+								<FontAwesome
+									name={isFavorited ? "heart" : "heart-o"}
+									size={24}
+									color={isFavorited ? "#ff3b3b" : "#FFFFFF"}
+								/>
 							</TouchableOpacity>
 						</View>
 					</View>
