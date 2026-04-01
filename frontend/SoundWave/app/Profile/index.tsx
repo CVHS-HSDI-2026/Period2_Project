@@ -70,12 +70,12 @@ export default function Profile() {
 
 	const colOne = [
 		{columnName: 'Username:', value: profileData.user.username},
-		{columnName: 'Followers:', value: profileData.followers},
+		{columnName: 'Joined:', value: new Date(profileData.user.created_at).toLocaleDateString()},
 	];
 
 	const colTwo = [
+		{columnName: 'Followers:', value: profileData.followers},
 		{columnName: 'Following:', value: profileData.following},
-		{columnName: 'Joined:', value: new Date(profileData.user.created_at).toLocaleDateString()},
 	];
 
 	// const colone = isProfileOwner

@@ -34,7 +34,7 @@ export default function SongBox({song}: { song: SongRecord }) {
 			{/* Content */}
 			<View style={styles.contentBox}>
 				<ScrollView showsVerticalScrollIndicator={false}>
-					{activeTab === "comments" && <CommentsOnly songId={song.id}/>}
+					{activeTab === "comments" && <CommentsOnly itemId={song.id} type="song" />}
 					{activeTab === "recomended" && <RecommendedBox/>}
 				</ScrollView>
 			</View>

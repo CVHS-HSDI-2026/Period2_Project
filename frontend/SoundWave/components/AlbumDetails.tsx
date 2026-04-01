@@ -1,13 +1,16 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {useRouter} from 'expo-router';
 import {Image} from 'expo-image';
 import {Album} from "@/services/records";
 import {FontAwesome} from "@expo/vector-icons";
-import {favoriteAlbum, unfavoriteAlbum} from "@/services/api";
+import {favoriteAlbum, fetchProfile, unfavoriteAlbum} from "@/services/api";
+import {useAuth} from "@/context/context";
 
 const AlbumDetails: React.FC<{ album: Album }> = ({album}) => {
 	const router = useRouter();
+	const { user } = useAuth();
+
 	const [imageFailed, setImageFailed] = useState(false);
 	const [isFavorited, setIsFavorited] = useState(false);
 
@@ -24,6 +27,15 @@ const AlbumDetails: React.FC<{ album: Album }> = ({album}) => {
 			alert("Please log in to manage favorites.");
 		}
 	};
+
+	useEffect(() => {
+		if (user && album) {
+			fetchProfile(user.username).then(profileData => {
+				const alreadyFavorited = profileData.favorite_albums?.some((fav: any) => fav.album_id === album.id);
+				setIsFavorited(!!alreadyFavorited);
+			}).catch(e => console.error(e));
+		}
+	}, [user, album]);
 
 	if (!album) return null;
 
@@ -47,14 +59,6 @@ const AlbumDetails: React.FC<{ album: Album }> = ({album}) => {
 							<Text style={[styles.text, {flex: 1, marginRight: 10}]} numberOfLines={2}>
 								<Text style={styles.label}>Title: </Text>{album.title}
 							</Text>
-
-							<TouchableOpacity onPress={handleToggleFavorite} style={{padding: 4}}>
-								<FontAwesome
-									name={isFavorited ? "heart" : "heart-o"}
-									size={24}
-									color={isFavorited ? "#ff3b3b" : "#FFFFFF"}
-								/>
-							</TouchableOpacity>
 						</View>
 						<Text style={styles.text}>
 							<Text style={styles.label}>Artist: </Text>
@@ -70,6 +74,16 @@ const AlbumDetails: React.FC<{ album: Album }> = ({album}) => {
 						<Text style={styles.text}><Text style={styles.label}>Rating: </Text>{album.rating || "N/A"}
 						</Text>
 						<Text style={styles.text}><Text style={styles.label}>Genre: </Text>{album.genre || "N/A"}</Text>
+						<TouchableOpacity onPress={handleToggleFavorite} style={{flexDirection: 'row', alignItems: 'center', gap: 8, padding: 4}}>
+							<FontAwesome
+								name={isFavorited ? "heart" : "heart-o"}
+								size={24}
+								color={isFavorited ? "#ff3b3b" : "#FFFFFF"}
+							/>
+							<Text style={styles.text}>
+								<Text style={styles.label}>Favorite</Text>
+							</Text>
+						</TouchableOpacity>
 					</View>
 				</View>
 			</View>

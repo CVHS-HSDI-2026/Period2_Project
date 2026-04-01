@@ -17,7 +17,7 @@ def create_review():
     """
 
     username = get_jwt_identity()
-    user_id = db.get_user(username)["user_id"]
+    user_id = db.get_user(username)["id"]
     if not user_id:
         return jsonify({"message": "User does not exist"}), 404
 
@@ -40,7 +40,7 @@ def create_review():
     if not review_text:
         rating = None
 
-    existing_review = db.fetch_review(user_id, song_id, album_id)
+    existing_review = db.fetch_review(user_id=user_id, song_id=song_id, album_id=album_id)
     if existing_review:
         return jsonify({"message": "Review already exists"}), 400
 
@@ -59,12 +59,12 @@ def delete_review(review_id):
     """
 
     username = get_jwt_identity()
-    user_id = db.get_user(username)["user_id"]
+    user_id = db.get_user(username)["id"]
     if not user_id:
         return jsonify({"message": "User does not exist"}), 404
 
     existing_review = db.fetch_review(user_id, review_id)
-    if not existing_review["user_id"] == user_id:
+    if not existing_review["id"] == user_id:
         return jsonify({"message": "User does not own review"}), 400
 
     deleted_review = db.delete_review(user_id, review_id)
@@ -82,7 +82,7 @@ def reply_to_review(review_id):
     """
 
     username = get_jwt_identity()
-    user_id = db.get_user(username)["user_id"]
+    user_id = db.get_user(username)["id"]
     if not user_id:
         return jsonify({"message": "User does not exist"}), 404
 

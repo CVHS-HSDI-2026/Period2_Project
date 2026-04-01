@@ -74,20 +74,19 @@ export const fetchSongDetails = async (mbid: string) => {
 	}
 }
 
-export const fetchSongReviews = async (songId: number) => {
+export const fetchReviews = async (id: number, type: 'song' | 'album') => {
 	try {
-		const response = await fetch(`${BASE_URL}/api/reviews/song/${songId}`);
+		const response = await fetch(`${BASE_URL}/api/reviews/${type}/${id}`);
 		if (!response.ok) throw new Error("Failed to fetch reviews");
 		const data = await response.json();
-		// If the backend returns a message instead of an array (e.g., "No reviews found"), return empty array
 		return Array.isArray(data) ? data : [];
 	} catch (error) {
-		console.error('API Error (fetchSongReviews):', error);
+		console.error(`API Error (fetch ${type} reviews):`, error);
 		return [];
 	}
 };
 
-export const postReview = async (songId: number, reviewText: string, rating: number = 0) => {
+export const postReview = async (id: number, type: 'song' | 'album', reviewText: string, rating: number = 0) => {
 	try {
 		const token = await getAuthToken();
 		const response = await fetch(`${BASE_URL}/api/reviews/`, {
@@ -97,8 +96,8 @@ export const postReview = async (songId: number, reviewText: string, rating: num
 				'Authorization': `Bearer ${token}`
 			},
 			body: JSON.stringify({
-				song_id: songId,
-				album_id: null,
+				song_id: type === 'song' ? id : null,
+				album_id: type === 'album' ? id : null,
 				rating: rating,
 				review_text: reviewText
 			})

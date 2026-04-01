@@ -76,7 +76,7 @@ def follow_user():
     data = request.get_json()
     current_user_identity = get_jwt_identity()
 
-    follower_id = db.get_user(username=current_user_identity)["user_id"]
+    follower_id = db.get_user(username=current_user_identity)["id"]
     followed_id = data["followed_id"]
 
     if not current_user_identity:
@@ -103,7 +103,7 @@ def unfollow_user():
     data = request.get_json()
     current_user_identity = get_jwt_identity()
 
-    follower_id = db.get_user(username=current_user_identity)["user_id"]
+    follower_id = db.get_user(username=current_user_identity)["id"]
     followed_id = data["followed_id"]
 
     if not current_user_identity:
@@ -164,7 +164,7 @@ def add_favorite_song():
     if not data["rank"]:
         return jsonify({"message": "Rank not found"}), 401
 
-    user_id = db.get_user(username=current_user_identity)["user_id"]
+    user_id = db.get_user(username=current_user_identity)["id"]
     song_id = data["song_id"]
     rank = data["rank"]
 
@@ -176,7 +176,7 @@ def add_favorite_song():
     if not success:
         return jsonify({"message": "Failed to favorite song"}), 500
     else:
-        return jsonify({"message": "Successfully favorite song"}, song_id=song_id), 200
+        return jsonify({"message": "Successfully favorite song"}), 200
 
 
 @users_bp.route('/favorite/song', methods=['DELETE'])
@@ -204,19 +204,18 @@ def remove_favorite_song():
     if not data["rank"]:
         return jsonify({"message": "Rank not found"}), 401
 
-    user_id = db.get_user(username=current_user_identity)["user_id"]
+    user_id = db.get_user(username=current_user_identity)["id"]
     song_id = data["song_id"]
-    rank = data["rank"]
 
     if not user_id:
         return jsonify({"message": "User not logged in"}), 401
 
-    success = db.unfavorite_song(user_id, song_id, rank)
+    success = db.unfavorite_song(user_id, song_id)
 
     if not success:
         return jsonify({"message": "Failed to unfavorite song"}), 500
     else:
-        return jsonify({"message": "Successfully unfavorited song"}, song_id=song_id), 200
+        return jsonify({"message": "Successfully unfavorited song"}), 200
 
 
 @users_bp.route('/favorite/album', methods=['POST'])
@@ -228,7 +227,7 @@ def add_favorite_album():
     if not data.get("album_id") or not data.get("rank"):
         return jsonify({"message": "Missing album_id or rank"}), 400
 
-    user_id = db.get_user(username=current_user_identity)["user_id"]
+    user_id = db.get_user(username=current_user_identity)["id"]
     success = db.favorite_album(user_id, data["album_id"], data["rank"])
 
     if not success:
@@ -245,8 +244,8 @@ def remove_favorite_album():
     if not data.get("album_id") or not data.get("rank"):
         return jsonify({"message": "Missing album_id or rank"}), 400
 
-    user_id = db.get_user(username=current_user_identity)["user_id"]
-    success = db.unfavorite_album(user_id, data["album_id"], data["rank"])
+    user_id = db.get_user(username=current_user_identity)["id"]
+    success = db.unfavorite_album(user_id, data["album_id"])
 
     if not success:
         return jsonify({"message": "Failed to unfavorite album"}), 500
@@ -262,7 +261,7 @@ def add_favorite_artist():
     if not data.get("artist_id") or not data.get("rank"):
         return jsonify({"message": "Missing artist_id or rank"}), 400
 
-    user_id = db.get_user(username=current_user_identity)["user_id"]
+    user_id = db.get_user(username=current_user_identity)["id"]
     success = db.favorite_artist(user_id, data["artist_id"], data["rank"])
 
     if not success:
@@ -279,8 +278,8 @@ def remove_favorite_artist():
     if not data.get("artist_id") or not data.get("rank"):
         return jsonify({"message": "Missing artist_id or rank"}), 400
 
-    user_id = db.get_user(username=current_user_identity)["user_id"]
-    success = db.unfavorite_artist(user_id, data["artist_id"], data["rank"])
+    user_id = db.get_user(username=current_user_identity)["id"]
+    success = db.unfavorite_artist(user_id, data["artist_id"])
 
     if not success:
         return jsonify({"message": "Failed to unfavorite artist"}), 500

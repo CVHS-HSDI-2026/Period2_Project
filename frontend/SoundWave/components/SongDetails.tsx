@@ -1,10 +1,11 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {useRouter} from 'expo-router';
 import {Image} from 'expo-image';
 import {SongRecord} from "@/services/records";
 import {FontAwesome} from "@expo/vector-icons";
-import {favoriteSong, unfavoriteSong} from "@/services/api";
+import {favoriteSong, fetchProfile, unfavoriteSong} from "@/services/api";
+import {useAuth} from "@/context/context";
 
 const formatTime = (ms: number | string) => {
 	const numMs = Number(ms);
@@ -16,6 +17,8 @@ const formatTime = (ms: number | string) => {
 
 const SongDetails: React.FC<{ song: SongRecord }> = ({song}) => {
 	const router = useRouter();
+	const { user } = useAuth();
+
 	const [imageFailed, setImageFailed] = useState(false);
 	const [isFavorited, setIsFavorited] = useState(false);
 
@@ -34,6 +37,23 @@ const SongDetails: React.FC<{ song: SongRecord }> = ({song}) => {
 			alert("Please log in to manage favorites.");
 		}
 	};
+
+	useEffect(() => {
+		const checkFavoriteStatus = async () => {
+			if (user && song) {
+				try {
+					const profileData = await fetchProfile(user.username);
+					const alreadyFavorited = profileData.favorite_songs?.some(
+						(fav: any) => fav.song_id === song.id
+					);
+					setIsFavorited(!!alreadyFavorited);
+				} catch (error) {
+					console.error("Failed to check favorite status", error);
+				}
+			}
+		};
+		checkFavoriteStatus();
+	}, [user, song]);
 
 	return (
 		<View style={styles.outerContainer}>
@@ -87,6 +107,9 @@ const SongDetails: React.FC<{ song: SongRecord }> = ({song}) => {
 									size={24}
 									color={isFavorited ? "#ff3b3b" : "#FFFFFF"}
 								/>
+								<Text style={styles.text}>
+									<Text style={styles.label}>Favorite</Text>
+								</Text>
 							</TouchableOpacity>
 						</View>
 					</View>

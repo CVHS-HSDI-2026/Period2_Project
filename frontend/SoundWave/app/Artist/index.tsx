@@ -4,12 +4,15 @@ import HeaderWithSearch from "../../components/HeaderWithSearch";
 import {useRouter, useLocalSearchParams} from "expo-router";
 import {useFonts, Jost_400Regular, Jost_500Medium, Jost_700Bold} from '@expo-google-fonts/jost';
 import SongCard from "../../components/SongCard";
-import {favoriteArtist, fetchArtistDetails, unfavoriteArtist} from "@/services/api";
+import {favoriteArtist, fetchArtistDetails, fetchProfile, unfavoriteArtist} from "@/services/api";
 import ArtistCard, {stringToColor} from "@components/ArtistCard";
 import {FontAwesome} from "@expo/vector-icons";
+import {useAuth} from "@/context/context";
 
 export default function Artist() {
 	const router = useRouter();
+	const {user} = useAuth();
+
 	const {mbid} = useLocalSearchParams<{ mbid: string }>();
 	const [isFavorited, setIsFavorited] = useState(false);
 
@@ -31,6 +34,15 @@ export default function Artist() {
 		};
 		loadArtist();
 	}, [mbid]);
+
+	useEffect(() => {
+		if (user && artistData?.artist) {
+			fetchProfile(user.username).then(profileData => {
+				const alreadyFavorited = profileData.favorite_artists?.some((fav: any) => fav.artist_id === artistData.artist.id);
+				setIsFavorited(!!alreadyFavorited);
+			}).catch(e => console.error(e));
+		}
+	}, [user, artistData]);
 
 	if (!fontsLoaded) return null;
 
@@ -117,6 +129,9 @@ export default function Artist() {
 									size={24}
 									color={isFavorited ? "#ff3b3b" : "#FFFFFF"}
 								/>
+								<Text style={styles.text}>
+									<Text style={styles.label}>Favorite</Text>
+								</Text>
 							</TouchableOpacity>
 						</View>
 					</View>
@@ -259,4 +274,6 @@ const styles = StyleSheet.create({
 		paddingRight: 20,
 		width: '100%',
 	},
+	text: {fontSize: 20, color: '#FFF', fontFamily: 'Jost_400Regular'},
+	label: {fontWeight: '400', color: '#FFF'},
 });

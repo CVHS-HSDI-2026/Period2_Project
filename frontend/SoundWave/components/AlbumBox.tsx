@@ -31,7 +31,7 @@ export default function AlbumBox({album}: { album: Album }) {
 
 			<View style={styles.contentBox}>
 				<ScrollView showsVerticalScrollIndicator={false}>
-					{activeTab === "comments" && <CommentsOnly songId={album.id}/>}
+					{activeTab === "comments" && <CommentsOnly itemId={album.id} type="album" />}
 					{activeTab === "recomended" && <RecommendedBox/>}
 					{activeTab === "tracks" && <TracksBox album={album}/>}
 				</ScrollView>

@@ -3,7 +3,7 @@ import {View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image, 
 import {useFonts, Jost_400Regular} from "@expo-google-fonts/jost";
 import {FontAwesome} from "@expo/vector-icons";
 import {router} from "expo-router";
-import {fetchSongReviews, postReview} from "@/services/api";
+import {fetchReviews, postReply, postReview} from "@/services/api";
 import {CommentType, Reply} from "@/services/records";
 
 const replyIcon = require("../assets/reply.png");
@@ -13,7 +13,7 @@ const upArrow = require("../assets/up-arrow.png");
 const downArrow = require("../assets/down-arrow.png");
 const plus = require("../assets/plus.png");
 
-export default function CommentsOnly({songId}: { songId: number }) {
+export default function CommentsOnly({itemId, type}: { itemId: number, type: 'song' | 'album' }) {
 	const [fontsLoaded] = useFonts({Jost_400Regular});
 	const [comments, setComments] = useState<any[]>([]);
 	const [newComment, setNewComment] = useState("");
@@ -23,12 +23,12 @@ export default function CommentsOnly({songId}: { songId: number }) {
 
 	useEffect(() => {
 		const loadReviews = async () => {
-			if (!songId) {
+			if (!itemId) {
 				setLoading(false);
 				return;
 			}
 			try {
-				const data = await fetchSongReviews(songId);
+				const data = await fetchReviews(itemId, type);
 				setComments(data || []);
 			} catch (error) {
 				console.error("Error loading reviews:", error);
@@ -37,12 +37,12 @@ export default function CommentsOnly({songId}: { songId: number }) {
 			}
 		};
 		loadReviews();
-	}, [songId]);
+	}, [itemId]);
 
 	const handlePostComment = async () => {
 		if (!newComment.trim()) return;
 		try {
-			await postReview(songId, newComment, rating);
+			await postReview(itemId, type, newComment, rating);
 
 			setComments((prev) => [
 				...prev,
@@ -53,6 +53,30 @@ export default function CommentsOnly({songId}: { songId: number }) {
 			setShowCommentBox(false);
 		} catch (e) {
 			alert("You must be logged in to post a comment!");
+		}
+	};
+
+	const handlePostReply = async (reviewId: number, text: string) => {
+		if (!text.trim()) return;
+		try {
+			await postReply(reviewId, text);
+
+			setComments((prev) =>
+				prev.map((comment) => {
+					if (comment.id === reviewId) {
+						return {
+							...comment,
+							replies: [
+								...(comment.replies || []),
+								{ id: Date.now(), text: text, username: "You" }
+							]
+						};
+					}
+					return comment;
+				})
+			);
+		} catch (e) {
+			alert("You must be logged in to reply!");
 		}
 	};
 
@@ -68,7 +92,8 @@ export default function CommentsOnly({songId}: { songId: number }) {
 								contentContainerStyle={{paddingBottom: 20}}>
 						{comments.length > 0 ? (
 							comments.map((c, index) => (
-								<Comment key={c.id || index} text={c.review_text} username={c.username}/>
+								<Comment key={c.id || index} text={c.review_text} username={c.username}
+										 rating={c.rating} replies={c.replies} onReply={(text) => handlePostReply(c.id, text)}/>
 							))
 						) : (
 							<Text style={styles.addCommentText}>No comments yet. Be the first!</Text>
@@ -121,39 +146,36 @@ export default function CommentsOnly({songId}: { songId: number }) {
 function Comment({
 					 text,
 					 username,
+					 rating,
 					 replies = [],
 					 onReply,
 					 isReply = false,
 				 }: {
 	text: string;
 	username: string;
+	rating?: number;
 	replies?: Reply[];
 	onReply?: (text: string) => void;
 	isReply?: boolean;
 }) {
-	const [liked, setLiked] = useState(false);
 	const [replyOpen, setReplyOpen] = useState(false);
 	const [replyText, setReplyText] = useState("");
 	const [showReplies, setShowReplies] = useState(false);
 
 	return (
 		<View style={{marginBottom: 3}}>
-			<TouchableOpacity onPress={() => router.push("/Artist")}>
+			<TouchableOpacity onPress={() => router.push({pathname: "/Profile", params: { username, isOwner: "false" } })}>
 				<View style={styles.userRow}>
 					<View style={styles.avatar}/>
-					<Text style={styles.usernameText}>Username</Text>
+					<Text style={styles.usernameText}>
+						{username}
+						{rating !== undefined && rating !== null ? ` ${rating}/10` : ''}
+					</Text>
 				</View>
 			</TouchableOpacity>
 			<View style={styles.commentRow}>
 				<Text style={styles.commentText}>{text}</Text>
 				<View style={styles.iconRow}>
-					<TouchableOpacity onPress={() => setLiked(!liked)}>
-						<FontAwesome
-							name={liked ? "thumbs-up" : "thumbs-o-up"}
-							size={18}
-							color="#FFFFFF"
-						/>
-					</TouchableOpacity>
 					{!isReply && (
 						<TouchableOpacity onPress={() => setReplyOpen(!replyOpen)}>
 							<Image source={replyIcon} style={styles.iconImage}/>

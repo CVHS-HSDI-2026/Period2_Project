@@ -536,21 +536,16 @@ class Database:
         :return:
         """
         if review_id:
-            self.cursor.execute("SELECT * FROM Review WHERE review_id = %s", (review_id,))
-            review = self.cursor.fetchone()
-            if review:
-                return review
+            self.cursor.execute("SELECT * FROM Review WHERE id = %s", (review_id,))
         elif song_id:
             self.cursor.execute("SELECT * FROM Review WHERE user_id = %s AND song_id = %s", (user_id, song_id))
-            review = self.cursor.fetchone()
-            if review:
-                return review
         elif album_id:
             self.cursor.execute("SELECT * FROM Review WHERE user_id = %s AND album_id = %s", (user_id, album_id))
-            review = self.cursor.fetchone()
-            if review:
-                return review
-        raise Exception(f"Invalid request. Missing any of these fields: review_id, song_id, album_id")
+        else:
+            raise Exception("Invalid request. Missing any of these fields: review_id, song_id, album_id")
+
+        review = self.cursor.fetchone()
+        return dict(review) if review else None
 
     def fetch_reviews(self, song_id: int = None, album_id: int = None) -> list[dict]:
         """
@@ -642,16 +637,28 @@ class Database:
         """Gets top 10 songs based on the number of reviews and average rating."""
         try:
             self.cursor.execute("""
-                SELECT s.mbid, s.title, a.name as artist, 
-                       COUNT(r.id) as review_count, 
-                       ROUND(COALESCE(AVG(r.rating), 0), 1) as rating
-                FROM Song s
-                JOIN Review r ON s.id = r.song_id
-                LEFT JOIN Artist a ON s.artist_id = a.id
-                GROUP BY s.id, a.name
-                ORDER BY review_count DESC, rating DESC 
-                LIMIT 10
-            """)
+                        (SELECT 'song' as type, s.mbid, s.title, a.name as artist, NULL as cover_url,
+                               COUNT(r.id) as review_count, 
+                               ROUND(COALESCE(AVG(r.rating), 0), 1) as rating
+                        FROM Song s
+                        JOIN Review r ON s.id = r.song_id
+                        LEFT JOIN Artist a ON s.artist_id = a.id
+                        GROUP BY s.id, a.name)
+
+                        UNION ALL
+
+                        (SELECT 'album' as type, al.mbid, al.title, a.name as artist, c.url as cover_url,
+                               COUNT(r.id) as review_count, 
+                               ROUND(COALESCE(AVG(r.rating), 0), 1) as rating
+                        FROM Album al
+                        JOIN Review r ON al.id = r.album_id
+                        LEFT JOIN Artist a ON al.artist_id = a.id
+                        LEFT JOIN Cover_Art c ON al.cover_art_id = c.id
+                        GROUP BY al.id, a.name, c.url)
+
+                        ORDER BY review_count DESC, rating DESC 
+                        LIMIT 10
+                    """)
             return [dict(row) for row in self.cursor.fetchall()]
         except Exception as e:
             print(f"Failed to get popular music: {e}")
@@ -661,16 +668,30 @@ class Database:
         """Gets 10 most recently reviewed songs."""
         try:
             self.cursor.execute("""
-                SELECT s.mbid, s.title, a.name as artist, 
-                       COUNT(r.id) as review_count, 
-                       ROUND(COALESCE(AVG(r.rating), 0), 1) as rating
-                FROM Song s
-                JOIN Review r ON s.id = r.song_id
-                LEFT JOIN Artist a ON s.artist_id = a.id
-                GROUP BY s.id, a.name, r.created_at
-                ORDER BY r.created_at DESC
-                LIMIT 10
-            """)
+                        (SELECT 'song' as type, s.mbid, s.title, a.name as artist, NULL as cover_url,
+                               COUNT(r.id) as review_count, 
+                               ROUND(COALESCE(AVG(r.rating), 0), 1) as rating,
+                               MAX(r.created_at) as latest_review
+                        FROM Song s
+                        JOIN Review r ON s.id = r.song_id
+                        LEFT JOIN Artist a ON s.artist_id = a.id
+                        GROUP BY s.id, a.name)
+
+                        UNION ALL
+
+                        (SELECT 'album' as type, al.mbid, al.title, a.name as artist, c.url as cover_url,
+                               COUNT(r.id) as review_count, 
+                               ROUND(COALESCE(AVG(r.rating), 0), 1) as rating,
+                               MAX(r.created_at) as latest_review
+                        FROM Album al
+                        JOIN Review r ON al.id = r.album_id
+                        LEFT JOIN Artist a ON al.artist_id = a.id
+                        LEFT JOIN Cover_Art c ON al.cover_art_id = c.id
+                        GROUP BY al.id, a.name, c.url)
+
+                        ORDER BY latest_review DESC
+                        LIMIT 10
+                    """)
             return [dict(row) for row in self.cursor.fetchall()]
         except Exception as e:
             print(f"Failed to get new releases: {e}")
