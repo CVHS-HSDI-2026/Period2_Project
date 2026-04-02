@@ -1,3 +1,4 @@
+import bcrypt
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -137,6 +138,30 @@ def update_profile(username):
 
     db.update_user_bio(user["id"], data.get("bio", ""))
     return jsonify({"message": "Profile updated successfully"}), 200
+
+
+@users_bp.route('/change_password', methods=['PUT'])
+@jwt_required()
+def change_password():
+    data = request.get_json()
+    current_user_identity = get_jwt_identity()
+
+    old_password = data.get("old_password")
+    new_password = data.get("new_password")
+
+    if not old_password or not new_password:
+        return jsonify({"message": "Missing passwords"}), 400
+
+    user = db.get_user(current_user_identity, filter=[])
+
+    if not bcrypt.checkpw(old_password.encode('utf-8'), user['password_hash'].encode('utf-8')):
+        return jsonify({"message": "Incorrect old password"}), 401
+
+    new_hash = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt(rounds=12))
+
+    if db.update_password(user['id'], new_hash):
+        return jsonify({"message": "Password updated successfully"}), 200
+    return jsonify({"message": "Failed to update password"}), 500
 
 
 @users_bp.route('/favorite/song', methods=['POST'])

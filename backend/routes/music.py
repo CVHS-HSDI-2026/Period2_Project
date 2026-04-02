@@ -22,6 +22,22 @@ def _ensure_artist_exists(artist_mbid: str) -> bool:
     app_db.create_artist(mb_artist)
     return True
 
+def _ensure_album_exists(album_mbid: str, cover_url: str = None) -> bool:
+    if not album_mbid:
+        return False
+
+    local_album = app_db.get_album_by_mbid(album_mbid)
+    if local_album:
+        return True
+
+    mb_album = mb_db.get_album_by_mbid(album_mbid)
+    if not mb_album:
+        return False
+
+    _ensure_artist_exists(mb_album.get('artist_mbid'))
+    app_db.create_album(mb_album, cover_url)
+    return True
+
 
 @music_bp.route('/search', methods=['GET'])
 def search_music():
@@ -84,6 +100,13 @@ def get_artist(mbid):
             album['rating'] = stats.get('rating', 5)
             album['commentsCount'] = stats.get('review_count', 0)
 
+    followers_count = 0
+    if local_artist and local_artist.get("id"):
+        app_db.cursor.execute("""
+                SELECT COUNT(*) FROM User_Favorite_Artist WHERE artist_id = %s
+            """, (local_artist['id'],))
+        followers_count = app_db.cursor.fetchone()[0]
+
     return jsonify({
         "artist": {
             "id": local_artist.get("id"),
@@ -91,7 +114,8 @@ def get_artist(mbid):
             "mbid": local_artist.get("mbid"),
             "disambiguation": local_artist.get("disambiguation"),
             "born": local_artist.get("born"),
-            "died": local_artist.get("died")
+            "died": local_artist.get("died"),
+            "followers": followers_count
         },
         "albums": albums
     }), 200
@@ -170,6 +194,10 @@ def get_song(mbid):
 
         artist_mbid = mb_song.get('artist_mbid')
         _ensure_artist_exists(artist_mbid)
+
+        album_mbid = mb_song.get('album_mbid')
+        if album_mbid:
+            _ensure_album_exists(album_mbid, mb_song.get('cover_url'))
 
         app_db.create_song(mb_song)
         local_song = app_db.get_song_by_mbid(mbid)

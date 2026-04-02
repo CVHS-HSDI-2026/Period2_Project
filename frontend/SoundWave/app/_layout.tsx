@@ -1,5 +1,6 @@
 import {Stack} from 'expo-router';
 import {AuthProvider} from '@/context/context';
+import {Toaster} from "sonner-native";
 
 export default function Layout() {
 	return (
@@ -14,6 +15,7 @@ export default function Layout() {
 				<Stack.Screen name="Settings" options={{title: 'Settings'}}/>
 				<Stack.Screen name="Homepage" options={{title: 'Homepage'}}/>
 			</Stack>
+			<Toaster />
 		</AuthProvider>
 	);
 }

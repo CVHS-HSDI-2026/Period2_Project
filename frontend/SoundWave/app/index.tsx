@@ -50,10 +50,16 @@ export default function App() {
 								key={`popular-${i}`}
 								variant="popular"
 								title={music.title}
-								artist={music.artist || "Unknown Artist"} // Mapped from SQL query
-								rating={music.rating} // Dynamically calculated average rating!
-								commentsCount={music.review_count} // Total number of reviews!
-								onPress={() => router.push({pathname: "/Song", params: {mbid: music.mbid}})}
+								artist={music.artist || "Unknown Artist"}
+								image={music.cover_url}
+								rating={music.rating}
+								commentsCount={music.review_count}
+								onPress={() =>
+									router.push({
+										pathname: music.type === 'album' ? "/Album" : "/Song",
+										params: { mbid: music.mbid }
+									})
+								}
 							/>
 						))
 					) : (
@@ -76,9 +82,15 @@ export default function App() {
 								variant="popular"
 								title={music.title}
 								artist={music.artist || "Unknown Artist"}
+								image={music.cover_url}
 								rating={music.rating}
 								commentsCount={music.review_count}
-								onPress={() => router.push({pathname: "/Song", params: {mbid: music.mbid}})}
+								onPress={() =>
+									router.push({
+										pathname: music.type === 'album' ? "/Album" : "/Song",
+										params: { mbid: music.mbid }
+									})
+								}
 							/>
 						))
 					) : (

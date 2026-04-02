@@ -8,6 +8,7 @@ import {favoriteArtist, fetchArtistDetails, fetchProfile, unfavoriteArtist} from
 import ArtistCard, {stringToColor} from "@components/ArtistCard";
 import {FontAwesome} from "@expo/vector-icons";
 import {useAuth} from "@/context/context";
+import {toast} from "sonner-native";
 
 export default function Artist() {
 	const router = useRouter();
@@ -56,7 +57,7 @@ export default function Artist() {
 				setIsFavorited(true);
 			}
 		} catch (e) {
-			alert("Please log in to manage favorites.");
+			toast("Please log in to manage favorites.");
 		}
 	};
 
@@ -83,7 +84,7 @@ export default function Artist() {
 		{columnName: 'Artist:', value: artist.name},
 		{columnName: 'Born/Formed:', value: artist.born ? new Date(artist.born).getFullYear() : 'Unknown'},
 		{columnName: 'Type:', value: artist.disambiguation || 'Musician'},
-		{columnName: '# Followers:', value: '0'}, // todo: wire to user db
+		{columnName: '# Favorites:', value: artist.followers},
 	];
 
 	return (

@@ -1,36 +1,67 @@
-import React from "react";
-import {StyleSheet, Text, View, ScrollView} from "react-native";
-import {useRouter} from "expo-router";
-
-import HeaderWithSearch from "../components/HeaderWithSearch";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, Text, View, ScrollView, ActivityIndicator } from "react-native";
+import { useRouter } from "expo-router";
 import SongCard from "../components/SongCard";
+import { fetchRecommendations } from "@/services/api";
 
-// homepage
-export default function App() {
+export default function RecommendedBox({ artistName, type }: { artistName: string, type: 'song' | 'album' }) {
 	const router = useRouter();
+	const [results, setResults] = useState<any[]>([]);
+	const [loading, setLoading] = useState(true);
 
-	React.useEffect(() => {
-		console.log("HOME PAGE LOADED");
-	}, []);
+	useEffect(() => {
+		const getRecommendations = async () => {
+			if (!artistName) return;
+
+			setLoading(true);
+			try {
+				const data = await fetchRecommendations(artistName, type);
+				setResults(data || []);
+			} catch (err) {
+				console.error("Recommendations failed:", err);
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		getRecommendations();
+	}, [artistName, type]);
+
+	if (loading) {
+		return (
+			<View style={styles.centerContainer}>
+				<ActivityIndicator size="small" color="#C6B3E8" />
+			</View>
+		);
+	}
 
 	return (
 		<View style={styles.container}>
-			<ScrollView
-				horizontal
-				showsHorizontalScrollIndicator={false}
-				contentContainerStyle={styles.horizontalContent}
-			>
-				{Array.from({length: 10}).map((_, i) => (
-					<SongCard
-						key={`popular-${i}`}
-						title="Title"
-						artist="Artist"
-						rating={7}
-						commentsCount={1284}
-						onPress={() => router.push("Song")}
-					/>
-				))}
-			</ScrollView>
+			{results.length > 0 ? (
+				<ScrollView
+					horizontal
+					showsHorizontalScrollIndicator={false}
+					contentContainerStyle={styles.horizontalContent}
+				>
+					{results.map((rec: any, i: number) => (
+						<SongCard
+							key={`rec-${i}`}
+							variant="popular"
+							title={rec.title}
+							artist={rec.artist_name || artistName}
+							image={rec.cover_url ? { uri: rec.cover_url } : undefined}
+							onPress={() =>
+								router.push({
+									pathname: type === 'album' ? "/Album" : "/Song",
+									params: { mbid: rec.mbid }
+								})
+							}
+						/>
+					))}
+				</ScrollView>
+			) : (
+				<Text style={styles.emptyText}>No recommendations found.</Text>
+			)}
 		</View>
 	);
 }
@@ -40,11 +71,21 @@ const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: "#14172B",
 	},
-
+	centerContainer: {
+		flex: 1,
+		justifyContent: "center",
+		alignItems: "center",
+		minHeight: 100,
+	},
 	horizontalContent: {
 		flexDirection: "row",
 		gap: 24,
 		paddingVertical: 20,
-		paddingHorizontal: 20,
+		paddingHorizontal: 0,
 	},
+	emptyText: {
+		color: "#A0A0B0",
+		fontSize: 14,
+		marginTop: 20,
+	}
 });

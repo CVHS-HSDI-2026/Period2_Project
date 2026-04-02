@@ -5,7 +5,8 @@ import {useRouter, useLocalSearchParams} from "expo-router";
 import {useFonts, Jost_400Regular, Jost_500Medium, Jost_700Bold} from '@expo-google-fonts/jost';
 import SongCard from "../../components/SongCard";
 import ArtistCard from "../../components/ArtistCard";
-import {fetchProfile, updateProfileBio} from "@/services/api";
+import {fetchProfile, updateProfileBio, followUser, unfollowUser} from "@/services/api";
+import {toast} from "sonner-native";
 
 export default function Profile() {
 	const router = useRouter();
@@ -42,7 +43,7 @@ export default function Profile() {
 			setIsEditing(false);
 			setProfileData((prev: any) => ({...prev, user: {...prev.user, bio}}));
 		} catch (e) {
-			alert("Failed to save bio");
+			toast("Failed to save bio");
 		}
 	};
 
@@ -51,9 +52,18 @@ export default function Profile() {
 		setIsEditing(false);
 	};
 
-	const toggleFollow = () => {
-		// todo: make api handlers for follow/unfollow and wire to backend
-		setIsFollowing(!isFollowing);
+	const toggleFollow = async () => {
+		try {
+			if (isFollowing) {
+				await unfollowUser(profileData.user.id);
+				setIsFollowing(false);
+			} else {
+				await followUser(profileData.user.id);
+				setIsFollowing(true);
+			}
+		} catch (e) {
+			toast("Please log in to follow users.");
+		}
 	};
 
 	if (!fontsLoaded) return null;
@@ -201,6 +211,7 @@ export default function Profile() {
 							variant="popular"
 							title={fav.title}
 							artist={fav.artist_name || "Unknown"}
+							image={fav.cover_url ? {uri: fav.cover_url} : undefined}
 							onPress={() => router.push({pathname: "/Song", params: {mbid: fav.mbid}})}
 						/>
 					)) : <Text style={styles.biotext}>No favorites yet.</Text>}

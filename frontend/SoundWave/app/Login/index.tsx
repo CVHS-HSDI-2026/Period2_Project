@@ -13,6 +13,7 @@ import {Image} from 'react-native';
 import {LoginRecord} from "@/services/records";
 import {login} from "@/services/api";
 import {useAuth} from "@/context/context";
+import {toast} from "sonner-native";
 
 export default function Login() {
 	const router = useRouter();
@@ -26,7 +27,7 @@ export default function Login() {
 
 	// Placeholder Google login
 	const handleGoogleLogin = async () => {
-		alert("Google login not connected");
+		toast("Google login not connected");
 	};
 
 	const handleLogin = async () => {
@@ -48,6 +49,7 @@ export default function Login() {
 			login(login_attempt).then(r => {
 				if (r) {
 					setUser(r);
+					toast("Logged in successfully!");
 					router.push("/");
 				} else {
 					setError("Login failed");

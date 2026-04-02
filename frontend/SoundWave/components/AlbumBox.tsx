@@ -6,7 +6,7 @@ import RecommendedBox from "./RecomendedBox";
 import TracksBox from "./TracksBox";
 import {Album} from "@/services/records";
 
-type Tab = "comments" | "recomended" | "tracks";
+type Tab = "comments" | "recommended" | "tracks";
 
 export default function AlbumBox({album}: { album: Album }) {
 	const [activeTab, setActiveTab] = useState<Tab>("comments");
@@ -16,7 +16,7 @@ export default function AlbumBox({album}: { album: Album }) {
 	return (
 		<View style={styles.container}>
 			<View style={styles.tabRow}>
-				{["comments", "recomended", "tracks"].map((tab) => (
+				{["comments", "recommended", "tracks"].map((tab) => (
 					<TouchableOpacity
 						key={tab}
 						style={[styles.tab, activeTab === tab && styles.activeTab]}
@@ -32,7 +32,7 @@ export default function AlbumBox({album}: { album: Album }) {
 			<View style={styles.contentBox}>
 				<ScrollView showsVerticalScrollIndicator={false}>
 					{activeTab === "comments" && <CommentsOnly itemId={album.id} type="album" />}
-					{activeTab === "recomended" && <RecommendedBox/>}
+					{activeTab === "recommended" && <RecommendedBox artistName={album.artist} type='album'/>}
 					{activeTab === "tracks" && <TracksBox album={album}/>}
 				</ScrollView>
 			</View>

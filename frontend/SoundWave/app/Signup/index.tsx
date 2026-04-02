@@ -15,9 +15,12 @@ import CustomTypeBox from "../../components/CustomTypeBox";
 import {useRouter} from "expo-router";
 import {signUp} from "@/services/api";
 import {SignupRecord} from "@/services/records";
+import {toast} from "sonner-native";
+import {useAuth} from "@/context/context";
 
 export default function SignUp() {
 	const router = useRouter();
+	const {setUser} = useAuth();
 
 	const [username, setUsername] = useState("");
 	const [email, setEmail] = useState("");
@@ -30,8 +33,7 @@ export default function SignUp() {
 
 	const handleSignup = () => {
 		if (confirmPassword !== password) {
-			throw new Error("Passwords don't match");
-			// 	todo: handle in less explosive way
+			toast("Passwords don't match.");
 		}
 
 		let signup: SignupRecord = {
@@ -42,6 +44,8 @@ export default function SignUp() {
 
 		signUp(signup).then(r => {
 			if (r) {
+				setUser(r);
+				toast("Signed up successfully!");
 				router.push("/");
 			}
 		});

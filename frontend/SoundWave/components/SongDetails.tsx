@@ -6,6 +6,7 @@ import {SongRecord} from "@/services/records";
 import {FontAwesome} from "@expo/vector-icons";
 import {favoriteSong, fetchProfile, unfavoriteSong} from "@/services/api";
 import {useAuth} from "@/context/context";
+import {toast} from "sonner-native";
 
 const formatTime = (ms: number | string) => {
 	const numMs = Number(ms);
@@ -34,7 +35,7 @@ const SongDetails: React.FC<{ song: SongRecord }> = ({song}) => {
 				setIsFavorited(true);
 			}
 		} catch (e) {
-			alert("Please log in to manage favorites.");
+			toast("Please log in to manage favorites.");
 		}
 	};
 

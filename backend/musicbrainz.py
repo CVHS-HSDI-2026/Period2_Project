@@ -114,12 +114,15 @@ class MusicBrainzDatabase:
                         artist = root.find(".//ns0:artist-credit/ns0:name-credit/ns0:artist/ns0:name", namespaces=ns)
                         length = root.find(".//ns0:length", namespaces=ns)
 
+                        rg = root.find(".//ns0:release-list/ns0:release/ns0:release-group", namespaces=ns)
+                        cover_url = f"https://coverartarchive.org/release-group/{rg.attrib.get('id')}/front-250" if rg is not None else None
+
                         results.append({
                             "mbid": mbid,
                             "title": title.text if title is not None else "Unknown Song",
                             "duration": int(length.text) if length is not None and length.text else None,
                             "artist_name": artist.text if artist is not None else "Unknown Artist",
-                            "cover_url": None
+                            "cover_url": cover_url
                         })
                 return results
             except Exception as e:

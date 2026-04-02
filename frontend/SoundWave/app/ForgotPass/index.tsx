@@ -1,55 +1,44 @@
 import {useState} from "react";
-import {ScrollView} from "react-native";
-import {View, Text, StyleSheet, TouchableOpacity,} from "react-native";
+import {ScrollView, View, Text, StyleSheet, TouchableOpacity,} from "react-native";
 import CustomTypeBox from "../../components/CustomTypeBox";
 import {useRouter} from "expo-router";
+import {changePassword} from "@/services/api";
 import {Image} from 'react-native';
+import {toast} from "sonner-native";
 
 export default function Login() {
 	const router = useRouter();
 
-	const [emailOrUsername, setEmailOrUsername] = useState("");
+	const [oldPassword, setOldPassword] = useState("");
+	const [newPassword, setNewPassword] = useState("");
+	const [confirmPassword, setConfirmPassword] = useState("");
+
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
 	const [success, setSuccess] = useState(false);
 
+	const passwordsMatch = newPassword === confirmPassword;
 
-	const handleLogin = async () => {
+	const handleChangePassword = async () => {
 		setError("");
 
-		if (!emailOrUsername.trim()) {
-			setError("Please fill in all fields");
+		if (!oldPassword || !newPassword || !confirmPassword) {
+			setError("Please fill in all fields.");
+			return;
+		}
+
+		if (!passwordsMatch) {
+			setError("New passwords do not match.");
 			return;
 		}
 
 		try {
 			setLoading(true);
-			// delete this later when connected to backend
-			// its just a test
-			setTimeout(() => {
-				setSuccess(true);
-			}, 1000);
-
-			const response = await fetch("http://backendurl/login", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					emailOrUsername,
-				}),
-			});
-
-			const data = await response.json();
-
-			if (!response.ok) {
-				setError(data?.message || "Failed to send");
-				return;
-			}
+			await changePassword(oldPassword, newPassword);
+			toast("Password changed successfully.");
 			setSuccess(true);
-
 		} catch (err) {
-			setError("Network error. Please try again");
+			setError("Network error. Please try again.");
 		} finally {
 			setLoading(false);
 		}
@@ -86,41 +75,37 @@ export default function Login() {
 								/>
 							</View>
 
-							{/* Password Reset Title */}
-							<Text style={styles.title}>Password Reset</Text>
+							<Text style={styles.title}>Change Password</Text>
+							<Text style={styles.description}>Enter your current password to set a new one.</Text>
 
-							{/* Description */}
-							<Text style={styles.description}>
-								Enter your email and we'll send you a link to reset your password.
-							</Text>
+							<Text style={styles.label}>Old Password</Text>
+							<CustomTypeBox value={oldPassword} onChange={setOldPassword}
+										   placeholder="Enter old password" type="password"/>
 
-							{/* Email */}
-							<Text style={styles.label}>Email</Text>
-							<CustomTypeBox
-								value={emailOrUsername}
-								onChange={setEmailOrUsername}
-								placeholder="Enter your email"
-								type="text"
-							/>
+							<Text style={styles.label}>New Password</Text>
+							<CustomTypeBox value={newPassword} onChange={setNewPassword}
+										   placeholder="Enter new password" type="password"/>
+
+							<Text style={styles.label}>Confirm New Password</Text>
+							<CustomTypeBox value={confirmPassword} onChange={setConfirmPassword}
+										   placeholder="Confirm new password" type="password"/>
+
+							{confirmPassword.length > 0 && !passwordsMatch && (
+								<Text style={styles.error}>Passwords do not match</Text>
+							)}
+
 							{error ? <Text style={styles.error}>{error}</Text> : null}
 
-							{/* Send email Button */}
 							<TouchableOpacity
-								style={[styles.loginButton, loading && styles.loginButtonDisabled]}
-								onPress={handleLogin}
-								disabled={loading}
+								style={[styles.loginButton, (loading || !passwordsMatch) && styles.loginButtonDisabled]}
+								onPress={handleChangePassword}
+								disabled={loading || !passwordsMatch}
 							>
-								<Text style={styles.loginText}>
-									{loading ? "Sending..." : "Send Reset Link"}
-								</Text>
+								<Text style={styles.loginText}>{loading ? "Updating..." : "Update Password"}</Text>
 							</TouchableOpacity>
 
-							{/* Links */}
-							<TouchableOpacity onPress={() => router.push("/Login")}>
-								<Text style={styles.link}>Back to login</Text>
-							</TouchableOpacity>
-							<TouchableOpacity onPress={() => router.push("/ResetPass")}>
-								<Text style={styles.link}>reset pass page test</Text>
+							<TouchableOpacity onPress={() => router.back()}>
+								<Text style={styles.link}>Cancel</Text>
 							</TouchableOpacity>
 						</>
 					)}

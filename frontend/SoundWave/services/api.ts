@@ -1,11 +1,26 @@
 import {getStorageItemAsync, setStorageItemAsync} from '@/context/storage';
 import {LoginRecord, SignupRecord} from "@/services/records";
+import {router} from "expo-router";
 // todo: use Expo's env vars for this in production; smth like process.env.EXPO_PUBLIC_API_URL
 const BASE_URL = 'http://localhost:5000';
 
 export const getAuthToken = async () => {
 	return await getStorageItemAsync('userToken');
 }
+
+const handleAuthResponse = async (response: Response) => {
+	if (response.status === 401) {
+		await setStorageItemAsync('userToken', '');
+		await setStorageItemAsync('userData', '');
+		router.replace('/Login');
+		throw new Error("Session expired. Please log in again.");
+	}
+	if (!response.ok) {
+		const errorData = await response.json().catch(() => ({}));
+		throw new Error(errorData.message || "An error occurred");
+	}
+	return response;
+};
 
 export const signUp = async (signup: SignupRecord) => {
 	try {
@@ -102,7 +117,8 @@ export const postReview = async (id: number, type: 'song' | 'album', reviewText:
 				review_text: reviewText
 			})
 		});
-		if (!response.ok) throw new Error("Failed to post review");
+
+		await handleAuthResponse(response);
 		return true;
 	} catch (error) {
 		console.error('API Error (postReview):', error);
@@ -121,7 +137,8 @@ export const postReply = async (reviewId: number, text: string) => {
 			},
 			body: JSON.stringify({content: text})
 		});
-		if (!response.ok) throw new Error("Failed to post reply");
+
+		await handleAuthResponse(response);
 		return true;
 	} catch (error) {
 		console.error('API Error (postReply):', error);
@@ -140,7 +157,8 @@ export const favoriteSong = async (songId: number, rank: number = 1) => {
 			},
 			body: JSON.stringify({song_id: songId, rank: rank})
 		});
-		if (!response.ok) throw new Error("Failed to favorite song");
+
+		await handleAuthResponse(response);
 		return true;
 	} catch (error) {
 		console.error('API Error (favoriteSong):', error);
@@ -159,7 +177,8 @@ export const favoriteAlbum = async (albumId: number, rank: number = 1) => {
 			},
 			body: JSON.stringify({album_id: albumId, rank: rank})
 		});
-		if (!response.ok) throw new Error("Failed to favorite album");
+
+		await handleAuthResponse(response);
 		return true;
 	} catch (error) {
 		console.error('API Error (favoriteAlbum):', error);
@@ -178,7 +197,8 @@ export const favoriteArtist = async (artistId: number, rank: number = 1) => {
 			},
 			body: JSON.stringify({artist_id: artistId, rank: rank})
 		});
-		if (!response.ok) throw new Error("Failed to favorite artist");
+
+		await handleAuthResponse(response);
 		return true;
 	} catch (error) {
 		console.error('API Error (favoriteArtist):', error);
@@ -204,7 +224,8 @@ export const unfavoriteAlbum = async (albumId: number, rank: number = 1) => {
 		headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
 		body: JSON.stringify({album_id: albumId, rank})
 	});
-	if (!response.ok) throw new Error("Failed to unfavorite album");
+
+	await handleAuthResponse(response);
 	return true;
 };
 
@@ -215,7 +236,8 @@ export const unfavoriteArtist = async (artistId: number, rank: number = 1) => {
 		headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
 		body: JSON.stringify({artist_id: artistId, rank})
 	});
-	if (!response.ok) throw new Error("Failed to unfavorite artist");
+
+	await handleAuthResponse(response);
 	return true;
 };
 
@@ -284,10 +306,72 @@ export const updateProfileBio = async (username: string, bio: string) => {
 			body: JSON.stringify({bio})
 		});
 
-		if (!response.ok) throw new Error("Failed to update profile");
+		await handleAuthResponse(response);
 		return true;
 	} catch (error) {
 		console.error('API Error (updateProfileBio):', error);
 		throw error;
 	}
 }
+
+export const followUser = async (followedId: number) => {
+	const token = await getAuthToken();
+	const response = await fetch(`${BASE_URL}/api/users/follow`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+		body: JSON.stringify({ followed_id: followedId })
+	});
+
+	await handleAuthResponse(response);
+	return true;
+};
+
+export const unfollowUser = async (followedId: number) => {
+	const token = await getAuthToken();
+	const response = await fetch(`${BASE_URL}/api/users/unfollow`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+		body: JSON.stringify({ followed_id: followedId })
+	});
+
+	await handleAuthResponse(response);
+	return true;
+};
+
+export const fetchRecommendations = async (artistName: string, type: 'song' | 'album') => {
+	try {
+		const response = await fetch(`${BASE_URL}/api/music/search?query=${encodeURIComponent(artistName)}&type=${type}&limit=10`);
+		if (!response.ok) throw new Error("Failed to fetch recommendations");
+		const data = await response.json();
+
+		return data.results || [];
+	} catch (error) {
+		console.error('API Error (fetchRecommendations):', error);
+		return [];
+	}
+};
+
+export const changePassword = async (oldPassword: string, newPassword: string) => {
+	try {
+		const token = await getAuthToken();
+		const response = await fetch(`${BASE_URL}/api/users/change_password`, {
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+				"Authorization": `Bearer ${token}`
+			},
+			body: JSON.stringify({
+				old_password: oldPassword,
+				new_password: newPassword,
+			}),
+		});
+
+		const data = await response.json();
+
+		await handleAuthResponse(response);
+		return true;
+	} catch (error) {
+		console.error('API Error (changePassword):', error);
+		throw error;
+	}
+};

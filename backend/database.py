@@ -144,13 +144,17 @@ class Database:
         artist_row = self.cursor.fetchone()
         artist_id = artist_row[0] if artist_row else None
 
+        self.cursor.execute("SELECT id FROM Album WHERE mbid = %s", (data.get('album_mbid'),))
+        album_row = self.cursor.fetchone()
+        album_id = album_row[0] if album_row else None
+
         try:
             self.cursor.execute("""
-                INSERT INTO Song (mbid, title, duration, artist_id)
-                VALUES (%s, %s, %s, %s)
-                ON CONFLICT (mbid) DO NOTHING
-                RETURNING id
-            """, (data['mbid'], data['title'], data.get('duration'), artist_id))
+                        INSERT INTO Song (mbid, title, duration, artist_id, album_id)
+                        VALUES (%s, %s, %s, %s, %s)
+                        ON CONFLICT (mbid) DO NOTHING
+                        RETURNING id
+                    """, (data['mbid'], data['title'], data.get('duration'), artist_id, album_id))
             res = self.cursor.fetchone()
             return res[0] if res else None
         except Exception as e:
@@ -271,10 +275,12 @@ class Database:
 
     def get_user_favorite_songs(self, user_id: int) -> list[dict[str, Any]]:
         self.cursor.execute("""
-            SELECT f.rank, s.id as song_id, s.mbid, s.title, a.name as artist_name 
+            SELECT f.rank, s.id as song_id, s.mbid, s.title, a.name as artist_name, c.url as cover_url
             FROM User_Favorite_Song f
             JOIN Song s ON f.song_id = s.id
             LEFT JOIN Artist a ON s.artist_id = a.id
+            LEFT JOIN Album al ON s.album_id = al.id
+            LEFT JOIN Cover_Art c ON al.cover_art_id = c.id
             WHERE f.user_id = %s ORDER BY f.rank
         """, (user_id,))
         return [dict(row) for row in self.cursor.fetchall()]
@@ -316,6 +322,17 @@ class Database:
             return True
         except Exception as e:
             print(f"Failed to update bio: {e}")
+            return False
+
+    def update_password(self, user_id: int, new_password_hash: bytes) -> bool:
+        try:
+            self.cursor.execute(
+                "UPDATE Users SET password_hash = %s, updated_at = CURRENT_TIMESTAMP WHERE id = %s",
+                (new_password_hash.decode('utf-8'), user_id)
+            )
+            return True
+        except Exception as e:
+            print(f"Failed to update password: {e}")
             return False
 
     def follow_user(self, follower_id: int, followed_id: int) -> bool:
@@ -374,9 +391,13 @@ class Database:
         :rtype: bool
         """
         try:
+            self.cursor.execute("SELECT COALESCE(MAX(rank), 0) + 1 FROM User_Favorite_Song WHERE user_id = %s",
+                                (user_id,))
+            next_rank = self.cursor.fetchone()[0]
+
             self.cursor.execute(
                 "INSERT INTO User_Favorite_Song (user_id, song_id, rank) VALUES (%s, %s, %s)",
-                (user_id, song_id, rank)
+                (user_id, song_id, next_rank)
             )
             return True
         except Exception as e:
@@ -418,9 +439,13 @@ class Database:
         :rtype: bool
         """
         try:
+            self.cursor.execute("SELECT COALESCE(MAX(rank), 0) + 1 FROM User_Favorite_Album WHERE user_id = %s",
+                                (user_id,))
+            next_rank = self.cursor.fetchone()[0]
+
             self.cursor.execute(
                 "INSERT INTO User_Favorite_Album (user_id, album_id, rank) VALUES (%s, %s, %s)",
-                (user_id, album_id, rank)
+                (user_id, album_id, next_rank)
             )
             return True
         except Exception as e:
@@ -462,9 +487,13 @@ class Database:
         :rtype: bool
         """
         try:
+            self.cursor.execute("SELECT COALESCE(MAX(rank), 0) + 1 FROM User_Favorite_Artist WHERE user_id = %s",
+                                (user_id,))
+            next_rank = self.cursor.fetchone()[0]
+
             self.cursor.execute(
                 "INSERT INTO User_Favorite_Artist (user_id, artist_id, rank) VALUES (%s, %s, %s)",
-                (user_id, artist_id, rank)
+                (user_id, artist_id, next_rank)
             )
             return True
         except Exception as e:
@@ -637,26 +666,30 @@ class Database:
         """Gets top 10 songs based on the number of reviews and average rating."""
         try:
             self.cursor.execute("""
-                        (SELECT 'song' as type, s.mbid, s.title, a.name as artist, NULL as cover_url,
-                               COUNT(r.id) as review_count, 
-                               ROUND(COALESCE(AVG(r.rating), 0), 1) as rating
-                        FROM Song s
-                        JOIN Review r ON s.id = r.song_id
-                        LEFT JOIN Artist a ON s.artist_id = a.id
-                        GROUP BY s.id, a.name)
+                        SELECT * FROM (
+                            SELECT 'song' as type, s.mbid, s.title, a.name as artist, c.url as cover_url,
+                                   COUNT(r.id) as review_count, 
+                                   ROUND(COALESCE(AVG(r.rating), 0), 1) as rating
+                            FROM Song s
+                            JOIN Review r ON s.id = r.song_id
+                            LEFT JOIN Artist a ON s.artist_id = a.id
+                            LEFT JOIN Album al ON s.album_id = al.id
+                            LEFT JOIN Cover_Art c ON al.cover_art_id = c.id
+                            GROUP BY s.id, a.name, c.url
+                            
+                            UNION ALL
+                            
+                            SELECT 'album' as type, al.mbid, al.title, a.name as artist, c.url as cover_url,
+                                   COUNT(r.id) as review_count, 
+                                   ROUND(COALESCE(AVG(r.rating), 0), 1) as rating
+                            FROM Album al
+                            JOIN Review r ON al.id = r.album_id
+                            LEFT JOIN Artist a ON al.artist_id = a.id
+                            LEFT JOIN Cover_Art c ON al.cover_art_id = c.id
+                            GROUP BY al.id, a.name, c.url
+                        ) as combined_results
 
-                        UNION ALL
-
-                        (SELECT 'album' as type, al.mbid, al.title, a.name as artist, c.url as cover_url,
-                               COUNT(r.id) as review_count, 
-                               ROUND(COALESCE(AVG(r.rating), 0), 1) as rating
-                        FROM Album al
-                        JOIN Review r ON al.id = r.album_id
-                        LEFT JOIN Artist a ON al.artist_id = a.id
-                        LEFT JOIN Cover_Art c ON al.cover_art_id = c.id
-                        GROUP BY al.id, a.name, c.url)
-
-                        ORDER BY review_count DESC, rating DESC 
+                        ORDER BY review_count DESC, rating DESC, title ASC
                         LIMIT 10
                     """)
             return [dict(row) for row in self.cursor.fetchall()]
@@ -668,28 +701,32 @@ class Database:
         """Gets 10 most recently reviewed songs."""
         try:
             self.cursor.execute("""
-                        (SELECT 'song' as type, s.mbid, s.title, a.name as artist, NULL as cover_url,
-                               COUNT(r.id) as review_count, 
-                               ROUND(COALESCE(AVG(r.rating), 0), 1) as rating,
-                               MAX(r.created_at) as latest_review
-                        FROM Song s
-                        JOIN Review r ON s.id = r.song_id
-                        LEFT JOIN Artist a ON s.artist_id = a.id
-                        GROUP BY s.id, a.name)
-
-                        UNION ALL
-
-                        (SELECT 'album' as type, al.mbid, al.title, a.name as artist, c.url as cover_url,
-                               COUNT(r.id) as review_count, 
-                               ROUND(COALESCE(AVG(r.rating), 0), 1) as rating,
-                               MAX(r.created_at) as latest_review
-                        FROM Album al
-                        JOIN Review r ON al.id = r.album_id
-                        LEFT JOIN Artist a ON al.artist_id = a.id
-                        LEFT JOIN Cover_Art c ON al.cover_art_id = c.id
-                        GROUP BY al.id, a.name, c.url)
-
-                        ORDER BY latest_review DESC
+                        SELECT * FROM (
+                            SELECT 'song' as type, s.mbid, s.title, a.name as artist, c.url as cover_url,
+                                   COUNT(r.id) as review_count, 
+                                   ROUND(COALESCE(AVG(r.rating), 0), 1) as rating,
+                                   MAX(r.created_at) as latest_review
+                            FROM Song s
+                            JOIN Review r ON s.id = r.song_id
+                            LEFT JOIN Artist a ON s.artist_id = a.id
+                            LEFT JOIN Album al ON s.album_id = al.id
+                            LEFT JOIN Cover_Art c ON al.cover_art_id = c.id
+                            GROUP BY s.id, a.name, c.url
+                            
+                            UNION ALL
+                            
+                            SELECT 'album' as type, al.mbid, al.title, a.name as artist, c.url as cover_url,
+                                   COUNT(r.id) as review_count, 
+                                   ROUND(COALESCE(AVG(r.rating), 0), 1) as rating,
+                                   MAX(r.created_at) as latest_review
+                            FROM Album al
+                            JOIN Review r ON al.id = r.album_id
+                            LEFT JOIN Artist a ON al.artist_id = a.id
+                            LEFT JOIN Cover_Art c ON al.cover_art_id = c.id
+                            GROUP BY al.id, a.name, c.url
+                        ) as combined_results
+                        
+                        ORDER BY latest_review DESC, rating DESC, title ASC
                         LIMIT 10
                     """)
             return [dict(row) for row in self.cursor.fetchall()]

@@ -5,6 +5,7 @@ import {FontAwesome} from "@expo/vector-icons";
 import {router} from "expo-router";
 import {fetchReviews, postReply, postReview} from "@/services/api";
 import {CommentType, Reply} from "@/services/records";
+import {toast} from "sonner-native";
 
 const replyIcon = require("../assets/reply.png");
 const replypoint = require("../assets/Vector4.png");
@@ -52,7 +53,7 @@ export default function CommentsOnly({itemId, type}: { itemId: number, type: 'so
 			setRating(10);
 			setShowCommentBox(false);
 		} catch (e) {
-			alert("You must be logged in to post a comment!");
+			toast("You must be logged in to post a comment!");
 		}
 	};
 
@@ -76,7 +77,7 @@ export default function CommentsOnly({itemId, type}: { itemId: number, type: 'so
 				})
 			);
 		} catch (e) {
-			alert("You must be logged in to reply!");
+			toast("You must be logged in to reply!");
 		}
 	};
 

@@ -6,6 +6,7 @@ import {Album} from "@/services/records";
 import {FontAwesome} from "@expo/vector-icons";
 import {favoriteAlbum, fetchProfile, unfavoriteAlbum} from "@/services/api";
 import {useAuth} from "@/context/context";
+import {toast} from "sonner-native";
 
 const AlbumDetails: React.FC<{ album: Album }> = ({album}) => {
 	const router = useRouter();
@@ -24,7 +25,7 @@ const AlbumDetails: React.FC<{ album: Album }> = ({album}) => {
 				setIsFavorited(true);
 			}
 		} catch (e) {
-			alert("Please log in to manage favorites.");
+			toast("Please log in to manage favorites.");
 		}
 	};
 
