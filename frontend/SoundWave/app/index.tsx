@@ -5,6 +5,7 @@ import {useRouter} from "expo-router";
 import HeaderWithSearch from "../components/HeaderWithSearch";
 import SongCard from "../components/SongCard";
 import {fetchPopular, fetchNewReleases} from "@/services/api";
+import {toast} from "sonner-native";
 
 // homepage
 export default function App() {
@@ -25,7 +26,7 @@ export default function App() {
 				setPopular(popularData?.results || []);
 				setNewMusic(newData?.results || []);
 			} catch (error) {
-				console.error("Failed to load home page data:", error);
+				toast("Failed to load home page data.")
 			} finally {
 				setLoading(false);
 			}

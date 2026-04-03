@@ -4,11 +4,10 @@ import {useFonts, Jost_400Regular} from "@expo-google-fonts/jost";
 import {FontAwesome} from "@expo/vector-icons";
 import {router} from "expo-router";
 import {fetchReviews, postReply, postReview} from "@/services/api";
-import {CommentType, Reply} from "@/services/records";
+import {Reply} from "@/services/records";
 import {toast} from "sonner-native";
 
 const replyIcon = require("../assets/reply.png");
-const replypoint = require("../assets/Vector4.png");
 const send = require("../assets/send.png");
 const upArrow = require("../assets/up-arrow.png");
 const downArrow = require("../assets/down-arrow.png");
@@ -32,7 +31,7 @@ export default function CommentsOnly({itemId, type}: { itemId: number, type: 'so
 				const data = await fetchReviews(itemId, type);
 				setComments(data || []);
 			} catch (error) {
-				console.error("Error loading reviews:", error);
+				toast("Failed to load comments.")
 			} finally {
 				setLoading(false);
 			}

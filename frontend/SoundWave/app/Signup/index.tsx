@@ -7,8 +7,6 @@ import {
 	TouchableOpacity,
 	Image,
 	ScrollView,
-	KeyboardAvoidingView,
-	Platform,
 } from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import CustomTypeBox from "../../components/CustomTypeBox";
@@ -26,10 +24,6 @@ export default function SignUp() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
-
-	const handleGoogleSignup = () => {
-		console.log("Google signup pressed");
-	};
 
 	const handleSignup = () => {
 		if (confirmPassword !== password) {

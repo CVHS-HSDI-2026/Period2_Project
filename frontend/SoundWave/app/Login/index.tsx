@@ -25,11 +25,6 @@ export default function Login() {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
 
-	// Placeholder Google login
-	const handleGoogleLogin = async () => {
-		toast("Google login not connected");
-	};
-
 	const handleLogin = async () => {
 		setError("");
 

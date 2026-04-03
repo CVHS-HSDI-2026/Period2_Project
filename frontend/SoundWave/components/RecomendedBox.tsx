@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import SongCard from "../components/SongCard";
 import ArtistCard from "../components/ArtistCard";
 import { fetchRecommendations } from "@/services/api";
+import {toast} from "sonner-native";
 
 export default function RecommendedBox({ artistName, type }: { artistName: string, type: 'song' | 'album' | 'artist' }) {
 	const router = useRouter();
@@ -19,7 +20,7 @@ export default function RecommendedBox({ artistName, type }: { artistName: strin
 				const data = await fetchRecommendations(artistName, type);
 				setResults(data || []);
 			} catch (err) {
-				console.error("Recommendations failed:", err);
+				toast("Failed to load recommendations.")
 			} finally {
 				setLoading(false);
 			}

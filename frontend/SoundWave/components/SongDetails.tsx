@@ -49,7 +49,7 @@ const SongDetails: React.FC<{ song: SongRecord }> = ({song}) => {
 					);
 					setIsFavorited(!!alreadyFavorited);
 				} catch (error) {
-					console.error("Failed to check favorite status", error);
+					toast("Failed to favorite song.")
 				}
 			}
 		};

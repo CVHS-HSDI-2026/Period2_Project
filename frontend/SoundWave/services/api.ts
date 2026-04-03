@@ -384,8 +384,6 @@ export const changePassword = async (username: string, oldPassword: string, newP
 			}),
 		});
 
-		const data = await response.json();
-
 		await handleAuthResponse(response);
 		return true;
 	} catch (error) {

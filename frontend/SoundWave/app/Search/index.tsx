@@ -6,6 +6,7 @@ import HeaderWithSearch from "@/components/HeaderWithSearch";
 import SongCard from "@/components/SongCard";
 import ArtistCard from "@/components/ArtistCard";
 import {fetchSearchResults} from "@/services/api";
+import {toast} from "sonner-native";
 
 export default function SearchResults() {
 	const router = useRouter();
@@ -37,7 +38,7 @@ export default function SearchResults() {
 					});
 				}
 			} catch (err) {
-				console.error("Search failed:", err);
+				toast("Search failed to load.")
 				setError("Failed to load search results. Please try again.");
 			} finally {
 				setLoading(false);
@@ -117,7 +118,7 @@ export default function SearchResults() {
 						<Text style={styles.emptyText}>No songs found.</Text>
 					)}
 
-					{!loading && results.artists.length === 0 && results.albums.length === 0 && results.songs.length === 0 && (
+					{results.artists.length === 0 && results.albums.length === 0 && results.songs.length === 0 && (
 						<View style={styles.centerContainer}>
 							<Text style={styles.errorText}>No results found for "{q}".</Text>
 						</View>

@@ -1,12 +1,12 @@
 import {StyleSheet, View, ScrollView, ActivityIndicator, Text} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import Header from '@/components/HeaderWithSearch';
 import CommentBoxWithTracks from '@/components/AlbumBox';
 import AlbumDetails from '@/components/AlbumDetails';
 import {useLocalSearchParams} from "expo-router";
 import {fetchAlbumDetails} from "@/services/api";
 import HeaderWithSearch from "@/components/HeaderWithSearch";
 import {Album} from "@/services/records";
+import {toast} from "sonner-native";
 
 export default function AlbumPage() {
 	const {mbid} = useLocalSearchParams<{ mbid: string }>();
@@ -20,7 +20,7 @@ export default function AlbumPage() {
 				const data = await fetchAlbumDetails(mbid);
 				setAlbum(data.album);
 			} catch (error) {
-				console.error(error);
+				toast("Error loading album.");
 			} finally {
 				setLoading(false);
 			}

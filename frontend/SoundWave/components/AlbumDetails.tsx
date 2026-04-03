@@ -34,7 +34,7 @@ const AlbumDetails: React.FC<{ album: Album }> = ({album}) => {
 			fetchProfile(user.username).then(profileData => {
 				const alreadyFavorited = profileData.favorite_albums?.some((fav: any) => fav.album_id === album.id);
 				setIsFavorited(!!alreadyFavorited);
-			}).catch(e => console.error(e));
+			}).catch(e => toast("Failed to favorite album."));
 		}
 	}, [user, album]);
 

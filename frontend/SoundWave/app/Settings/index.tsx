@@ -24,7 +24,7 @@ export default function Settings() {
 	const [fontsLoaded] = useFonts({Jost_400Regular, Jost_500Medium, Jost_700Bold});
 
 	const [loading, setLoading] = useState(true);
-	const [saving, setSaving] = useState(false)
+	const [saving, setSaving] = useState(false);
 
 	const [oldPassword, setOldPassword] = useState("");
 	const [newPassword, setNewPassword] = useState("");

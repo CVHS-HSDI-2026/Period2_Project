@@ -13,6 +13,7 @@ import {
 import {MaterialIcons} from '@expo/vector-icons';
 import {fetchSearchResults} from '@/services/api';
 import {useAuth} from '@/context/context';
+import {toast} from "sonner-native";
 
 interface HeaderProps {
 	title: string;
@@ -49,7 +50,7 @@ const HeaderWithSearch: FC<HeaderProps> = ({title}) => {
 					setShowLiveSearch(true);
 				}
 			} catch (error) {
-				console.error("Live search failed", error);
+				toast("Live search failed to load.")
 			}
 		}, 300);
 
@@ -59,9 +60,8 @@ const HeaderWithSearch: FC<HeaderProps> = ({title}) => {
 	}, [searchText]);
 
 	const handleLogoPress = () => {
-		console.log('Logo pressed!');
 		router.push("/");
-	}
+	};
 
 	const handleSearchPress = () => {
 		if (searchText.trim()) {
@@ -74,7 +74,6 @@ const HeaderWithSearch: FC<HeaderProps> = ({title}) => {
 	};
 
 	const handleProfilePress = () => {
-		console.log('Profile icon pressed!');
 		setIsDropdownVisible(!isDropdownVisible);
 	};
 
@@ -92,7 +91,6 @@ const HeaderWithSearch: FC<HeaderProps> = ({title}) => {
 	};
 
 	const handleSettingsPress = () => {
-		console.log('Settings pressed');
 		router.push("/Settings");
 		setIsDropdownVisible(false);
 	};

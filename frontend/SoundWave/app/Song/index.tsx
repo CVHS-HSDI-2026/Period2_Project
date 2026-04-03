@@ -6,6 +6,7 @@ import HeaderWithSearch from "../../components/HeaderWithSearch";
 import {useLocalSearchParams} from "expo-router";
 import {fetchSongDetails} from "@/services/api";
 import {SongRecord} from "@/services/records";
+import {toast} from "sonner-native";
 
 export default function Song() {
 	const {mbid} = useLocalSearchParams<{ mbid: string }>();
@@ -19,7 +20,7 @@ export default function Song() {
 				const data = await fetchSongDetails(mbid);
 				setSong(data.song);
 			} catch (error) {
-				console.error(error);
+				toast("Failed to load song.")
 			} finally {
 				setLoading(false);
 			}

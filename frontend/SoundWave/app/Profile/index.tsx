@@ -31,7 +31,7 @@ export default function Profile() {
 				setProfileData(data);
 				setBio(data.user.bio || 'This user does not have a bio yet.');
 			} catch (error) {
-				console.error(error);
+				toast("Failed to set user bio.")
 			} finally {
 				setLoading(false);
 			}

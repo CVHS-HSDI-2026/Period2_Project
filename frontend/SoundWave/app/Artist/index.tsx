@@ -5,7 +5,7 @@ import {useRouter, useLocalSearchParams} from "expo-router";
 import {useFonts, Jost_400Regular, Jost_500Medium, Jost_700Bold} from '@expo-google-fonts/jost';
 import SongCard from "../../components/SongCard";
 import {favoriteArtist, fetchArtistDetails, fetchProfile, unfavoriteArtist} from "@/services/api";
-import ArtistCard, {stringToColor} from "@components/ArtistCard";
+import {stringToColor} from "@components/ArtistCard";
 import {FontAwesome} from "@expo/vector-icons";
 import {useAuth} from "@/context/context";
 import {toast} from "sonner-native";
@@ -29,7 +29,7 @@ export default function Artist() {
 				const data = await fetchArtistDetails(mbid);
 				setArtistData(data);
 			} catch (error) {
-				console.error(error);
+				toast("Error loading artist page.")
 			} finally {
 				setLoading(false);
 			}
@@ -42,7 +42,7 @@ export default function Artist() {
 			fetchProfile(user.username).then(profileData => {
 				const alreadyFavorited = profileData.favorite_artists?.some((fav: any) => fav.artist_id === artistData.artist.id);
 				setIsFavorited(!!alreadyFavorited);
-			}).catch(e => console.error(e));
+			}).catch(e => toast("Failed to favorite artist."));
 		}
 	}, [user, artistData]);
 
