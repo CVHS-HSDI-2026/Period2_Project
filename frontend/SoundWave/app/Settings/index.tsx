@@ -1,47 +1,113 @@
-import {StyleSheet, Text, View, Pressable, ScrollView, TextInput, Image, TouchableOpacity} from 'react-native';
-import React, {useState} from 'react';
+import {
+	StyleSheet,
+	Text,
+	View,
+	Pressable,
+	ScrollView,
+	TextInput,
+	Image,
+	TouchableOpacity,
+	ActivityIndicator
+} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import HeaderWithSearch from "../../components/HeaderWithSearch";
 import {useRouter} from "expo-router";
 import {useFonts, Jost_400Regular, Jost_500Medium, Jost_700Bold} from '@expo-google-fonts/jost';
+import {useAuth} from "@/context/context";
+import {changePassword, deleteUser, fetchProfile, updateUserSettings} from "@/services/api";
+import {toast} from "sonner-native";
 
 
 export default function Settings() {
 	const router = useRouter();
+	const {user, setUser} = useAuth();
 	const [fontsLoaded] = useFonts({Jost_400Regular, Jost_500Medium, Jost_700Bold});
 
+	const [loading, setLoading] = useState(true);
+	const [saving, setSaving] = useState(false)
 
+	const [oldPassword, setOldPassword] = useState("");
 	const [newPassword, setNewPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [passwordError, setPasswordError] = useState("");
+
 	const [displayName, setDisplayName] = useState("");
+	const [profilePicUrl, setProfilePicUrl] = useState("");
 	const [privacy, setPrivacy] = useState("Public");
 	const [showPrivacyDropdown, setShowPrivacyDropdown] = useState(false);
-//  const [isEditing, setIsEditing] = useState(false);
-	const [isSaved, setIsSaved] = useState(false);
 	const [isSecure, setIsSecure] = useState<boolean>(true);
 
+	useEffect(() => {
+		const loadSettings = async () => {
+			if (user?.username) {
+				try {
+					const data = await fetchProfile(user.username);
+					setDisplayName(data.user.display_name || "");
+					setProfilePicUrl(data.user.profile_pic_url || "");
+					setPrivacy(data.user.privacy || "Public");
+				} catch (error) {
+					toast("Failed to load current settings.");
+				} finally {
+					setLoading(false);
+				}
+			}
+		};
+		loadSettings();
+	}, [user]);
 
 	if (!fontsLoaded) return null;
 
+	if (loading) {
+		return (
+			<View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+				<ActivityIndicator size="large" color="#C6B3E8" />
+			</View>
+		);
+	}
 
-	//save these changes somewhere in the backend???
-	const handleSaveChanges = () => {
-		if (newPassword !== confirmPassword) {
-			setPasswordError("Passwords do not match");
-			return;
-		}
+	const handleSaveChanges = async () => {
+		if (!user?.username) return;
+		setSaving(true);
 		setPasswordError("");
-		setIsSaved(true);
-	};
 
+		try {
+			await updateUserSettings(user.username, {
+				display_name: displayName,
+				profile_pic_url: profilePicUrl,
+				privacy: privacy
+			});
+
+			if (oldPassword || newPassword || confirmPassword) {
+				if (!oldPassword) {
+					setPasswordError("Old password is required to set a new one.");
+					setSaving(false);
+					return;
+				}
+				if (newPassword !== confirmPassword) {
+					setPasswordError("New passwords do not match.");
+					setSaving(false);
+					return;
+				}
+				await changePassword(user.username, oldPassword, newPassword);
+				setOldPassword("");
+				setNewPassword("");
+				setConfirmPassword("");
+			}
+
+			toast("Settings saved successfully!");
+		} catch (error: any) {
+			toast(error.message || "Failed to save settings.");
+		} finally {
+			setSaving(false);
+		}
+	};
 
 	return (
 		<View style={styles.container}>
-			<HeaderWithSearch title="SoundWAVE"/>
+			<HeaderWithSearch title="SoundWave"/>
 			<ScrollView style={{width: '100%'}} contentContainerStyle={styles.scrollContent}
 						showsVerticalScrollIndicator={false}>
 
-				{/* back arrow */}
 				<TouchableOpacity onPress={() => router.back()} style={{alignSelf: "flex-start"}}>
 					<Image
 						source={require('../../assets/chevron-right.png')}
@@ -51,9 +117,40 @@ export default function Settings() {
 				</TouchableOpacity>
 
 
-				{/* password reset */}
 				<Text style={styles.headings}>Settings</Text>
-				<Text style={styles.titles}>Password</Text>
+
+				{/* display name */}
+				<Text style={styles.titles}>Display Name</Text>
+				<Text style={styles.subTitles}>New Display Name</Text>
+				<TextInput
+					style={styles.newInput}
+					placeholder="Enter new display name"
+					placeholderTextColor="#aaa"
+					value={displayName}
+					onChangeText={setDisplayName}
+				/>
+
+				<Text style={styles.subTitles}>Profile Picture URL</Text>
+				<TextInput
+					style={styles.newInput}
+					placeholder="https://imgur.com/example.jpg"
+					placeholderTextColor="#aaa"
+					value={profilePicUrl}
+					onChangeText={setProfilePicUrl}
+				/>
+
+				<Text style={styles.titles}>Change Password</Text>
+
+				<Text style={styles.subTitles}>Old Password</Text>
+				<TextInput
+					style={styles.newInput}
+					secureTextEntry={isSecure}
+					placeholder="Enter current password"
+					placeholderTextColor="#aaa"
+					value={oldPassword}
+					onChangeText={setOldPassword}
+				/>
+
 				<Text style={styles.subTitles}>New Password</Text>
 				<TextInput
 					style={styles.newInput}
@@ -84,49 +181,6 @@ export default function Settings() {
 					<Text style={styles.errorText}>{passwordError}</Text>
 				)}
 
-
-				{/* display name */}
-				<Text style={styles.titles}>Display Name</Text>
-				<Text style={styles.subTitles}>New Display Name</Text>
-				<TextInput
-					style={styles.newInput}
-					placeholder="Enter new display name"
-					placeholderTextColor="#aaa"
-					value={displayName}
-					onChangeText={setDisplayName}
-				/>
-
-
-				{/* account */}
-				<Text style={styles.titles}>Account</Text>
-				<View style={styles.accountBox}>
-					<Pressable style={styles.deleteRow}>
-						<View style={styles.deleteContent}>
-							<Text style={styles.deleteText}>Delete Account</Text>
-							<Image
-								source={require('../../assets/Delete.png')}
-								style={styles.delete}
-								resizeMode="contain"
-							/>
-						</View>
-
-
-					</Pressable>
-
-
-					<Pressable style={styles.logoutRow} onPress={() => router.push('/Login')}>
-						<View style={styles.logoutContent}>
-							<Text style={styles.logoutText}>Log Out</Text>
-							<Image
-								source={require('../../assets/logout.png')}
-								style={styles.logout}
-								resizeMode="contain"
-							/>
-						</View>
-					</Pressable>
-				</View>
-
-
 				{/* privacy */}
 				<Text style={styles.titles}>Privacy</Text>
 				<Pressable style={styles.dropdownHeader} onPress={() => setShowPrivacyDropdown(!showPrivacyDropdown)}>
@@ -143,32 +197,83 @@ export default function Settings() {
 							</svg>}
 					</Text>
 				</Pressable>
+
 				{showPrivacyDropdown && (
 					<View style={styles.dropdownContainer}>
-						<Pressable style={styles.optionRow} onPress={() => {
-							setPrivacy("Public");
-							setShowPrivacyDropdown(false);
-						}}>
-							<View style={styles.mcCircle}>
-								{privacy === "Public" && <View style={styles.selected}/>}
-							</View>
-							<Text style={styles.optionText}>Public</Text>
-						</Pressable>
+						{/* this kinda sucked... let's use a map to make it better*/}
 
-						<Pressable style={styles.optionRow} onPress={() => {
-							setPrivacy("Private");
-							setShowPrivacyDropdown(false);
-						}}>
-							<View style={styles.mcCircle}>
-								{privacy === "Private" && <View style={styles.selected}/>}
-							</View>
-							<Text style={styles.optionText}>Private</Text>
-						</Pressable>
+						{["Public", "Private"].map((opt) => (
+							<Pressable key={opt} style={styles.optionRow} onPress={() => { setPrivacy(opt); setShowPrivacyDropdown(false); }}>
+								<View style={styles.mcCircle}>
+									{privacy === opt && <View style={styles.selected} />}
+								</View>
+								<Text style={styles.optionText}>{opt}</Text>
+							</Pressable>
+						))}
+
+						{/*<Pressable style={styles.optionRow} onPress={() => {*/}
+						{/*	setPrivacy("Public");*/}
+						{/*	setShowPrivacyDropdown(false);*/}
+						{/*}}>*/}
+						{/*	<View style={styles.mcCircle}>*/}
+						{/*		{privacy === "Public" && <View style={styles.selected}/>}*/}
+						{/*	</View>*/}
+						{/*	<Text style={styles.optionText}>Public</Text>*/}
+						{/*</Pressable>*/}
+
+						{/*<Pressable style={styles.optionRow} onPress={() => {*/}
+						{/*	setPrivacy("Private");*/}
+						{/*	setShowPrivacyDropdown(false);*/}
+						{/*}}>*/}
+						{/*	<View style={styles.mcCircle}>*/}
+						{/*		{privacy === "Private" && <View style={styles.selected}/>}*/}
+						{/*	</View>*/}
+						{/*	<Text style={styles.optionText}>Private</Text>*/}
+						{/*</Pressable>*/}
 					</View>
 				)}
-				<Pressable style={styles.saveButton} onPress={handleSaveChanges}>
-					<Text style={styles.buttonText}>Save</Text>
+
+				<Pressable style={styles.saveButton} onPress={handleSaveChanges} disabled={saving}>
+					<Text style={styles.buttonText}>{saving ? "Saving..." : "Save"}</Text>
 				</Pressable>
+
+				{/* account */}
+				<Text style={styles.titles}>Account</Text>
+				<View style={styles.accountBox}>
+					<Pressable style={styles.logoutRow} onPress={() => {
+						setUser(null);
+						toast("Logged out successfully. Redirecting to login page...")
+						router.push('/Login');
+					}}>
+						<View style={styles.logoutContent}>
+							<Text style={styles.logoutText}>Log Out</Text>
+							<Image
+								source={require('../../assets/logout.png')}
+								style={styles.logout}
+								resizeMode="contain"
+							/>
+						</View>
+					</Pressable>
+
+					<Pressable style={styles.deleteRow} onPress={() => {
+						deleteUser(user.username).then(r => {
+							if (r) {
+								toast("Deleted user successfully. Redirecting to signup page...");
+								router.push('/Signup');
+							}
+						});
+					}}>
+						<View style={styles.deleteContent}>
+							<Text style={styles.deleteText}>Delete Account</Text>
+							<Image
+								source={require('../../assets/Delete.png')}
+								style={styles.delete}
+								resizeMode="contain"
+							/>
+						</View>
+					</Pressable>
+				</View>
+
 			</ScrollView>
 		</View>
 	);
@@ -196,7 +301,7 @@ const styles = StyleSheet.create({
 		fontSize: 30,
 		color: "#FFFFFF",
 		fontFamily: "Jost_500Medium",
-		marginTop: 7,
+		marginTop: 8,
 		marginBottom: 1,
 		//  marginLeft: 5,
 
@@ -207,7 +312,7 @@ const styles = StyleSheet.create({
 		fontSize: 20,
 		color: "#FFFFFF",
 		fontFamily: "Jost_500Medium",
-		marginTop: 3,
+		marginTop: 16,
 		marginBottom: 6,
 		//  marginLeft: 5,
 
@@ -217,7 +322,7 @@ const styles = StyleSheet.create({
 		color: "#FFFFFF",
 		fontFamily: "Jost_400Regular",
 		marginBottom: 6,
-		marginLeft: 5,
+		marginLeft: 4,
 	},
 	newInput: {
 		width: "100%",
@@ -229,7 +334,7 @@ const styles = StyleSheet.create({
 		color: "#FFFFFF",
 		fontFamily: "Jost_400Regular",
 		fontSize: 16,
-		marginBottom: 15,
+		marginBottom: 16,
 	},
 	passwordWrapper: {
 		width: "100%",
@@ -261,7 +366,7 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		justifyContent: "space-between",
 		alignItems: "center",
-		marginBottom: 5,
+		marginBottom: 6,
 	},
 
 
@@ -402,7 +507,7 @@ const styles = StyleSheet.create({
 		color: "red",
 		fontSize: 13,
 		marginBottom: 10,
-		marginLeft: 5,
+		marginLeft: 6,
 		fontFamily: "Jost_400Regular",
 	}
 });

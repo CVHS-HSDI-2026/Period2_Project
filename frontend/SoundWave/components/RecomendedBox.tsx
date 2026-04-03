@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, ScrollView, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import SongCard from "../components/SongCard";
+import ArtistCard from "../components/ArtistCard";
 import { fetchRecommendations } from "@/services/api";
 
-export default function RecommendedBox({ artistName, type }: { artistName: string, type: 'song' | 'album' }) {
+export default function RecommendedBox({ artistName, type }: { artistName: string, type: 'song' | 'album' | 'artist' }) {
 	const router = useRouter();
 	const [results, setResults] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -43,21 +44,36 @@ export default function RecommendedBox({ artistName, type }: { artistName: strin
 					showsHorizontalScrollIndicator={false}
 					contentContainerStyle={styles.horizontalContent}
 				>
-					{results.map((rec: any, i: number) => (
-						<SongCard
-							key={`rec-${i}`}
-							variant="popular"
-							title={rec.title}
-							artist={rec.artist_name || artistName}
-							image={rec.cover_url ? { uri: rec.cover_url } : undefined}
-							onPress={() =>
-								router.push({
-									pathname: type === 'album' ? "/Album" : "/Song",
-									params: { mbid: rec.mbid }
-								})
-							}
-						/>
-					))}
+					{results.map((rec: any, i: number) => {
+
+						if (type === 'artist') {
+							return (
+								<ArtistCard
+									key={`rec-art-${i}`}
+									variant="popular"
+									title={rec.name}
+									artist="Artist"
+									onPress={() => router.push({ pathname: "/Artist", params: { mbid: rec.mbid } })}
+								/>
+							);
+						}
+
+						return (
+							<SongCard
+								key={`rec-${i}`}
+								variant="popular"
+								title={rec.title}
+								artist={rec.artist_name || artistName}
+								image={rec.cover_url ? { uri: rec.cover_url } : undefined}
+								onPress={() =>
+									router.push({
+										pathname: type === 'album' ? "/Album" : "/Song",
+										params: { mbid: rec.mbid }
+									})
+								}
+							/>
+						);
+					})}
 				</ScrollView>
 			) : (
 				<Text style={styles.emptyText}>No recommendations found.</Text>

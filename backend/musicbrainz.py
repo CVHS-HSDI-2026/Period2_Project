@@ -70,8 +70,10 @@ class MusicBrainzDatabase:
 
         def search_albums():
             try:
+                solr_query = f'artist:"{query}"^5 OR "{query}"'
+
                 res = requests.get(f"{SOLR_BASE_URL}/release-group/select",
-                                   params={"q": query, "rows": limit, "wt": "json"})
+                                   params={"q": solr_query, "rows": limit, "wt": "json"})
                 docs = res.json().get("response", {}).get("docs", [])
 
                 results = []
@@ -98,8 +100,10 @@ class MusicBrainzDatabase:
 
         def search_songs():
             try:
+                solr_query = f'artist:"{query}"^5 OR "{query}"'
+
                 res = requests.get(f"{SOLR_BASE_URL}/recording/select",
-                                   params={"q": query, "rows": limit, "wt": "json"})
+                                   params={"q": solr_query, "rows": limit, "wt": "json"})
                 docs = res.json().get("response", {}).get("docs", [])
 
                 results = []

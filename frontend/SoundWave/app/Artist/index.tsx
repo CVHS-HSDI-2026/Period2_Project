@@ -9,6 +9,7 @@ import ArtistCard, {stringToColor} from "@components/ArtistCard";
 import {FontAwesome} from "@expo/vector-icons";
 import {useAuth} from "@/context/context";
 import {toast} from "sonner-native";
+import RecommendedBox from "@components/RecomendedBox";
 
 export default function Artist() {
 	const router = useRouter();
@@ -79,7 +80,6 @@ export default function Artist() {
 
 	const {artist, albums} = artistData;
 
-	// idk what colone is supposed to mean but i'll keep it
 	const colone = [
 		{columnName: 'Artist:', value: artist.name},
 		{columnName: 'Born/Formed:', value: artist.born ? new Date(artist.born).getFullYear() : 'Unknown'},
@@ -119,7 +119,7 @@ export default function Artist() {
 								<Text style={styles.titleBioText}>Bio:</Text>
 								<br/>
 								<Text style={styles.biotext}>
-									{artist.disambiguation ? `Known for: ${artist.disambiguation}. ` : ''}
+									{artist.disambiguation ? `Artist Note(s): ${artist.disambiguation}. ` : ''}
 									For more info, check out their profile on MusicBrainz: {artist.mbid}.
 								</Text>
 							</Text>
@@ -140,12 +140,8 @@ export default function Artist() {
 
 				{/* top songs */}
 				<Text style={styles.sectionTitle}>Top Songs:</Text>
-				<ScrollView horizontal showsHorizontalScrollIndicator={false}
-							contentContainerStyle={styles.horizontalContent}>
-					<View style={styles.horizontalContent}>
-						<Text style={styles.biotext}>Feature coming soon.</Text>
-					</View>
-				</ScrollView>
+				<RecommendedBox artistName={artist.name} type="song" />
+
 				{/* top albums */}
 				<Text style={styles.sectionTitle}>Top Albums:</Text>
 				<ScrollView horizontal showsHorizontalScrollIndicator={false}
@@ -167,22 +163,19 @@ export default function Artist() {
 						<Text style={styles.biotext}>No albums found.</Text>
 					)}
 				</ScrollView>
+
 				{/* top artists */}
 				<Text style={styles.sectionTitle}>Related Artists:</Text>
-				<ScrollView horizontal showsHorizontalScrollIndicator={false}
-							contentContainerStyle={styles.horizontalContent}>
-					<View style={styles.horizontalContent}>
-						<Text style={styles.biotext}>Feature coming soon.</Text>
-					</View>
-				</ScrollView>
-				{/* recommended users */}
-				<Text style={styles.sectionTitle}>Recommended Users:</Text>
-				<ScrollView horizontal showsHorizontalScrollIndicator={false}
-							contentContainerStyle={styles.horizontalContent}>
-					<View style={styles.horizontalContent}>
-						<Text style={styles.biotext}>Feature coming soon.</Text>
-					</View>
-				</ScrollView>
+				<RecommendedBox artistName={artist.name} type="artist" />
+				{/*/!* recommended users *!/*/}
+				{/* i can't think of a good reason to have this... i'll comment it out */}
+				{/*<Text style={styles.sectionTitle}>Recommended Users:</Text>*/}
+				{/*<ScrollView horizontal showsHorizontalScrollIndicator={false}*/}
+				{/*			contentContainerStyle={styles.horizontalContent}>*/}
+				{/*	<View style={styles.horizontalContent}>*/}
+				{/*		<Text style={styles.biotext}>Feature coming soon.</Text>*/}
+				{/*	</View>*/}
+				{/*</ScrollView>*/}
 			</ScrollView>
 		</View>
 	);
@@ -213,7 +206,6 @@ const styles = StyleSheet.create({
 		width: 200,
 		height: 200,
 		borderRadius: 100,
-		backgroundColor: '#ffffff20',
 		marginLeft: 150,
 		justifyContent: "center",
 		alignItems: "center",

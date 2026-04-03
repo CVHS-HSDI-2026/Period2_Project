@@ -7,9 +7,11 @@ import SongCard from "../../components/SongCard";
 import ArtistCard from "../../components/ArtistCard";
 import {fetchProfile, updateProfileBio, followUser, unfollowUser} from "@/services/api";
 import {toast} from "sonner-native";
+import {Image} from "expo-image";
 
 export default function Profile() {
 	const router = useRouter();
+
 	const {isOwner, username} = useLocalSearchParams<{ isOwner: string, username: string }>();
 	const isProfileOwner = isOwner === "true";
 	const [fontsLoaded] = useFonts({Jost_400Regular, Jost_500Medium, Jost_700Bold});
@@ -88,6 +90,8 @@ export default function Profile() {
 		{columnName: 'Following:', value: profileData.following},
 	];
 
+	const canViewDetails = profileData.user.privacy === "Public" || isProfileOwner;
+
 	// const colone = isProfileOwner
 	// 	? [
 	// 		{columnName: 'Username:', value: profileData.username},
@@ -117,7 +121,7 @@ export default function Profile() {
 
 	return (
 		<View style={styles.container}>
-			<HeaderWithSearch title="SoundWAVE"/>
+			<HeaderWithSearch title="SoundWave"/>
 
 			<ScrollView
 				style={{width: '100%'}}
@@ -128,11 +132,19 @@ export default function Profile() {
 				<View style={styles.profileSection}>
 
 					<View style={styles.profileLeft}>
-						<View style={styles.avatarPlaceholder}>
-							<Text style={styles.initialsText}>
-								{profileData.user.username.substring(0, 2).toUpperCase()}
-							</Text>
-						</View>
+						{profileData.user.profile_pic_url ? (
+							<Image
+								source={{ uri: profileData.user.profile_pic_url }}
+								style={[styles.avatarPlaceholder, { backgroundColor: 'transparent' }]}
+								cachePolicy="memory-disk"
+							/>
+						) : (
+							<View style={styles.avatarPlaceholder}>
+								<Text style={styles.initialsText}>
+									{profileData.user.username.substring(0, 2).toUpperCase()}
+								</Text>
+							</View>
+						)}
 					</View>
 
 					<View style={styles.profileRight}>
@@ -201,62 +213,91 @@ export default function Profile() {
 					</View>
 				</View>
 
-				<Text style={styles.sectionTitle}>Favorite Songs:</Text>
+				{canViewDetails ? (
+					<>
+						<Text style={styles.sectionTitle}>Recent Activity:</Text>
 
-				<ScrollView horizontal showsHorizontalScrollIndicator={false}
-							contentContainerStyle={styles.horizontalContent}>
-					{profileData.favorite_songs?.length > 0 ? profileData.favorite_songs.map((fav: any, i: number) => (
-						<SongCard
-							key={`fav-song-${i}`}
-							variant="popular"
-							title={fav.title}
-							artist={fav.artist_name || "Unknown"}
-							image={fav.cover_url ? {uri: fav.cover_url} : undefined}
-							onPress={() => router.push({pathname: "/Song", params: {mbid: fav.mbid}})}
-						/>
-					)) : <Text style={styles.biotext}>No favorites yet.</Text>}
-				</ScrollView>
+						<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
+							{profileData.activity?.length > 0 ? profileData.activity.map((act: any, i: number) => (
+								<View key={`act-${i}`} style={styles.activityCard}>
+									<Text style={styles.activityTitle}>
+										{act.type === 'review' ? 'Reviewed ' : 'Replied to '}
+										{act.song_title || act.album_title || 'Unknown'}
+										{act.rating ? `${act.rating}/10` : ''}
+									</Text>
+									<Text style={styles.activityContent} numberOfLines={3}>{act.content}</Text>
+									<Text style={styles.activityDate}>{new Date(act.created_at).toLocaleDateString()}</Text>
+								</View>
+							)) : <Text style={styles.biotext}>No recent activity.</Text>}
+						</ScrollView>
 
-				<Text style={styles.sectionTitle}>Favorite Albums:</Text>
+						<Text style={styles.sectionTitle}>Favorite Songs:</Text>
 
-				<ScrollView horizontal showsHorizontalScrollIndicator={false}
-							contentContainerStyle={styles.horizontalContent}>
-					{profileData.favorite_albums?.length > 0 ? profileData.favorite_albums.map((fav: any, i: number) => (
-						<SongCard
-							key={`fav-alb-${i}`}
-							variant="popular"
-							title={fav.title}
-							artist={fav.artist_name || "Unknown"}
-							image={fav.cover_url ? {uri: fav.cover_url} : undefined}
-							onPress={() => router.push({pathname: "/Album", params: {mbid: fav.mbid}})}
-						/>
-					)) : <Text style={styles.biotext}>No favorites yet.</Text>}
-				</ScrollView>
+						<ScrollView horizontal showsHorizontalScrollIndicator={false}
+									contentContainerStyle={styles.horizontalContent}>
+							{profileData.favorite_songs?.length > 0 ? profileData.favorite_songs.map((fav: any, i: number) => (
+								<SongCard
+									key={`fav-song-${i}`}
+									variant="popular"
+									title={fav.title}
+									artist={fav.artist_name || "Unknown"}
+									image={fav.cover_url ? {uri: fav.cover_url} : undefined}
+									onPress={() => router.push({pathname: "/Song", params: {mbid: fav.mbid}})}
+								/>
+							)) : <Text style={styles.biotext}>No favorites yet.</Text>}
+						</ScrollView>
 
-				<Text style={styles.sectionTitle}>Favorite Artists:</Text>
+						<Text style={styles.sectionTitle}>Favorite Albums:</Text>
 
-				<ScrollView horizontal showsHorizontalScrollIndicator={false}
-							contentContainerStyle={styles.horizontalContent}>
-					{profileData.favorite_artists?.length > 0 ? profileData.favorite_artists.map((fav: any, i: number) => (
-						<ArtistCard
-							key={`fav-art-${i}`}
-							variant="popular"
-							title={fav.name}
-							artist="Artist"
-							onPress={() => router.push({pathname: "/Artist", params: {mbid: fav.mbid}})}
-						/>
-					)) : <Text style={styles.biotext}>No favorites yet.</Text>}
-				</ScrollView>
+						<ScrollView horizontal showsHorizontalScrollIndicator={false}
+									contentContainerStyle={styles.horizontalContent}>
+							{profileData.favorite_albums?.length > 0 ? profileData.favorite_albums.map((fav: any, i: number) => (
+								<SongCard
+									key={`fav-alb-${i}`}
+									variant="popular"
+									title={fav.title}
+									artist={fav.artist_name || "Unknown"}
+									image={fav.cover_url ? {uri: fav.cover_url} : undefined}
+									onPress={() => router.push({pathname: "/Album", params: {mbid: fav.mbid}})}
+								/>
+							)) : <Text style={styles.biotext}>No favorites yet.</Text>}
+						</ScrollView>
 
-				<Text style={styles.sectionTitle}>Recommended Users:</Text>
+						<Text style={styles.sectionTitle}>Favorite Artists:</Text>
 
-				<ScrollView horizontal showsHorizontalScrollIndicator={false}
-							contentContainerStyle={styles.horizontalContent}>
-					{/* i forgot how this worked...will check back on this */}
-					<View style={styles.horizontalContent}>
-						<Text style={styles.biotext}>Feature coming soon.</Text>
+						<ScrollView horizontal showsHorizontalScrollIndicator={false}
+									contentContainerStyle={styles.horizontalContent}>
+							{profileData.favorite_artists?.length > 0 ? profileData.favorite_artists.map((fav: any, i: number) => (
+								<ArtistCard
+									key={`fav-art-${i}`}
+									variant="popular"
+									title={fav.name}
+									artist="Artist"
+									onPress={() => router.push({pathname: "/Artist", params: {mbid: fav.mbid}})}
+								/>
+							)) : <Text style={styles.biotext}>No favorites yet.</Text>}
+						</ScrollView>
+
+						<Text style={styles.sectionTitle}>Recommended Users:</Text>
+
+						<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalContent}>
+							{profileData.recommended_users?.length > 0 ? profileData.recommended_users.map((recUser: any, i: number) => (
+								<ArtistCard
+									key={`rec-user-${i}`}
+									variant="popular"
+									title={recUser.display_name || recUser.username}
+									artist={`@${recUser.username}`}
+									image={recUser.profile_pic_url ? {uri: recUser.profile_pic_url} : undefined}
+									onPress={() => router.push({ pathname: "/Profile", params: { username: recUser.username, isOwner: "false" } })}
+								/>
+							)) : <Text style={styles.biotext}>No recommendations yet.</Text>}
+						</ScrollView>
+					</>
+				) : (
+					<View style={{ alignItems: 'center', marginTop: 40 }}>
+						<Text style={styles.titleBioText}>This profile is private.</Text>
 					</View>
-				</ScrollView>
+				)}
 
 			</ScrollView>
 		</View>
@@ -396,5 +437,32 @@ const styles = StyleSheet.create({
 		fontFamily: 'Jost_400Regular',
 		alignSelf: 'center',
 		userSelect: 'none'
+	},
+	activityCard: {
+		backgroundColor: "#2A2F5A",
+		padding: 16,
+		borderRadius: 8,
+		width: 250,
+		marginRight: 15,
+		borderWidth: 1,
+		borderColor: "#FFFFFF30"
+	},
+	activityTitle: {
+		color: "#9AA2D6",
+		fontFamily: "Jost_500Medium",
+		fontSize: 14,
+		marginBottom: 8
+	},
+	activityContent: {
+		color: "#FFFFFF",
+		fontFamily: "Jost_400Regular",
+		fontSize: 16,
+		marginBottom: 8
+	},
+	activityDate: {
+		color: "#FFFFFF50",
+		fontFamily: "Jost_400Regular",
+		fontSize: 12,
+		alignSelf: "flex-end"
 	},
 });

@@ -5,9 +5,11 @@ import {useRouter} from "expo-router";
 import {changePassword} from "@/services/api";
 import {Image} from 'react-native';
 import {toast} from "sonner-native";
+import {useAuth} from "@/context/context";
 
 export default function Login() {
 	const router = useRouter();
+	const {user} = useAuth();
 
 	const [oldPassword, setOldPassword] = useState("");
 	const [newPassword, setNewPassword] = useState("");
@@ -34,7 +36,7 @@ export default function Login() {
 
 		try {
 			setLoading(true);
-			await changePassword(oldPassword, newPassword);
+			await changePassword(user.username, oldPassword, newPassword);
 			toast("Password changed successfully.");
 			setSuccess(true);
 		} catch (err) {

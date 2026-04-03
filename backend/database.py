@@ -250,29 +250,6 @@ class Database:
             return None
         return fetch_user
 
-    def get_user_activity(self, user_id: int) -> list[dict[str, Any]]:
-        """
-        Returns the user's most recent review and reply activity.
-
-        :param user_id:
-        :type user_id: int
-        :return: The list of dictionaries describing the recent activity.
-        :rtype: list
-        """
-        self.cursor.execute("SELECT * FROM Review WHERE user_id = %s ORDER BY created_at DESC", (user_id,))
-        reviews = self.cursor.fetchmany(10)
-        list_reviews = []
-
-        for review in reviews:
-            list_reviews.append(review)
-
-        self.cursor.execute("SELECT * FROM Reply WHERE user_id = %s ORDER BY created_at DESC", (user_id,))
-        replies = self.cursor.fetchmany(10)
-        list_replies = []
-
-        for reply in replies:
-            list_replies.append(reply)
-
     def get_user_favorite_songs(self, user_id: int) -> list[dict[str, Any]]:
         self.cursor.execute("""
             SELECT f.rank, s.id as song_id, s.mbid, s.title, a.name as artist_name, c.url as cover_url
@@ -333,6 +310,19 @@ class Database:
             return True
         except Exception as e:
             print(f"Failed to update password: {e}")
+            return False
+
+    def update_user_settings(self, user_id: int, display_name: str, profile_pic_url: str, privacy: str) -> bool:
+        try:
+            self.cursor.execute(
+                """UPDATE Users 
+                   SET display_name = %s, profile_pic_url = %s, privacy = %s, updated_at = CURRENT_TIMESTAMP 
+                   WHERE id = %s""",
+                (display_name, profile_pic_url, privacy, user_id)
+            )
+            return True
+        except Exception as e:
+            print(f"Failed to update settings: {e}")
             return False
 
     def follow_user(self, follower_id: int, followed_id: int) -> bool:
@@ -732,6 +722,66 @@ class Database:
             return [dict(row) for row in self.cursor.fetchall()]
         except Exception as e:
             print(f"Failed to get new releases: {e}")
+            return []
+
+    def get_stats_for_mbids(self, mbids: tuple) -> dict:
+        if not mbids:
+            return {}
+        try:
+            self.cursor.execute("""
+                SELECT mbid, COUNT(id) as review_count, ROUND(COALESCE(AVG(rating), 0), 1) as rating
+                FROM (
+                    SELECT al.mbid, r.id, r.rating FROM Album al JOIN Review r ON al.id = r.album_id WHERE al.mbid IN %s
+                    UNION ALL
+                    SELECT s.mbid, r.id, r.rating FROM Song s JOIN Review r ON s.id = r.song_id WHERE s.mbid IN %s
+                ) as combined
+                GROUP BY mbid
+            """, (mbids, mbids))
+            return {row['mbid']: dict(row) for row in self.cursor.fetchall()}
+        except Exception as e:
+            print(f"Failed to fetch stats for mbids: {e}")
+            return {}
+
+    def get_user_activity(self, user_id: int) -> list[dict[str, Any]]:
+        try:
+            self.cursor.execute("""
+                SELECT 'review' as type, r.rating, r.review_text as content, r.created_at, 
+                       s.title as song_title, al.title as album_title
+                FROM Review r
+                LEFT JOIN Song s ON r.song_id = s.id
+                LEFT JOIN Album al ON r.album_id = al.id
+                WHERE r.user_id = %s
+                UNION ALL
+                SELECT 'reply' as type, NULL as rating, rep.content, rep.created_at,
+                       s.title as song_title, al.title as album_title
+                FROM Reply rep
+                JOIN Review r ON rep.review_id = r.id
+                LEFT JOIN Song s ON r.song_id = s.id
+                LEFT JOIN Album al ON r.album_id = al.id
+                WHERE rep.user_id = %s
+                ORDER BY created_at DESC
+                LIMIT 10
+            """, (user_id, user_id))
+            return [dict(row) for row in self.cursor.fetchall()]
+        except Exception as e:
+            print(f"Failed to fetch activity: {e}")
+            return []
+
+    def get_recommended_users(self, user_id: int) -> list[dict]:
+        try:
+            self.cursor.execute("""
+                SELECT u.username, u.display_name, u.profile_pic_url, COUNT(uf2.follower_id) as follower_count
+                FROM User_Follow uf
+                JOIN Users u ON uf.follower_id = u.id
+                LEFT JOIN User_Follow uf2 ON u.id = uf2.followed_id
+                WHERE uf.followed_id = %s
+                GROUP BY u.id
+                ORDER BY follower_count DESC
+                LIMIT 10
+            """, (user_id,))
+            return [dict(row) for row in self.cursor.fetchall()]
+        except Exception as e:
+            print(f"Failed to fetch recommended users: {e}")
             return []
 
     def close(self):

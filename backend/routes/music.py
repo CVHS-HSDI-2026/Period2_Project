@@ -38,6 +38,18 @@ def _ensure_album_exists(album_mbid: str, cover_url: str = None) -> bool:
     app_db.create_album(mb_album, cover_url)
     return True
 
+def enrich_and_sort(items):
+    if not items: return []
+    mbids = tuple(item['mbid'] for item in items)
+    stats = app_db.get_stats_for_mbids(mbids)
+
+    for item in items:
+        item_stats = stats.get(item['mbid'], {})
+        item['commentsCount'] = item_stats.get('review_count', 0)
+        item['rating'] = item_stats.get('rating', 0)
+
+    items.sort(key=lambda x: (x.get('commentsCount', 0), float(x.get('rating', 0))), reverse=True)
+    return items
 
 @music_bp.route('/search', methods=['GET'])
 def search_music():
@@ -49,6 +61,13 @@ def search_music():
         return jsonify({"message": "Missing search query"}), 400
 
     results = mb_db.search(query, search_type, limit)
+
+    if isinstance(results, dict):
+        if 'albums' in results: results['albums'] = enrich_and_sort(results['albums'])
+        if 'songs' in results: results['songs'] = enrich_and_sort(results['songs'])
+    elif isinstance(results, list) and search_type in ['album', 'song']:
+        results = enrich_and_sort(results)
+        
     return jsonify(results=results), 200
 
 
@@ -84,21 +103,19 @@ def get_artist(mbid):
 
         # todo: should probably turn this review_count into its own function in the db handler...too bad!
         app_db.cursor.execute("""
-                SELECT al.mbid, 
-                       COUNT(r.id) as review_count, 
-                       ROUND(COALESCE(AVG(r.rating), 0), 1) as rating
-                FROM Album al
-                LEFT JOIN Review r ON al.id = r.album_id
-                WHERE al.mbid IN %s
-                GROUP BY al.mbid
-            """, (album_mbids,))
+                        SELECT al.mbid, COUNT(r.id) as review_count, ROUND(COALESCE(AVG(r.rating), 0), 1) as rating
+                        FROM Album al LEFT JOIN Review r ON al.id = r.album_id
+                        WHERE al.mbid IN %s GROUP BY al.mbid
+                    """, (album_mbids,))
 
         local_stats = {row['mbid']: dict(row) for row in app_db.cursor.fetchall()}
 
         for album in albums:
             stats = local_stats.get(album['mbid'], {})
-            album['rating'] = stats.get('rating', 5)
+            album['rating'] = stats.get('rating', 0)
             album['commentsCount'] = stats.get('review_count', 0)
+
+        albums.sort(key=lambda x: (x.get('commentsCount', 0), float(x.get('rating', 0))), reverse=True)
 
     followers_count = 0
     if local_artist and local_artist.get("id"):

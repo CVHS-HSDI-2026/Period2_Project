@@ -116,7 +116,7 @@ const SongDetails: React.FC<{ song: SongRecord }> = ({song}) => {
 					</View>
 
 					<View style={styles.column}>
-						<Text style={styles.text}><Text style={styles.label}>Rating: </Text>{song.rating}</Text>
+						<Text style={styles.text}><Text style={styles.label}>Rating: </Text>{song.rating || "N/A"}</Text>
 						<Text style={styles.text}><Text style={styles.label}>Genre: </Text>{song.genre}</Text>
 						<Text style={styles.text}><Text
 							style={styles.label}>Duration: </Text>{formatTime(song.duration)}</Text>

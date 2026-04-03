@@ -1,8 +1,8 @@
 import {getStorageItemAsync, setStorageItemAsync} from '@/context/storage';
 import {LoginRecord, SignupRecord} from "@/services/records";
 import {router} from "expo-router";
-// todo: use Expo's env vars for this in production; smth like process.env.EXPO_PUBLIC_API_URL
-const BASE_URL = 'http://localhost:5000';
+
+const BASE_URL = process.env.BASE_API_URL;
 
 export const getAuthToken = async () => {
 	return await getStorageItemAsync('userToken');
@@ -64,6 +64,24 @@ export const login = async (loginData: LoginRecord) => {
 		throw error;
 	}
 }
+
+export const deleteUser = async (username: string) => {
+	try {
+		const token = await getAuthToken();
+		const response = await fetch(`${BASE_URL}/api/users/${username}`, {
+			'method': 'DELETE',
+			headers: {
+				'Authorization': `Bearer ${token}`
+			},
+		});
+
+		await handleAuthResponse(response);
+		return true;
+	} catch (error) {
+		console.error('API Error (deleteUser):', error);
+		throw error;
+	}
+};
 
 export const fetchSearchResults = async (query: string, type: string = 'all', limit: number = 10) => {
 	try {
@@ -338,7 +356,7 @@ export const unfollowUser = async (followedId: number) => {
 	return true;
 };
 
-export const fetchRecommendations = async (artistName: string, type: 'song' | 'album') => {
+export const fetchRecommendations = async (artistName: string, type: 'song' | 'album' | 'artist') => {
 	try {
 		const response = await fetch(`${BASE_URL}/api/music/search?query=${encodeURIComponent(artistName)}&type=${type}&limit=10`);
 		if (!response.ok) throw new Error("Failed to fetch recommendations");
@@ -351,10 +369,10 @@ export const fetchRecommendations = async (artistName: string, type: 'song' | 'a
 	}
 };
 
-export const changePassword = async (oldPassword: string, newPassword: string) => {
+export const changePassword = async (username: string, oldPassword: string, newPassword: string) => {
 	try {
 		const token = await getAuthToken();
-		const response = await fetch(`${BASE_URL}/api/users/change_password`, {
+		const response = await fetch(`${BASE_URL}/api/users/${username}/change_password`, {
 			method: "PUT",
 			headers: {
 				"Content-Type": "application/json",
@@ -372,6 +390,25 @@ export const changePassword = async (oldPassword: string, newPassword: string) =
 		return true;
 	} catch (error) {
 		console.error('API Error (changePassword):', error);
+		throw error;
+	}
+};
+
+export const updateUserSettings = async (username: string, settingsData: any) => {
+	try {
+		const token = await getAuthToken();
+		const response = await fetch(`${BASE_URL}/api/users/${username}/settings`, {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${token}`
+			},
+			body: JSON.stringify(settingsData)
+		});
+		await handleAuthResponse(response);
+		return true;
+	} catch (error) {
+		console.error('API Error (updateUserSettings):', error);
 		throw error;
 	}
 };

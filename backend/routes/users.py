@@ -27,6 +27,8 @@ def get_user_profile(username):
     favorite_songs = db.get_user_favorite_songs(user_id) or []
     favorite_albums = db.get_user_favorite_albums(user_id) or []
     favorite_artists = db.get_user_favorite_artists(user_id) or []
+    recommended_users = db.get_recommended_users(user_id) or []
+
 
     return jsonify({
         "user": user,
@@ -36,6 +38,7 @@ def get_user_profile(username):
         "favorite_songs": favorite_songs,
         "favorite_albums": favorite_albums,
         "favorite_artists": favorite_artists,
+        "recommended_users": recommended_users,
     }), 200
 
 
@@ -140,7 +143,7 @@ def update_profile(username):
     return jsonify({"message": "Profile updated successfully"}), 200
 
 
-@users_bp.route('/change_password', methods=['PUT'])
+@users_bp.route('/<username>/change_password', methods=['PUT'])
 @jwt_required()
 def change_password():
     data = request.get_json()
@@ -162,6 +165,29 @@ def change_password():
     if db.update_password(user['id'], new_hash):
         return jsonify({"message": "Password updated successfully"}), 200
     return jsonify({"message": "Failed to update password"}), 500
+
+
+@users_bp.route('/<username>/settings', methods=['PUT'])
+@jwt_required()
+def update_settings(username):
+    current_user_identity = get_jwt_identity()
+
+    if current_user_identity != username:
+        return jsonify({"message": "Unauthorized"}), 403
+
+    data = request.get_json()
+    user = db.get_user(username)
+
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+
+    db.update_user_settings(
+        user_id=user["id"],
+        display_name=data.get("display_name", user.get("display_name")),
+        profile_pic_url=data.get("profile_pic_url", user.get("profile_pic_url")),
+        privacy=data.get("privacy", user.get("privacy", "Public"))
+    )
+    return jsonify({"message": "Settings updated successfully"}), 200
 
 
 @users_bp.route('/favorite/song', methods=['POST'])
