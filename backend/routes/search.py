@@ -1,6 +1,6 @@
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify
+
 from database import Database
-from musicbrainz import MusicBrainzDatabase
 
 search_bp = Blueprint('search', __name__)
 db = Database()

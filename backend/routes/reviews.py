@@ -30,7 +30,7 @@ def create_review():
     if not song_id and not album_id:
         return jsonify({"message": "Invalid request. Must include either song_id or album_id"}), 400
 
-    if not rating or not review_text:
+    if not rating and not review_text:
         return jsonify(
             {"message": "Invalid request. Missing either fields: rating, review_text"}), 400
 
@@ -67,7 +67,7 @@ def delete_review(review_id):
     if not existing_review["id"] == user_id:
         return jsonify({"message": "User does not own review"}), 400
 
-    deleted_review = db.delete_review(user_id, review_id)
+    deleted_review = db.delete_review(review_id)
     if deleted_review:
         return jsonify({"message": "Review deleted"}), 200
     else:
@@ -114,7 +114,7 @@ def get_reviews(song_id):
     try:
         reviews = db.fetch_reviews(song_id=song_id)
     except Exception as e:
-        return jsonify({"message": "Failed to fetch reviews", "error": str(e)}), 500
+        return jsonify({"message": "Failed to fetch reviews"}), 500
 
     if not reviews:
         return jsonify({"message": "No reviews found for this song"}), 200
@@ -134,7 +134,7 @@ def get_album_reviews(album_id):
     try:
         reviews = db.fetch_reviews(album_id=album_id)
     except Exception as e:
-        return jsonify({"message": "Failed to fetch reviews", "error": str(e)}), 500
+        return jsonify({"message": "Failed to fetch reviews"}), 500
 
     if not reviews:
         return jsonify({"message": "No reviews found for this album"}), 200

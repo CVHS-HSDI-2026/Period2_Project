@@ -1,8 +1,9 @@
-from flask import Blueprint, request, jsonify, session
-from flask_jwt_extended import create_access_token, set_access_cookies, unset_jwt_cookies, jwt_required, \
-    get_jwt_identity
-from database import Database
 import bcrypt
+from flask import Blueprint, request, jsonify
+from flask_jwt_extended import create_access_token, unset_jwt_cookies, jwt_required, \
+    get_jwt_identity
+
+from database import Database
 
 auth_bp = Blueprint('auth', __name__)
 db = Database()

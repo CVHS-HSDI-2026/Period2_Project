@@ -33,9 +33,6 @@ class MusicBrainzDatabase:
         if not query:
             return {"artists": [], "albums": [], "songs": []} if search_type == 'all' else []
 
-        exact_match = query
-        starts_with_match = f"{query}%"
-        fuzzy_match = f"%{query}%"
         SOLR_BASE_URL = os.getenv("SOLR_URL", "http://10.1.10.236:8983/solr")
 
         def parse_solr_xml(xml_string, ns):
