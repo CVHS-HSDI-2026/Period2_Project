@@ -18,7 +18,10 @@ load_dotenv()
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 app.config["JWT_TOKEN_LOCATION"] = ["headers"]
-CORS(app)
+CORS(app, supports_credentials=True, origins=[
+    "http://localhost:8081",
+    "http://10.1.10.236:8081"
+])
 
 db = Database()
 jwt = JWTManager(app)
