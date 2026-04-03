@@ -81,7 +81,7 @@ export default function Profile() {
 	}
 
 	const colOne = [
-		{columnName: 'Username:', value: profileData.user.username},
+		{columnName: 'Name:', value: profileData.user.display_name ? profileData.user.display_name : profileData.user.username},
 		{columnName: 'Joined:', value: new Date(profileData.user.created_at).toLocaleDateString()},
 	];
 
@@ -223,7 +223,7 @@ export default function Profile() {
 									<Text style={styles.activityTitle}>
 										{act.type === 'review' ? 'Reviewed ' : 'Replied to '}
 										{act.song_title || act.album_title || 'Unknown'}
-										{act.rating ? `${act.rating}/10` : ''}
+										{act.rating ? `: ${act.rating}/10` : ''}
 									</Text>
 									<Text style={styles.activityContent} numberOfLines={3}>{act.content}</Text>
 									<Text style={styles.activityDate}>{new Date(act.created_at).toLocaleDateString()}</Text>

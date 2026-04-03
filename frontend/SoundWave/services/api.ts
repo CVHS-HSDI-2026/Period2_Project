@@ -2,7 +2,7 @@ import {getStorageItemAsync, setStorageItemAsync} from '@/context/storage';
 import {LoginRecord, SignupRecord} from "@/services/records";
 import {router} from "expo-router";
 
-const BASE_URL = process.env.BASE_API_URL;
+const BASE_URL = process.env.EXPO_PUBLIC_BASE_API_URL;
 
 export const getAuthToken = async () => {
 	return await getStorageItemAsync('userToken');

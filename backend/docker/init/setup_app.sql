@@ -4,7 +4,7 @@
 CREATE TABLE IF NOT EXISTS Users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
-    display_name VARCHAR(50),
+        display_name VARCHAR(50),
     privacy VARCHAR(10) DEFAULT 'Public',
     email VARCHAR(100) NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,

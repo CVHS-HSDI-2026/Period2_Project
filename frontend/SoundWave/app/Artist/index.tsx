@@ -140,7 +140,9 @@ export default function Artist() {
 
 				{/* top songs */}
 				<Text style={styles.sectionTitle}>Top Songs:</Text>
-				<RecommendedBox artistName={artist.name} type="song" />
+				<View style={styles.horizontalContent}>
+					<RecommendedBox artistName={artist.name} type="song" />
+				</View>
 
 				{/* top albums */}
 				<Text style={styles.sectionTitle}>Top Albums:</Text>
@@ -166,7 +168,9 @@ export default function Artist() {
 
 				{/* top artists */}
 				<Text style={styles.sectionTitle}>Related Artists:</Text>
-				<RecommendedBox artistName={artist.name} type="artist" />
+				<View style={styles.horizontalContent}>
+					<RecommendedBox artistName={artist.name} type="artist" />
+				</View>
 				{/*/!* recommended users *!/*/}
 				{/* i can't think of a good reason to have this... i'll comment it out */}
 				{/*<Text style={styles.sectionTitle}>Recommended Users:</Text>*/}
