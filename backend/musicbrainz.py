@@ -97,7 +97,7 @@ class MusicBrainzDatabase:
 
         def search_songs():
             try:
-                solr_query = f'"{query}" OR artist:"{query}"'
+                solr_query = f'"{query}" OR {query}'
 
                 res = requests.get(f"{SOLR_BASE_URL}/recording/select",
                                    params={"q": solr_query, "rows": limit, "wt": "json"})
@@ -105,8 +105,11 @@ class MusicBrainzDatabase:
 
                 results = []
                 for doc in docs:
-                    store_xml = doc.get("_store")
-                    if store_xml:
+                    try:
+                        store_xml = doc.get("_store")
+                        if not store_xml:
+                            continue
+
                         root = ET.fromstring(store_xml)
                         ns = {"ns0": "http://musicbrainz.org/ns/mmd-2.0#"}
 
@@ -114,6 +117,9 @@ class MusicBrainzDatabase:
                         title = root.find(".//ns0:title", namespaces=ns)
                         artist = root.find(".//ns0:artist-credit/ns0:name-credit/ns0:artist/ns0:name", namespaces=ns)
                         length = root.find(".//ns0:length", namespaces=ns)
+                        duration = None
+                        if length is not None and length.text and length.text.isdigit():
+                            duration = int(length.text)
 
                         rg = root.find(".//ns0:release-list/ns0:release/ns0:release-group", namespaces=ns)
                         cover_url = f"https://coverartarchive.org/release-group/{rg.attrib.get('id')}/front-250" if rg is not None else None
@@ -121,10 +127,14 @@ class MusicBrainzDatabase:
                         results.append({
                             "mbid": mbid,
                             "title": title.text if title is not None else "Unknown Song",
-                            "duration": int(length.text) if length is not None and length.text else None,
+                            "duration": duration,
                             "artist_name": artist.text if artist is not None else "Unknown Artist",
                             "cover_url": cover_url
                         })
+                    except Exception as parse_err:
+                        print(f"Skipped a song due to parse error: {parse_err}")
+                        continue
+
                 return results
             except Exception as e:
                 print(f"Solr song search failed: {e}")

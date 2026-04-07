@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 from flask import Flask, jsonify
 from flask_cors import CORS
@@ -18,6 +19,7 @@ load_dotenv()
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 app.config["JWT_TOKEN_LOCATION"] = ["headers"]
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=1)
 CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "*"}})
 
 db = Database()
