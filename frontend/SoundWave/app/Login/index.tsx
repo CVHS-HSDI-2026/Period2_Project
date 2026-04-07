@@ -41,18 +41,15 @@ export default function Login() {
 				password: password
 			}
 
-			login(login_attempt).then(r => {
-				if (r) {
-					setUser(r);
-					toast("Logged in successfully!");
-					router.push("/");
-				} else {
-					setError("Login failed");
-					return;
-				}
-			});
-		} catch (err) {
-			setError("Network error. Please try again");
+			const r = await login(login_attempt);
+			if (r) {
+				setUser(r);
+				toast("Logged in successfully!");
+				router.push("/");
+			}
+		} catch (err: any) {
+			setError(err.message || "Login failed. Please try again.");
+			toast(err.message || "Login failed.");
 		} finally {
 			setLoading(false);
 		}

@@ -6,6 +6,7 @@ import {router} from "expo-router";
 import {fetchReviews, postReply, postReview} from "@/services/api";
 import {Reply} from "@/services/records";
 import {toast} from "sonner-native";
+import {useAuth} from "@/context/context";
 
 const replyIcon = require("../assets/reply.png");
 const send = require("../assets/send.png");
@@ -20,6 +21,7 @@ export default function CommentsOnly({itemId, type}: { itemId: number, type: 'so
 	const [rating, setRating] = useState<number>(10);
 	const [showCommentBox, setShowCommentBox] = useState(false);
 	const [loading, setLoading] = useState(true);
+	const { user } = useAuth();
 
 	useEffect(() => {
 		const loadReviews = async () => {
@@ -46,7 +48,7 @@ export default function CommentsOnly({itemId, type}: { itemId: number, type: 'so
 
 			setComments((prev) => [
 				...prev,
-				{id: Date.now(), review_text: newComment, username: "You", rating: rating, replies: []},
+				{id: Date.now(), review_text: newComment, username: user?.username || "Unknown", rating: rating, replies: []},
 			]);
 			setNewComment("");
 			setRating(10);
@@ -68,7 +70,7 @@ export default function CommentsOnly({itemId, type}: { itemId: number, type: 'so
 							...comment,
 							replies: [
 								...(comment.replies || []),
-								{ id: Date.now(), text: text, username: "You" }
+								{ id: Date.now(), text: text, username: user?.username || "Unknown" }
 							]
 						};
 					}
