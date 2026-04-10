@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./backend:/app
+    env_file:
+      - .env
+
+  frontend:
+    build: ./frontend/SoundWave
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./frontend/SoundWave:/app
+      - /app/node_modules
+    env_file:
+      - .env
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend
